@@ -2,10 +2,13 @@
 
 import Link from 'next/link'
 import { useState } from 'react'
+import { useSession, signOut } from 'next-auth/react'
 
 export default function Navbar() {
   const [isSearchOpen, setIsSearchOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
+  const { data: session, status } = useSession()
+  const isAuthenticated = status === 'authenticated'
 
   return (
     <nav className="bg-white shadow-sm">
@@ -32,7 +35,7 @@ export default function Navbar() {
             </Link>
           </div>
 
-          {/* Search and Cart */}
+          {/* Search, Auth, and Cart */}
           <div className="flex items-center space-x-4">
             {/* Search */}
             <div className="relative">
@@ -72,6 +75,72 @@ export default function Navbar() {
                 </button>
               )}
             </div>
+
+            {/* Auth */}
+            {isAuthenticated ? (
+              <div className="relative group">
+                <button className="text-gray-600 hover:text-primary-600 flex items-center">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-6 w-6"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                    />
+                  </svg>
+                  <span className="ml-1 hidden md:inline">{session?.user?.name?.split(' ')[0]}</span>
+                </button>
+                <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10 hidden group-hover:block">
+                  <Link
+                    href="/profile"
+                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                  >
+                    Your Profile
+                  </Link>
+                  <Link
+                    href="/profile/orders"
+                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                  >
+                    Your Orders
+                  </Link>
+                  <Link
+                    href="/profile/addresses"
+                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                  >
+                    Your Addresses
+                  </Link>
+                  <button
+                    onClick={() => signOut({ callbackUrl: '/' })}
+                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                  >
+                    Sign Out
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <Link href="/auth/signin" className="text-gray-600 hover:text-primary-600">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-6 w-6"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                  />
+                </svg>
+              </Link>
+            )}
 
             {/* Cart */}
             <Link href="/cart" className="text-gray-600 hover:text-primary-600 relative">
