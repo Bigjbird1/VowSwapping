@@ -8,7 +8,10 @@
     "build": "prisma generate && next build",
     "start": "next start",
     "lint": "next lint",
-    "vercel-build": "prisma generate && next build"
+    "vercel-build": "prisma generate && next build",
+    "seed": "ts-node --compiler-options \"{\\\"module\\\":\\\"CommonJS\\\"}\" prisma/seed.ts",
+    "seed-direct": "ts-node prisma/seed-direct.ts",
+    "seed-cjs": "node prisma/seed-cjs.js"
   },
   "keywords": [],
   "author": "",
@@ -24,11 +27,13 @@
     "@types/react-dom": "^19.0.4",
     "autoprefixer": "^10.4.14",
     "bcryptjs": "^3.0.2",
+    "dotenv": "^16.4.7",
     "eslint": "^9.21.0",
     "eslint-config-next": "^15.1.7",
     "next": "^15.1.7",
     "next-auth": "^4.24.11",
     "nodemailer": "^6.10.0",
+    "pg": "^8.13.3",
     "postcss": "^8.4.23",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
@@ -42,6 +47,8 @@
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
     "@types/nodemailer": "^6.4.17",
-    "prisma": "^6.4.1"
+    "@types/pg": "^8.11.11",
+    "prisma": "^6.4.1",
+    "ts-node": "^10.9.2"
   }
 }

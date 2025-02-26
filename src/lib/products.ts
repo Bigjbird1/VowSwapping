@@ -1,7 +1,170 @@
 import { Product, ProductCategory, ProductFilters } from '@/types/product';
+import { prisma } from '@/lib/prisma';
+import { Prisma } from '@prisma/client';
 
-// Mock data for products
-const products: Product[] = [
+// Get all products
+export async function getProducts(filters?: ProductFilters): Promise<Product[]> {
+  try {
+    // Build filter object
+    const filter: any = {};
+    
+    if (filters) {
+      if (filters.category) {
+        filter.category = filters.category.toUpperCase();
+      }
+      
+      if (filters.condition) {
+        filter.condition = filters.condition.toUpperCase().replace('-', '_');
+      }
+      
+      // Price filtering
+      if (filters.minPrice !== undefined || filters.maxPrice !== undefined) {
+        filter.OR = [
+          // Check regular price
+          {
+            price: {
+              ...(filters.minPrice !== undefined && { gte: filters.minPrice }),
+              ...(filters.maxPrice !== undefined && { lte: filters.maxPrice }),
+            },
+          },
+          // Check discount price if it exists
+          {
+            discountPrice: {
+              ...(filters.minPrice !== undefined && { gte: filters.minPrice }),
+              ...(filters.maxPrice !== undefined && { lte: filters.maxPrice }),
+            },
+          },
+        ];
+      }
+      
+      // Search query
+      if (filters.searchQuery) {
+        const query = filters.searchQuery.toLowerCase();
+        filter.OR = [
+          { title: { contains: query, mode: 'insensitive' } },
+          { description: { contains: query, mode: 'insensitive' } },
+          { tags: { has: query } },
+        ];
+      }
+    }
+    
+    // Get products with filtering
+    const products = await prisma.product.findMany({
+      where: filter,
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+    
+    // Convert database model to application model
+    return products.map(mapDatabaseProductToAppProduct);
+  } catch (error) {
+    console.error('Error fetching products:', error);
+    return [];
+  }
+}
+
+// Get a single product by ID
+export async function getProductById(id: string): Promise<Product | null> {
+  try {
+    const product = await prisma.product.findUnique({
+      where: { id },
+    });
+    
+    if (!product) {
+      return null;
+    }
+    
+    return mapDatabaseProductToAppProduct(product);
+  } catch (error) {
+    console.error('Error fetching product by ID:', error);
+    return null;
+  }
+}
+
+// Get featured products
+export async function getFeaturedProducts(): Promise<Product[]> {
+  try {
+    const products = await prisma.product.findMany({
+      where: { featured: true },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+    
+    return products.map(mapDatabaseProductToAppProduct);
+  } catch (error) {
+    console.error('Error fetching featured products:', error);
+    return [];
+  }
+}
+
+// Get products by category
+export async function getProductsByCategory(category: ProductCategory): Promise<Product[]> {
+  try {
+    const products = await prisma.product.findMany({
+      where: { category: category.toUpperCase() as any },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+    
+    return products.map(mapDatabaseProductToAppProduct);
+  } catch (error) {
+    console.error('Error fetching products by category:', error);
+    return [];
+  }
+}
+
+// Get related products (products in the same category, excluding the current product)
+export async function getRelatedProducts(productId: string, limit: number = 4): Promise<Product[]> {
+  try {
+    const currentProduct = await prisma.product.findUnique({
+      where: { id: productId },
+    });
+    
+    if (!currentProduct) {
+      return [];
+    }
+    
+    const relatedProducts = await prisma.product.findMany({
+      where: {
+        category: currentProduct.category,
+        id: { not: productId },
+      },
+      take: limit,
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+    
+    return relatedProducts.map(mapDatabaseProductToAppProduct);
+  } catch (error) {
+    console.error('Error fetching related products:', error);
+    return [];
+  }
+}
+
+// Helper function to map database product model to application product model
+function mapDatabaseProductToAppProduct(dbProduct: any): Product {
+  return {
+    id: dbProduct.id,
+    title: dbProduct.title,
+    description: dbProduct.description,
+    price: dbProduct.price,
+    discountPrice: dbProduct.discountPrice || undefined,
+    images: dbProduct.images,
+    category: dbProduct.category.toLowerCase() as ProductCategory,
+    condition: dbProduct.condition.toLowerCase().replace('_', '-') as any,
+    tags: dbProduct.tags,
+    createdAt: dbProduct.createdAt.toISOString(),
+    updatedAt: dbProduct.updatedAt.toISOString(),
+    featured: dbProduct.featured,
+  };
+}
+
+// Mock data for products - keeping this for reference and seeding
+export const mockProducts: Product[] = [
   {
     id: '1',
     title: 'Elegant Lace Wedding Dress',
@@ -97,75 +260,3 @@ const products: Product[] = [
     featured: true,
   },
 ];
-
-// Get all products
-export async function getProducts(filters?: ProductFilters): Promise<Product[]> {
-  // In a real application, this would be a database query
-  let filteredProducts = [...products];
-  
-  if (filters) {
-    if (filters.category) {
-      filteredProducts = filteredProducts.filter(product => product.category === filters.category);
-    }
-    
-    if (filters.minPrice !== undefined) {
-      filteredProducts = filteredProducts.filter(product => {
-        const price = product.discountPrice || product.price;
-        return price >= filters.minPrice!;
-      });
-    }
-    
-    if (filters.maxPrice !== undefined) {
-      filteredProducts = filteredProducts.filter(product => {
-        const price = product.discountPrice || product.price;
-        return price <= filters.maxPrice!;
-      });
-    }
-    
-    if (filters.condition) {
-      filteredProducts = filteredProducts.filter(product => product.condition === filters.condition);
-    }
-    
-    if (filters.searchQuery) {
-      const query = filters.searchQuery.toLowerCase();
-      filteredProducts = filteredProducts.filter(product => 
-        product.title.toLowerCase().includes(query) || 
-        product.description.toLowerCase().includes(query) ||
-        product.tags.some(tag => tag.toLowerCase().includes(query))
-      );
-    }
-  }
-  
-  return filteredProducts;
-}
-
-// Get a single product by ID
-export async function getProductById(id: string): Promise<Product | null> {
-  const product = products.find(p => p.id === id);
-  return product || null;
-}
-
-// Get featured products
-export async function getFeaturedProducts(): Promise<Product[]> {
-  return products.filter(product => product.featured);
-}
-
-// Get products by category
-export async function getProductsByCategory(category: ProductCategory): Promise<Product[]> {
-  return products.filter(product => product.category === category);
-}
-
-// Get related products (products in the same category, excluding the current product)
-export async function getRelatedProducts(productId: string, limit: number = 4): Promise<Product[]> {
-  const currentProduct = await getProductById(productId);
-  
-  if (!currentProduct) {
-    return [];
-  }
-  
-  const relatedProducts = products.filter(
-    product => product.category === currentProduct.category && product.id !== currentProduct.id
-  );
-  
-  return relatedProducts.slice(0, limit);
-}
