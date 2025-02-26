@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 
 interface OrderItem {
@@ -18,11 +18,32 @@ interface Order {
   orderItems: OrderItem[];
 }
 
-interface OrderHistoryProps {
-  orders: Order[];
-}
-
-export default function OrderHistory({ orders }: OrderHistoryProps) {
+export default function OrderHistory() {
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  
+  useEffect(() => {
+    const fetchOrders = async () => {
+      try {
+        const response = await fetch('/api/orders');
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch orders');
+        }
+        
+        const data = await response.json();
+        setOrders(data.orders || []);
+      } catch (err) {
+        console.error('Error fetching orders:', err);
+        setError('Failed to load your orders. Please try again later.');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    fetchOrders();
+  }, []);
   const [expandedOrderId, setExpandedOrderId] = useState<string | null>(null);
 
   const toggleOrderDetails = (orderId: string) => {
@@ -58,6 +79,34 @@ export default function OrderHistory({ orders }: OrderHistoryProps) {
         return 'bg-gray-100 text-gray-800';
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="bg-white p-6 rounded-lg shadow-md">
+        <h2 className="text-xl font-semibold mb-6">Your Orders</h2>
+        <div className="text-center py-8">
+          <p className="text-gray-500">Loading your orders...</p>
+        </div>
+      </div>
+    );
+  }
+  
+  if (error) {
+    return (
+      <div className="bg-white p-6 rounded-lg shadow-md">
+        <h2 className="text-xl font-semibold mb-6">Your Orders</h2>
+        <div className="text-center py-8">
+          <p className="text-red-500 mb-4">{error}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="inline-block py-2 px-4 border border-transparent rounded-md shadow-sm text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-white p-6 rounded-lg shadow-md">

@@ -2,7 +2,6 @@ import { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import OrderHistory from '@/components/profile/OrderHistory';
 import { getCurrentUser } from '@/lib/session';
-import { prisma } from '@/lib/prisma';
 
 export const metadata: Metadata = {
   title: 'Your Orders | VowSwap',
@@ -15,30 +14,6 @@ export default async function OrdersPage() {
   if (!user) {
     redirect('/auth/signin');
   }
-
-  const dbOrders = await prisma.order.findMany({
-    where: {
-      userId: user.id,
-    },
-    include: {
-      orderItems: true,
-    },
-    orderBy: {
-      createdAt: 'desc',
-    },
-  });
-
-  // Convert Date objects to strings for the component
-  const orders = dbOrders.map(order => ({
-    ...order,
-    createdAt: order.createdAt.toISOString(),
-    updatedAt: order.updatedAt.toISOString(),
-    orderItems: order.orderItems.map(item => ({
-      ...item,
-      createdAt: item.createdAt.toISOString(),
-      updatedAt: item.updatedAt.toISOString(),
-    })),
-  }));
 
   return (
     <div className="container py-12">
@@ -72,7 +47,7 @@ export default async function OrdersPage() {
           </div>
 
           <div className="md:col-span-3">
-            <OrderHistory orders={orders} />
+            <OrderHistory />
           </div>
         </div>
       </div>

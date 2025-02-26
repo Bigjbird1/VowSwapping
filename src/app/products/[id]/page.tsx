@@ -4,6 +4,7 @@ import Image from 'next/image'
 import ProductGrid from '@/components/product/ProductGrid'
 import Link from 'next/link'
 import { Metadata } from 'next'
+import AddToCartButton from '@/components/product/AddToCartButton'
 
 type Params = {
   id: string;
@@ -135,9 +136,7 @@ export default async function ProductPage({ params }: { params: Params }) {
           </div>
           
           <div className="flex space-x-4">
-            <button className="bg-primary-600 text-white px-6 py-3 rounded-md font-medium hover:bg-primary-700 transition-colors flex-1">
-              Add to Cart
-            </button>
+            <AddToCartButton product={product} />
             <button className="bg-white text-primary-600 border border-primary-600 px-6 py-3 rounded-md font-medium hover:bg-primary-50 transition-colors">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
