@@ -44,7 +44,7 @@ export default function ProductCard({ product }: ProductCardProps) {
       {/* Product Image */}
       <div className="aspect-h-4 aspect-w-3 overflow-hidden rounded-lg bg-gray-100">
         <Link href={`/products/${id}`}>
-          <div className="relative h-64 w-full">
+          <div className="relative h-64 w-full" style={{ position: 'relative', height: '16rem' }}>
             <Image
               src={isHovered && hoverImage !== displayImage ? hoverImage : displayImage}
               alt={title}

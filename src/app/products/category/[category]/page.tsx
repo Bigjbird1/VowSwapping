@@ -4,13 +4,11 @@ import Link from 'next/link'
 import { Metadata } from 'next'
 import { ProductCategory } from '@/types/product'
 
-interface CategoryPageProps {
-  params: {
-    category: ProductCategory
-  }
+type Params = {
+  category: ProductCategory
 }
 
-export async function generateMetadata({ params }: CategoryPageProps): Promise<Metadata> {
+export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
   const categoryName = params.category.charAt(0).toUpperCase() + params.category.slice(1)
   
   return {
@@ -19,7 +17,7 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
   }
 }
 
-export default async function CategoryPage({ params }: CategoryPageProps) {
+export default async function CategoryPage({ params }: { params: Params }) {
   const products = await getProductsByCategory(params.category)
   const categoryName = params.category.charAt(0).toUpperCase() + params.category.slice(1)
   

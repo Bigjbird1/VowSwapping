@@ -5,13 +5,11 @@ import ProductGrid from '@/components/product/ProductGrid'
 import Link from 'next/link'
 import { Metadata } from 'next'
 
-interface ProductPageProps {
-  params: {
-    id: string
-  }
+type Params = {
+  id: string;
 }
 
-export async function generateMetadata({ params }: ProductPageProps): Promise<Metadata> {
+export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
   const product = await getProductById(params.id)
   
   if (!product) {
@@ -26,7 +24,7 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
   }
 }
 
-export default async function ProductPage({ params }: ProductPageProps) {
+export default async function ProductPage({ params }: { params: Params }) {
   const product = await getProductById(params.id)
   
   if (!product) {
@@ -65,7 +63,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
         {/* Product Images */}
         <div>
-          <div className="relative h-96 w-full mb-4 rounded-lg overflow-hidden">
+          <div className="relative h-96 w-full mb-4 rounded-lg overflow-hidden" style={{ position: 'relative', height: '24rem' }}>
             <Image
               src={product.images[0]}
               alt={product.title}
@@ -78,7 +76,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
           {product.images.length > 1 && (
             <div className="grid grid-cols-4 gap-2">
               {product.images.map((image, index) => (
-                <div key={index} className="relative h-24 rounded-md overflow-hidden">
+                <div key={index} className="relative h-24 rounded-md overflow-hidden" style={{ position: 'relative', height: '6rem' }}>
                   <Image
                     src={image}
                     alt={`${product.title} - Image ${index + 1}`}

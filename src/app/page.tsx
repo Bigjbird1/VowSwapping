@@ -34,7 +34,7 @@ export default async function Home() {
                 </Link>
               </div>
             </div>
-            <div className="relative h-64 md:h-96 w-full rounded-lg overflow-hidden">
+            <div className="relative h-64 md:h-96 w-full rounded-lg overflow-hidden" style={{ position: 'relative', height: '24rem' }}>
               <Image
                 src="https://images.unsplash.com/photo-1519741497674-611481863552?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80"
                 alt="Wedding dress"
@@ -73,6 +73,7 @@ export default async function Home() {
                 key={index} 
                 href={category.href}
                 className="group relative h-64 rounded-lg overflow-hidden"
+                style={{ position: 'relative', height: '16rem' }}
               >
                 <Image
                   src={category.image}

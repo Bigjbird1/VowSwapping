@@ -2,6 +2,7 @@ import { getProducts } from '@/lib/products'
 import ProductGrid from '@/components/product/ProductGrid'
 import ProductFilters from '@/components/product/ProductFilters'
 import { Metadata } from 'next'
+import { ProductCategory, ProductCondition } from '@/types/product'
 
 export const metadata: Metadata = {
   title: 'All Products | VowSwap',
@@ -22,10 +23,10 @@ export default async function ProductsPage({
   
   // Fetch products with filters
   const products = await getProducts({
-    category: category as any,
+    category: category as ProductCategory | undefined,
     minPrice,
     maxPrice,
-    condition: condition as any,
+    condition: condition as ProductCondition | undefined,
     searchQuery,
   })
   
@@ -40,7 +41,7 @@ export default async function ProductsPage({
             selectedCategory={category}
             selectedMinPrice={minPrice}
             selectedMaxPrice={maxPrice}
-            selectedCondition={condition as any}
+            selectedCondition={condition as ProductCondition | undefined}
             searchQuery={searchQuery}
           />
         </div>
