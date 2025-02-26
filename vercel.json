@@ -7,11 +7,7 @@
   "outputDirectory": ".next",
   "regions": ["iad1"],
   "env": {
-    "NEXT_PUBLIC_SITE_URL": {
-      "development": "http://localhost:3000",
-      "preview": "https://vowswapping-preview.vercel.app",
-      "production": "https://vowswapping.vercel.app"
-    }
+    "NEXT_PUBLIC_SITE_URL": "https://vowswapping.vercel.app"
   },
   "headers": [
     {
