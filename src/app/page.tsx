@@ -152,12 +152,68 @@ export default async function Home() {
           <p className="text-primary-100 mb-8 max-w-2xl mx-auto">
             Join thousands of couples who have found beautiful, affordable items for their special day.
           </p>
-          <Link 
-            href="/products" 
-            className="bg-white text-primary-600 px-8 py-3 rounded-md font-medium hover:bg-primary-50 transition-colors inline-block"
-          >
-            Shop Now
-          </Link>
+          <div className="flex flex-col sm:flex-row justify-center gap-4">
+            <Link 
+              href="/products" 
+              className="bg-white text-primary-600 px-8 py-3 rounded-md font-medium hover:bg-primary-50 transition-colors inline-block"
+            >
+              Shop Now
+            </Link>
+            <Link 
+              href="/seller/register" 
+              className="bg-primary-700 text-white border border-white px-8 py-3 rounded-md font-medium hover:bg-primary-800 transition-colors inline-block"
+            >
+              Become a Seller
+            </Link>
+          </div>
+        </div>
+      </section>
+      
+      {/* Seller Section */}
+      <section className="py-16 bg-gray-50">
+        <div className="container">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+            <div className="relative h-64 md:h-96 w-full rounded-lg overflow-hidden" style={{ position: 'relative', height: '24rem' }}>
+              <Image
+                src="https://images.unsplash.com/photo-1556155092-490a1ba16284?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80"
+                alt="Seller with wedding items"
+                fill
+                style={{ objectFit: 'cover' }}
+              />
+            </div>
+            <div>
+              <h2 className="text-3xl font-bold mb-4">Sell Your Wedding Items</h2>
+              <p className="text-gray-600 mb-6">
+                Have wedding items you no longer need? Join our marketplace and turn them into cash while helping other couples create their perfect day.
+              </p>
+              <ul className="space-y-3 mb-8">
+                <li className="flex items-start">
+                  <svg className="h-6 w-6 text-primary-600 mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  <span>Create your seller profile in minutes</span>
+                </li>
+                <li className="flex items-start">
+                  <svg className="h-6 w-6 text-primary-600 mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  <span>List your items with our easy-to-use tools</span>
+                </li>
+                <li className="flex items-start">
+                  <svg className="h-6 w-6 text-primary-600 mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  <span>Reach thousands of engaged couples</span>
+                </li>
+              </ul>
+              <Link 
+                href="/seller/register" 
+                className="bg-primary-600 text-white px-6 py-3 rounded-md font-medium hover:bg-primary-700 transition-colors inline-block"
+              >
+                Start Selling Today
+              </Link>
+            </div>
+          </div>
         </div>
       </section>
     </div>

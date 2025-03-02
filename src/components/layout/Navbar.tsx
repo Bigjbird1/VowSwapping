@@ -41,6 +41,9 @@ export default function Navbar() {
             <Link href="/products/category/decorations" className="text-gray-600 hover:text-primary-600">
               Decorations
             </Link>
+            <Link href="/shops" className="text-gray-600 hover:text-primary-600">
+              Shops
+            </Link>
           </div>
 
           {/* Search, Auth, and Cart */}
@@ -104,31 +107,57 @@ export default function Navbar() {
                   </svg>
                   <span className="ml-1 hidden md:inline">{session?.user?.name?.split(' ')[0]}</span>
                 </button>
-                <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10 hidden group-hover:block">
+              <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10 hidden group-hover:block">
+                <Link
+                  href="/profile"
+                  className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                >
+                  Your Profile
+                </Link>
+                <Link
+                  href="/profile/orders"
+                  className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                >
+                  Your Orders
+                </Link>
+                <Link
+                  href="/profile/addresses"
+                  className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                >
+                  Your Addresses
+                </Link>
+                
+                {/* Seller Links */}
+                <div className="border-t border-gray-100 mt-1 pt-1">
                   <Link
-                    href="/profile"
+                    href="/seller/dashboard"
                     className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                   >
-                    Your Profile
+                    Seller Dashboard
                   </Link>
                   <Link
-                    href="/profile/orders"
+                    href="/seller/products"
                     className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                   >
-                    Your Orders
+                    Your Products
                   </Link>
                   <Link
-                    href="/profile/addresses"
+                    href="/seller/orders"
                     className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                   >
-                    Your Addresses
+                    Seller Orders
                   </Link>
-                  <Link
-                    href="/admin"
-                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                  >
-                    Admin Dashboard
-                  </Link>
+                </div>
+                
+                {/* Admin Link */}
+                <Link
+                  href="/admin"
+                  className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                >
+                  Admin Dashboard
+                </Link>
+                
+                <div className="border-t border-gray-100 mt-1 pt-1">
                   <button
                     onClick={() => signOut({ callbackUrl: '/' })}
                     className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
@@ -136,6 +165,7 @@ export default function Navbar() {
                     Sign Out
                   </button>
                 </div>
+              </div>
               </div>
             ) : (
               <Link href="/auth/signin" className="text-gray-600 hover:text-primary-600">

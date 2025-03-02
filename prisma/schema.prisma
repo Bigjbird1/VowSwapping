@@ -27,6 +27,20 @@ model User {
   accounts          Account[]
   sessions          Session[]
   products          Product[]
+  
+  // Seller fields
+  isSeller          Boolean   @default(false)
+  sellerApproved    Boolean   @default(false)
+  shopName          String?
+  shopDescription   String?   @db.Text
+  sellerRating      Float?
+  sellerRatingsCount Int      @default(0)
+  sellerSince       DateTime?
+  sellerBio         String?   @db.Text
+  sellerLogo        String?
+  sellerBanner      String?
+  sellerSocial      Json?     // Store social media links
+  reviews           Review[]  // Reviews received as a seller
 }
 
 model Address {
@@ -106,6 +120,8 @@ model Product {
   sellerId      String?
   seller        User?            @relation(fields: [sellerId], references: [id])
   orderItems    OrderItem[]
+  reviews       Review[]
+  approved      Boolean          @default(false)
 }
 
 // NextAuth.js Models
@@ -142,4 +158,24 @@ model VerificationToken {
   expires    DateTime
 
   @@unique([identifier, token])
+}
+
+model Review {
+  id          String   @id @default(cuid())
+  rating      Int      // 1-5 star rating
+  comment     String?  @db.Text
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Product review
+  productId   String?
+  product     Product? @relation(fields: [productId], references: [id])
+  
+  // Seller review
+  sellerId    String?
+  seller      User?    @relation(fields: [sellerId], references: [id])
+  
+  // Reviewer
+  reviewerId  String
+  reviewerName String
 }
