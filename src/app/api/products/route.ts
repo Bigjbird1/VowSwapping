@@ -1,17 +1,9 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import { Pool } from 'pg';
+import { prisma } from '@/lib/prisma';
 import { ProductCategory, ProductCondition } from '@/types/product';
-
-// Set NODE_TLS_REJECT_UNAUTHORIZED to 0 to ignore SSL certificate verification
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
-
-// Create a PostgreSQL connection pool
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: true
-});
+import { Prisma } from '@prisma/client';
 
 // Helper function to map database product to application product
 function mapDatabaseProductToAppProduct(dbProduct: any) {
@@ -34,8 +26,6 @@ function mapDatabaseProductToAppProduct(dbProduct: any) {
 
 // GET /api/products - Get all products with optional filtering
 export async function GET(request: Request) {
-  const client = await pool.connect();
-  
   try {
     const { searchParams } = new URL(request.url);
     
@@ -46,60 +36,63 @@ export async function GET(request: Request) {
     const maxPrice = searchParams.get('maxPrice') ? parseFloat(searchParams.get('maxPrice')!) : undefined;
     const searchQuery = searchParams.get('searchQuery');
     
-    // Build SQL query
-    let query = `
-      SELECT * FROM "Product"
-      WHERE 1=1
-    `;
-    
-    const queryParams: any[] = [];
-    let paramIndex = 1;
+    // Build Prisma where clause
+    const where: Prisma.ProductWhereInput = {};
     
     if (category) {
-      query += ` AND category = $${paramIndex}`;
-      queryParams.push(category.toUpperCase());
-      paramIndex++;
+      where.category = category.toUpperCase() as any;
     }
     
     if (condition) {
-      query += ` AND condition = $${paramIndex}`;
-      queryParams.push(condition.toUpperCase().replace('-', '_'));
-      paramIndex++;
+      where.condition = condition.toUpperCase().replace('-', '_') as any;
     }
     
     // Price filtering
-    if (minPrice !== undefined) {
-      query += ` AND (price >= $${paramIndex} OR (discountPrice IS NOT NULL AND discountPrice >= $${paramIndex}))`;
-      queryParams.push(minPrice);
-      paramIndex++;
-    }
-    
-    if (maxPrice !== undefined) {
-      query += ` AND (price <= $${paramIndex} OR (discountPrice IS NOT NULL AND discountPrice <= $${paramIndex}))`;
-      queryParams.push(maxPrice);
-      paramIndex++;
+    if (minPrice !== undefined || maxPrice !== undefined) {
+      where.OR = [
+        // Check regular price
+        {
+          price: {
+            ...(minPrice !== undefined && { gte: minPrice }),
+            ...(maxPrice !== undefined && { lte: maxPrice }),
+          },
+        },
+        // Check discount price if it exists
+        {
+          discountPrice: {
+            ...(minPrice !== undefined && { gte: minPrice }),
+            ...(maxPrice !== undefined && { lte: maxPrice }),
+          },
+        },
+      ];
     }
     
     // Search query
     if (searchQuery) {
-      query += ` AND (
-        title ILIKE $${paramIndex} OR 
-        description ILIKE $${paramIndex} OR 
-        $${paramIndex + 1} = ANY(tags)
-      )`;
-      queryParams.push(`%${searchQuery}%`);
-      queryParams.push(searchQuery);
-      paramIndex += 2;
+      const searchWhere: Prisma.ProductWhereInput = {
+        OR: [
+          { title: { contains: searchQuery, mode: 'insensitive' } },
+          { description: { contains: searchQuery, mode: 'insensitive' } },
+          { tags: { has: searchQuery } },
+        ],
+      };
+      
+      // Combine with existing where clause
+      where.AND = where.AND || [];
+      (where.AND as Prisma.ProductWhereInput[]).push(searchWhere);
     }
     
-    // Add ordering
-    query += ` ORDER BY "createdAt" DESC`;
+    // Execute query with Prisma
+    const products = await prisma.product.findMany({
+      where,
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
     
-    // Execute query
-    const result = await client.query(query, queryParams);
-    const products = result.rows.map(mapDatabaseProductToAppProduct);
-    
-    return NextResponse.json({ products });
+    return NextResponse.json({ 
+      products: products.map(mapDatabaseProductToAppProduct) 
+    });
     
   } catch (error) {
     console.error('Error fetching products:', error);
@@ -107,8 +100,6 @@ export async function GET(request: Request) {
       { error: 'Failed to fetch products' }, 
       { status: 500 }
     );
-  } finally {
-    client.release();
   }
 }
 
@@ -120,8 +111,6 @@ export async function POST(request: Request) {
   if (!session?.user?.email) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
-  
-  const client = await pool.connect();
   
   try {
     const data = await request.json();
@@ -146,54 +135,33 @@ export async function POST(request: Request) {
     }
     
     // Get user
-    const userResult = await client.query(
-      `SELECT id FROM "User" WHERE email = $1`,
-      [session.user.email]
-    );
+    const user = await prisma.user.findUnique({
+      where: { email: session.user.email },
+    });
     
-    if (userResult.rows.length === 0) {
+    if (!user) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
     
-    const userId = userResult.rows[0].id;
-    
-    // Generate a UUID for the product
-    const productIdResult = await client.query(`SELECT gen_random_uuid() as id`);
-    const productId = productIdResult.rows[0].id;
-    
-    // Create product
-    const result = await client.query(
-      `
-        INSERT INTO "Product" (
-          id, title, description, price, "discountPrice", 
-          images, category, condition, tags, featured, 
-          "sellerId", "createdAt", "updatedAt"
-        ) VALUES (
-          $1, $2, $3, $4, $5, 
-          $6, $7, $8, $9, $10, 
-          $11, NOW(), NOW()
-        ) RETURNING *
-      `,
-      [
-        productId,
+    // Create product using Prisma
+    const product = await prisma.product.create({
+      data: {
         title,
         description,
-        parseFloat(price),
-        discountPrice ? parseFloat(discountPrice) : null,
+        price: parseFloat(price.toString()),
+        discountPrice: discountPrice ? parseFloat(discountPrice.toString()) : null,
         images,
-        category.toUpperCase(),
-        condition.toUpperCase().replace('-', '_'),
-        tags || [],
-        featured || false,
-        userId
-      ]
-    );
-    
-    const product = mapDatabaseProductToAppProduct(result.rows[0]);
+        category: category.toUpperCase() as any,
+        condition: condition.toUpperCase().replace('-', '_') as any,
+        tags: tags || [],
+        featured: featured || false,
+        sellerId: user.id,
+      },
+    });
     
     return NextResponse.json({ 
       success: true, 
-      product 
+      product: mapDatabaseProductToAppProduct(product)
     });
     
   } catch (error) {
@@ -202,7 +170,5 @@ export async function POST(request: Request) {
       { error: 'Failed to create product' }, 
       { status: 500 }
     );
-  } finally {
-    client.release();
   }
 }

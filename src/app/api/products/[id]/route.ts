@@ -1,17 +1,8 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import { Pool } from 'pg';
+import { prisma } from '@/lib/prisma';
 import { ProductCategory } from '@/types/product';
-
-// Set NODE_TLS_REJECT_UNAUTHORIZED to 0 to ignore SSL certificate verification
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
-
-// Create a PostgreSQL connection pool
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: true
-});
 
 // Helper function to map database product to application product
 function mapDatabaseProductToAppProduct(dbProduct: any) {
@@ -37,25 +28,20 @@ export async function GET(
   request: Request,
   { params }: { params: { id: string } }
 ) {
-  // Properly await the params object
-  const resolvedParams = await Promise.resolve(params);
-  const id = resolvedParams.id;
-  
-  const client = await pool.connect();
+  const id = params.id;
   
   try {
-    const result = await client.query(
-      `SELECT * FROM "Product" WHERE id = $1`,
-      [id]
-    );
+    const product = await prisma.product.findUnique({
+      where: { id }
+    });
     
-    if (result.rows.length === 0) {
+    if (!product) {
       return NextResponse.json({ error: 'Product not found' }, { status: 404 });
     }
     
-    const product = mapDatabaseProductToAppProduct(result.rows[0]);
-    
-    return NextResponse.json({ product });
+    return NextResponse.json({ 
+      product: mapDatabaseProductToAppProduct(product) 
+    });
     
   } catch (error) {
     console.error('Error fetching product:', error);
@@ -63,8 +49,6 @@ export async function GET(
       { error: 'Failed to fetch product' }, 
       { status: 500 }
     );
-  } finally {
-    client.release();
   }
 }
 
@@ -80,42 +64,32 @@ export async function PUT(
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
   
-  // Properly await the params object
-  const resolvedParams = await Promise.resolve(params);
-  const id = resolvedParams.id;
-  
-  const client = await pool.connect();
+  const id = params.id;
   
   try {
     const data = await request.json();
     
     // Get user
-    const userResult = await client.query(
-      `SELECT id FROM "User" WHERE email = $1`,
-      [session.user.email]
-    );
+    const user = await prisma.user.findUnique({
+      where: { email: session.user.email },
+    });
     
-    if (userResult.rows.length === 0) {
+    if (!user) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
     
-    const userId = userResult.rows[0].id;
-    
     // Check if product exists and belongs to the user
-    const productResult = await client.query(
-      `SELECT * FROM "Product" WHERE id = $1`,
-      [id]
-    );
+    const existingProduct = await prisma.product.findUnique({
+      where: { id },
+    });
     
-    if (productResult.rows.length === 0) {
+    if (!existingProduct) {
       return NextResponse.json({ error: 'Product not found' }, { status: 404 });
     }
     
-    const existingProduct = productResult.rows[0];
-    
     // Only allow the seller to update their own products
     // In a real app, you might have admin roles that can update any product
-    if (existingProduct.sellerId !== userId) {
+    if (existingProduct.sellerId !== user.id) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
     
@@ -132,76 +106,30 @@ export async function PUT(
       featured,
     } = data;
     
-    // Build update query
-    let updateQuery = `UPDATE "Product" SET "updatedAt" = NOW()`;
-    const queryParams: any[] = [];
-    let paramIndex = 1;
+    // Build update data object
+    const updateData: any = {};
     
-    if (title) {
-      updateQuery += `, title = $${paramIndex}`;
-      queryParams.push(title);
-      paramIndex++;
-    }
-    
-    if (description) {
-      updateQuery += `, description = $${paramIndex}`;
-      queryParams.push(description);
-      paramIndex++;
-    }
-    
-    if (price !== undefined) {
-      updateQuery += `, price = $${paramIndex}`;
-      queryParams.push(parseFloat(price));
-      paramIndex++;
-    }
-    
+    if (title !== undefined) updateData.title = title;
+    if (description !== undefined) updateData.description = description;
+    if (price !== undefined) updateData.price = parseFloat(price.toString());
     if (discountPrice !== undefined) {
-      updateQuery += `, "discountPrice" = $${paramIndex}`;
-      queryParams.push(discountPrice ? parseFloat(discountPrice) : null);
-      paramIndex++;
+      updateData.discountPrice = discountPrice ? parseFloat(discountPrice.toString()) : null;
     }
+    if (images !== undefined) updateData.images = images;
+    if (category !== undefined) updateData.category = category.toUpperCase();
+    if (condition !== undefined) updateData.condition = condition.toUpperCase().replace('-', '_');
+    if (tags !== undefined) updateData.tags = tags;
+    if (featured !== undefined) updateData.featured = featured;
     
-    if (images) {
-      updateQuery += `, images = $${paramIndex}`;
-      queryParams.push(images);
-      paramIndex++;
-    }
-    
-    if (category) {
-      updateQuery += `, category = $${paramIndex}`;
-      queryParams.push(category.toUpperCase());
-      paramIndex++;
-    }
-    
-    if (condition) {
-      updateQuery += `, condition = $${paramIndex}`;
-      queryParams.push(condition.toUpperCase().replace('-', '_'));
-      paramIndex++;
-    }
-    
-    if (tags) {
-      updateQuery += `, tags = $${paramIndex}`;
-      queryParams.push(tags);
-      paramIndex++;
-    }
-    
-    if (featured !== undefined) {
-      updateQuery += `, featured = $${paramIndex}`;
-      queryParams.push(featured);
-      paramIndex++;
-    }
-    
-    // Add WHERE clause and RETURNING
-    updateQuery += ` WHERE id = $${paramIndex} RETURNING *`;
-    queryParams.push(id);
-    
-    // Execute update
-    const result = await client.query(updateQuery, queryParams);
-    const updatedProduct = mapDatabaseProductToAppProduct(result.rows[0]);
+    // Update product using Prisma
+    const updatedProduct = await prisma.product.update({
+      where: { id },
+      data: updateData,
+    });
     
     return NextResponse.json({ 
       success: true, 
-      product: updatedProduct 
+      product: mapDatabaseProductToAppProduct(updatedProduct) 
     });
     
   } catch (error) {
@@ -210,8 +138,6 @@ export async function PUT(
       { error: 'Failed to update product' }, 
       { status: 500 }
     );
-  } finally {
-    client.release();
   }
 }
 
@@ -227,48 +153,37 @@ export async function DELETE(
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
   
-  // Properly await the params object
-  const resolvedParams = await Promise.resolve(params);
-  const id = resolvedParams.id;
-  
-  const client = await pool.connect();
+  const id = params.id;
   
   try {
     // Get user
-    const userResult = await client.query(
-      `SELECT id FROM "User" WHERE email = $1`,
-      [session.user.email]
-    );
+    const user = await prisma.user.findUnique({
+      where: { email: session.user.email },
+    });
     
-    if (userResult.rows.length === 0) {
+    if (!user) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
     
-    const userId = userResult.rows[0].id;
-    
     // Check if product exists and belongs to the user
-    const productResult = await client.query(
-      `SELECT * FROM "Product" WHERE id = $1`,
-      [id]
-    );
+    const existingProduct = await prisma.product.findUnique({
+      where: { id },
+    });
     
-    if (productResult.rows.length === 0) {
+    if (!existingProduct) {
       return NextResponse.json({ error: 'Product not found' }, { status: 404 });
     }
     
-    const existingProduct = productResult.rows[0];
-    
     // Only allow the seller to delete their own products
     // In a real app, you might have admin roles that can delete any product
-    if (existingProduct.sellerId !== userId) {
+    if (existingProduct.sellerId !== user.id) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
     
-    // Delete product
-    await client.query(
-      `DELETE FROM "Product" WHERE id = $1`,
-      [id]
-    );
+    // Delete product using Prisma
+    await prisma.product.delete({
+      where: { id },
+    });
     
     return NextResponse.json({ 
       success: true, 
@@ -281,7 +196,5 @@ export async function DELETE(
       { error: 'Failed to delete product' }, 
       { status: 500 }
     );
-  } finally {
-    client.release();
   }
 }
