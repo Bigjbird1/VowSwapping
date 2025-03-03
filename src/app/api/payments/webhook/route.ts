@@ -4,12 +4,8 @@ import stripe from '@/lib/stripe';
 import { prisma } from '@/lib/prisma';
 import { Stripe } from 'stripe';
 
-// Disable Next.js body parsing for webhooks
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-};
+// Configure route handler for raw body access
+export const dynamic = 'force-dynamic';
 
 async function getBodyAsString(request: Request): Promise<string> {
   const reader = request.body?.getReader();
