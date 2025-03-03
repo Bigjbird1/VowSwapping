@@ -10,35 +10,27 @@ The deployment was failing with the error:
 Module not found: Can't resolve 'date-fns'
 ```
 
-This was happening despite the date-fns package being listed in the package.json dependencies. The issue was related to the version of date-fns (v4.1.0) potentially having compatibility issues with the Node.js version used by Vercel.
+This was happening despite the date-fns package being listed in the package.json dependencies. The issue was related to a mismatch between the package.json and package-lock.json files.
 
 ## Changes Made
 
-1. **Downgraded date-fns**: Changed the version from `^4.1.0` to `^2.30.0` in package.json. The newer version (v4) might have compatibility issues with the Node.js version used by Vercel.
+After analyzing the error logs, we identified that Vercel was trying to use `npm ci` for installation, which requires the package.json and package-lock.json files to be in sync. The error specifically mentioned:
 
-2. **Added .npmrc file**: Created a configuration file to ensure proper npm behavior during the build process with these settings:
-   - `save-exact=false`: Ensures npm uses the latest versions within semver ranges
-   - `package-lock=true`: Ensures package-lock.json is used
+```
+npm error Invalid: lock file's date-fns@4.1.0 does not satisfy date-fns@2.30.0
+```
 
-3. **Updated vercel.json**: Changed the installation command from `npm ci` to `npm install` to ensure compatibility with the package-lock.json file.
+To fix this issue, we:
 
-4. **Added .nvmrc file**: Specified Node.js version 18.x to ensure compatibility with all dependencies.
+1. **Reverted date-fns version**: Changed the version back to `^4.1.0` in package.json to match what's in the package-lock.json file.
 
-5. **Added cache-busting mechanism**: Created clear-cache.js and force-clean-install.sh to help clear the Vercel build cache when needed.
+2. **Simplified the configuration**: Removed unnecessary configuration files (.npmrc, .nvmrc, etc.) that might have been interfering with the build process.
+
+3. **Ensured vercel.json is properly configured**: Verified that the vercel.json file has the correct installation command.
 
 ## Deployment Instructions
 
-1. **Before deploying to Vercel**, you can run the force-clean-install script to ensure a clean installation:
-
-   ```bash
-   ./force-clean-install.sh
-   ```
-
-   This will:
-   - Remove node_modules and package-lock.json
-   - Update the clear-cache.js file with a new timestamp to force a new build
-
-2. **Commit and push all changes** to your GitHub repository:
+1. **Commit and push all changes** to your GitHub repository:
 
    ```bash
    git add .
@@ -46,7 +38,7 @@ This was happening despite the date-fns package being listed in the package.json
    git push
    ```
 
-3. **Deploy to Vercel** using your preferred method (GitHub integration, Vercel CLI, etc.)
+2. **Deploy to Vercel** using your preferred method (GitHub integration, Vercel CLI, etc.)
 
 ## Troubleshooting
 
@@ -56,6 +48,6 @@ If you encounter any issues during deployment:
 
 2. **Verify environment variables** are properly set in the Vercel dashboard.
 
-3. **Try forcing a clean build** by running the force-clean-install.sh script and redeploying.
+3. **Consider manually clearing the Vercel build cache** from the Vercel dashboard if issues persist.
 
-4. **Consider manually clearing the Vercel build cache** from the Vercel dashboard if issues persist.
+4. **If you need to update dependencies** in the future, make sure to update both package.json and package-lock.json together by running `npm install` locally after making changes to package.json.
