@@ -157,7 +157,7 @@ async function main() {
           INSERT INTO "Product" (
             id, title, description, price, "discountPrice", 
             images, category, condition, tags, featured, 
-            "sellerId", "createdAt", "updatedAt"
+            "sellerId", "createdAt", "updatedAt", approved
           ) VALUES (
             ${product.id}, 
             ${product.title}, 
@@ -171,7 +171,8 @@ async function main() {
             ${product.featured || false}, 
             ${userId}, 
             ${new Date(product.createdAt)}, 
-            ${new Date(product.updatedAt)}
+            ${new Date(product.updatedAt)},
+            true
           )
         `;
       } else {

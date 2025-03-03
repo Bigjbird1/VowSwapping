@@ -15,8 +15,29 @@ export default function ProductCard({ product }: ProductCardProps) {
   const [isHovered, setIsHovered] = useState(false)
   
   const { id, title, price, discountPrice, images, category, condition } = product
-  const displayImage = images[0] || 'https://via.placeholder.com/300x400?text=No+Image'
-  const hoverImage = images[1] || images[0] || 'https://via.placeholder.com/300x400?text=No+Image'
+  
+  // Handle potentially malformed images array
+  let imageArray = images;
+  if (typeof images === 'string') {
+    try {
+      // Try to parse if it's a JSON string
+      imageArray = JSON.parse(images);
+    } catch (e) {
+      // If parsing fails, use a default array
+      console.error('Error parsing images:', e);
+      imageArray = [];
+    }
+  }
+  
+  // Ensure imageArray is an array
+  if (!Array.isArray(imageArray)) {
+    imageArray = [];
+  }
+  
+  // Use default images if none are available
+  const defaultImage = 'https://via.placeholder.com/300x400?text=No+Image';
+  const displayImage = imageArray[0] || defaultImage;
+  const hoverImage = imageArray[1] || imageArray[0] || defaultImage;
   
   const formattedPrice = new Intl.NumberFormat('en-US', {
     style: 'currency',

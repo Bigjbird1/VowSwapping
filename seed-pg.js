@@ -180,11 +180,11 @@ async function seedDatabase() {
           INSERT INTO "Product" (
             id, title, description, price, "discountPrice", 
             images, category, condition, tags, featured, 
-            "sellerId", "createdAt", "updatedAt"
+            "sellerId", "createdAt", "updatedAt", approved
           ) VALUES (
             $1, $2, $3, $4, $5, 
             $6::text[], $7, $8, $9::text[], $10, 
-            $11, $12, $13
+            $11, $12, $13, $14
           )
         `, [
           product.id, 
@@ -199,7 +199,8 @@ async function seedDatabase() {
           product.featured, 
           userId, 
           new Date(product.createdAt), 
-          new Date(product.updatedAt)
+          new Date(product.updatedAt),
+          true
         ]);
       } else {
         console.log(`Product already exists: ${product.title}`);
