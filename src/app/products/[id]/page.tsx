@@ -7,12 +7,7 @@ import { Metadata } from 'next'
 import AddToCartButton from '@/components/product/AddToCartButton'
 import WishlistButton from '@/components/product/WishlistButton'
 import { formatDistanceToNow } from 'date-fns'
-import dynamic from 'next/dynamic'
-
-// Import the ProductReviews component dynamically to avoid SSR issues
-const ProductReviews = dynamic(() => import('@/components/review/ProductReviews'), {
-  ssr: false,
-})
+import ProductReviewsWrapper from '@/components/review/ProductReviewsWrapper'
 
 type Params = {
   id: string;
@@ -217,7 +212,7 @@ export default async function ProductPage({ params }: { params: Params }) {
       )}
       
       {/* Product Reviews */}
-      <ProductReviews productId={params.id} />
+      <ProductReviewsWrapper productId={params.id} />
     </div>
   )
 }
