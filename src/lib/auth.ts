@@ -9,6 +9,7 @@ export const authOptions: NextAuthOptions = {
   // adapter: PrismaAdapter(prisma),
   session: {
     strategy: 'jwt',
+    maxAge: 30 * 24 * 60 * 60, // 30 days
   },
   pages: {
     signIn: '/auth/signin',
@@ -17,6 +18,7 @@ export const authOptions: NextAuthOptions = {
     verifyRequest: '/auth/verify-request',
     newUser: '/auth/new-user',
   },
+  debug: process.env.NODE_ENV !== 'production',
   providers: [
     // EmailProvider temporarily disabled due to missing configuration
     // To enable, add proper SMTP server credentials in .env file
@@ -39,38 +41,59 @@ export const authOptions: NextAuthOptions = {
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
+          console.log('Missing credentials');
           return null;
         }
 
-        const user = await prisma.user.findUnique({
-          where: {
-            email: credentials.email,
-          },
-        });
+        try {
+          const user = await prisma.user.findUnique({
+            where: {
+              email: credentials.email,
+            },
+          });
 
-        if (!user || !user.password) {
-          return null;
+          if (!user || !user.password) {
+            console.log('User not found or no password');
+            return null;
+          }
+
+          const isPasswordValid = await compare(credentials.password, user.password);
+
+          if (!isPasswordValid) {
+            console.log('Invalid password');
+            return null;
+          }
+
+          // In development, skip email verification check
+          if (process.env.NODE_ENV !== 'production') {
+            // If not verified, auto-verify for development
+            if (!user.emailVerified) {
+              await prisma.user.update({
+                where: { id: user.id },
+                data: { emailVerified: new Date() },
+              });
+            }
+          } else {
+            // In production, check email verification
+            if (!user.emailVerified) {
+              throw new Error('Email not verified. Please check your inbox.');
+            }
+          }
+
+          console.log('User authenticated successfully:', user.email);
+          
+          // Return only the fields that are compatible with the User type
+          return {
+            id: user.id,
+            email: user.email,
+            name: user.name || undefined,
+            emailVerified: user.emailVerified || undefined, // Convert null to undefined to match NextAuth types
+            image: user.image || undefined,
+          };
+        } catch (error) {
+          console.error('Authorization error:', error);
+          throw error;
         }
-
-        const isPasswordValid = await compare(credentials.password, user.password);
-
-        if (!isPasswordValid) {
-          return null;
-        }
-
-        // Email verification check temporarily disabled since EmailProvider is disabled
-        // if (!user.emailVerified) {
-        //   throw new Error('Email not verified. Please check your inbox.');
-        // }
-
-        // Return only the fields that are compatible with the User type
-        return {
-          id: user.id,
-          email: user.email,
-          name: user.name || undefined,
-          emailVerified: user.emailVerified || undefined, // Convert null to undefined to match NextAuth types
-          image: user.image || undefined,
-        };
       },
     }),
   ],
@@ -79,26 +102,35 @@ export const authOptions: NextAuthOptions = {
       if (token && session.user) {
         session.user.id = token.sub!;
         
-        // Fetch user from database to get seller information
-        const user = await prisma.user.findUnique({
-          where: { id: token.sub! },
-          select: {
-            isSeller: true,
-            sellerApproved: true,
-            shopName: true,
-            sellerRating: true,
-            sellerRatingsCount: true,
-            sellerSince: true,
-          },
-        });
-        
-        if (user) {
-          session.user.isSeller = user.isSeller;
-          session.user.sellerApproved = user.sellerApproved;
-          session.user.shopName = user.shopName || undefined;
-          session.user.sellerRating = user.sellerRating || undefined;
-          session.user.sellerRatingsCount = user.sellerRatingsCount;
-          session.user.sellerSince = user.sellerSince ? user.sellerSince.toISOString() : undefined;
+        try {
+          console.log('Fetching user data for session, user ID:', token.sub);
+          
+          // Fetch user from database to get seller information
+          const user = await prisma.user.findUnique({
+            where: { id: token.sub! },
+            select: {
+              isSeller: true,
+              sellerApproved: true,
+              shopName: true,
+              sellerRating: true,
+              sellerRatingsCount: true,
+              sellerSince: true,
+            },
+          });
+          
+          console.log('User data fetched:', user ? 'success' : 'not found');
+          
+          if (user) {
+            session.user.isSeller = user.isSeller;
+            session.user.sellerApproved = user.sellerApproved;
+            session.user.shopName = user.shopName || undefined;
+            session.user.sellerRating = user.sellerRating || undefined;
+            session.user.sellerRatingsCount = user.sellerRatingsCount;
+            session.user.sellerSince = user.sellerSince ? user.sellerSince.toISOString() : undefined;
+          }
+        } catch (error) {
+          console.error('Error in session callback:', error);
+          // Continue with basic session data even if fetching additional data fails
         }
       }
       return session;

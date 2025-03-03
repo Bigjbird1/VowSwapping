@@ -46,6 +46,8 @@ export default function SignUpForm() {
     setError(null);
 
     try {
+      console.log('Attempting to register with:', data.email);
+      
       const response = await fetch('/api/auth/register', {
         method: 'POST',
         headers: {
@@ -58,7 +60,9 @@ export default function SignUpForm() {
         }),
       });
 
+      console.log('Registration response status:', response.status);
       const result = await response.json();
+      console.log('Registration response:', result);
 
       if (!response.ok) {
         setError(result.message || 'Something went wrong');
@@ -66,8 +70,37 @@ export default function SignUpForm() {
         return;
       }
 
+      // For development purposes, bypass email verification
+      // Comment this out in production
+      if (process.env.NODE_ENV !== 'production') {
+        // Skip email verification in development
+        try {
+          // Attempt to sign in directly after registration
+          const signInResult = await fetch('/api/auth/signin-after-register', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              email: data.email,
+              password: data.password,
+            }),
+          });
+          
+          if (signInResult.ok) {
+            router.push('/profile');
+            router.refresh();
+            return;
+          }
+        } catch (error) {
+          console.error('Auto sign-in error:', error);
+          // Continue with normal flow if auto sign-in fails
+        }
+      }
+
       setIsVerificationEmailSent(true);
     } catch (error) {
+      console.error('Registration error:', error);
       setError('An unexpected error occurred. Please try again.');
       setIsLoading(false);
     }

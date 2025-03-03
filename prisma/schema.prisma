@@ -6,7 +6,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
@@ -33,14 +33,14 @@ model User {
   isSeller          Boolean   @default(false)
   sellerApproved    Boolean   @default(false)
   shopName          String?
-  shopDescription   String?   @db.Text
+  shopDescription   String?   
   sellerRating      Float?
   sellerRatingsCount Int      @default(0)
   sellerSince       DateTime?
-  sellerBio         String?   @db.Text
+  sellerBio         String?   
   sellerLogo        String?
   sellerBanner      String?
-  sellerSocial      Json?     // Store social media links
+  sellerSocial      String?   // Store social media links as JSON string for SQLite
   reviews           Review[]  // Reviews received as a seller
 }
 
@@ -64,7 +64,7 @@ model Order {
   userId      String
   user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   total       Float
-  status      OrderStatus @default(PENDING)
+  status      String      @default("PENDING") // Using string for enum in SQLite
   addressId   String?
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
@@ -83,47 +83,25 @@ model OrderItem {
   updatedAt DateTime @updatedAt
 }
 
-enum OrderStatus {
-  PENDING
-  PROCESSING
-  SHIPPED
-  DELIVERED
-  CANCELLED
-}
-
-enum ProductCategory {
-  DRESSES
-  ACCESSORIES
-  DECORATIONS
-  OTHER
-}
-
-enum ProductCondition {
-  NEW
-  LIKE_NEW
-  GOOD
-  FAIR
-}
-
 model Product {
-  id            String           @id @default(cuid())
+  id            String   @id @default(cuid())
   title         String
-  description   String           @db.Text
+  description   String   
   price         Float
   discountPrice Float?
-  images        String[]
-  category      ProductCategory
-  condition     ProductCondition
-  tags          String[]
-  featured      Boolean          @default(false)
-  createdAt     DateTime         @default(now())
-  updatedAt     DateTime         @updatedAt
+  images        String   // Store as JSON string for SQLite
+  category      String   // Using string for enum in SQLite
+  condition     String   // Using string for enum in SQLite
+  tags          String   // Store as JSON string for SQLite
+  featured      Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
   sellerId      String?
-  seller        User?            @relation(fields: [sellerId], references: [id])
+  seller        User?    @relation(fields: [sellerId], references: [id])
   orderItems    OrderItem[]
   reviews       Review[]
   wishlists     Wishlist[]
-  approved      Boolean          @default(false)
+  approved      Boolean  @default(false)
 }
 
 // NextAuth.js Models
@@ -133,12 +111,12 @@ model Account {
   type              String
   provider          String
   providerAccountId String
-  refresh_token     String? @db.Text
-  access_token      String? @db.Text
+  refresh_token     String?
+  access_token      String?
   expires_at        Int?
   token_type        String?
   scope             String?
-  id_token          String? @db.Text
+  id_token          String?
   session_state     String?
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -177,7 +155,7 @@ model Wishlist {
 model Review {
   id          String   @id @default(cuid())
   rating      Int      // 1-5 star rating
-  comment     String?  @db.Text
+  comment     String?  
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   

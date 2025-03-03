@@ -12,8 +12,12 @@ const registerSchema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
+    console.log('Registration request received');
     const body = await request.json();
+    console.log('Registration request body:', body);
+    
     const validatedData = registerSchema.parse(body);
+    console.log('Validation passed for:', validatedData.email);
 
     // Check if user already exists
     const existingUser = await prisma.user.findUnique({
@@ -21,6 +25,7 @@ export async function POST(request: NextRequest) {
     });
 
     if (existingUser) {
+      console.log('User already exists:', validatedData.email);
       return NextResponse.json(
         { message: 'User with this email already exists' },
         { status: 400 }
@@ -34,24 +39,52 @@ export async function POST(request: NextRequest) {
     const verificationToken = generateToken();
 
     // Create user
-    const user = await prisma.user.create({
-      data: {
-        name: validatedData.name,
-        email: validatedData.email,
-        password: hashedPassword,
-        verificationToken,
-      },
-    });
+    try {
+      console.log('Creating user in database:', validatedData.email);
+      const user = await prisma.user.create({
+        data: {
+          name: validatedData.name,
+          email: validatedData.email,
+          password: hashedPassword,
+          verificationToken,
+        },
+      });
+      console.log('User created successfully:', user.id);
 
-    // Send verification email
-    await sendVerificationEmail(user.email, verificationToken);
+      // In development, auto-verify the email
+      if (process.env.NODE_ENV !== 'production') {
+        console.log('Development mode: Auto-verifying email for:', user.email);
+        await prisma.user.update({
+          where: { id: user.id },
+          data: { emailVerified: new Date() },
+        });
+      } else {
+        // Send verification email in production
+        try {
+          console.log('Sending verification email to:', user.email);
+          await sendVerificationEmail(user.email, verificationToken);
+          console.log('Verification email sent successfully');
+        } catch (emailError) {
+          console.error('Failed to send verification email:', emailError);
+          // Continue even if email sending fails
+        }
+      }
 
-    return NextResponse.json(
-      { message: 'User registered successfully. Please verify your email.' },
-      { status: 201 }
-    );
+      return NextResponse.json(
+        { 
+          message: 'User registered successfully. Please verify your email.',
+          userId: user.id,
+          development: process.env.NODE_ENV !== 'production'
+        },
+        { status: 201 }
+      );
+    } catch (dbError) {
+      console.error('Database error during user creation:', dbError);
+      throw dbError;
+    }
   } catch (error) {
     if (error instanceof z.ZodError) {
+      console.error('Validation error:', error.errors);
       return NextResponse.json({ message: error.errors[0].message }, { status: 400 });
     }
 

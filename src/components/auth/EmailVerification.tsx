@@ -11,42 +11,78 @@ export default function EmailVerification() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const token = searchParams.get('token');
+  const successParam = searchParams.get('success');
+  const errorParam = searchParams.get('error');
 
   useEffect(() => {
-    if (!token) {
-      setError('Invalid or missing verification token');
+    // Check if we already have a success or error from the URL
+    if (successParam === 'true') {
+      setSuccess(true);
       setIsLoading(false);
       return;
     }
 
-    const verifyEmail = async () => {
-      try {
-        const response = await fetch('/api/auth/verify-email', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ token }),
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-          setError(data.message || 'Failed to verify email');
-          setIsLoading(false);
-          return;
-        }
-
-        setSuccess(true);
-        setIsLoading(false);
-      } catch (error) {
-        setError('An unexpected error occurred. Please try again.');
-        setIsLoading(false);
+    if (errorParam) {
+      let errorMessage = 'Failed to verify email';
+      
+      switch (errorParam) {
+        case 'missing_token':
+          errorMessage = 'Verification token is missing';
+          break;
+        case 'invalid_token':
+          errorMessage = 'Invalid verification token';
+          break;
+        case 'database_error':
+          errorMessage = 'A database error occurred during verification';
+          break;
+        default:
+          errorMessage = 'An unknown error occurred during verification';
       }
-    };
+      
+      setError(errorMessage);
+      setIsLoading(false);
+      return;
+    }
 
-    verifyEmail();
-  }, [token]);
+    // If no success/error params but we have a token, verify via API
+    if (token) {
+      console.log('Verifying email with token:', token);
+      const verifyEmail = async () => {
+        try {
+          const response = await fetch('/api/auth/verify-email', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ token }),
+          });
+
+          console.log('Verification response status:', response.status);
+          const data = await response.json();
+          console.log('Verification response:', data);
+
+          if (!response.ok) {
+            setError(data.message || 'Failed to verify email');
+            setIsLoading(false);
+            return;
+          }
+
+          setSuccess(true);
+          setIsLoading(false);
+        } catch (error) {
+          console.error('Email verification error:', error);
+          setError('An unexpected error occurred. Please try again.');
+          setIsLoading(false);
+        }
+      };
+
+      verifyEmail();
+    } else if (!successParam && !errorParam) {
+      // No token, success, or error params
+      setError('Invalid or missing verification token');
+      setIsLoading(false);
+    }
+  }, [token, successParam, errorParam]);
 
   if (isLoading) {
     return (

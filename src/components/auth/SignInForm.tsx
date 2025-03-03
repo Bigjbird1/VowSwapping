@@ -37,11 +37,26 @@ export default function SignInForm() {
     setError(null);
 
     try {
+      console.log('Attempting to sign in with:', data.email);
+      
+      // Set a timeout to reset loading state if sign-in takes too long
+      const timeoutId = setTimeout(() => {
+        console.log('Sign in timeout reached');
+        setError('Sign in request timed out. Please try again.');
+        setIsLoading(false);
+      }, 10000); // 10 second timeout
+      
+      // Attempt to sign in
       const result = await signIn('credentials', {
         redirect: false,
         email: data.email,
         password: data.password,
       });
+      
+      // Clear the timeout since we got a response
+      clearTimeout(timeoutId);
+      
+      console.log('Sign in result:', result);
 
       if (result?.error) {
         setError(result.error);
@@ -49,9 +64,17 @@ export default function SignInForm() {
         return;
       }
 
+      if (!result?.ok) {
+        setError('Authentication failed. Please check your credentials.');
+        setIsLoading(false);
+        return;
+      }
+
+      console.log('Sign in successful, redirecting to profile page');
       router.push('/profile');
-      router.refresh();
+      
     } catch (error) {
+      console.error('Sign in error:', error);
       setError('An unexpected error occurred. Please try again.');
       setIsLoading(false);
     }
