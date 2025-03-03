@@ -10,7 +10,7 @@
     "NEXT_PUBLIC_SITE_URL": "https://vowswapping.vercel.app",
     "NEXTAUTH_URL": "https://vowswapping.vercel.app",
     "NEXTAUTH_SECRET": "${NEXTAUTH_SECRET}",
-    "DATABASE_URL": "${POSTGRES_PRISMA_URL}",
+    "DATABASE_URL": "postgresql://${POSTGRES_PRISMA_URL#*@}",
     "EMAIL_SERVER_HOST": "${EMAIL_SERVER_HOST}",
     "EMAIL_SERVER_PORT": "${EMAIL_SERVER_PORT}",
     "EMAIL_SERVER_USER": "${EMAIL_SERVER_USER}",

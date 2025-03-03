@@ -5,6 +5,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useState } from 'react'
 import WishlistButton from './WishlistButton'
+import AddToCartButton from './AddToCartButton'
 
 interface ProductCardProps {
   product: Product
@@ -59,6 +60,13 @@ export default function ProductCard({ product }: ProductCardProps) {
               {conditionLabel}
             </div>
             
+            {/* Discount Badge */}
+            {discountPrice && (
+              <div className="absolute top-2 left-16 bg-red-500 px-2 py-1 text-xs font-medium text-white rounded-md">
+                {`-${Math.round(((price - discountPrice) / price) * 100)}%`}
+              </div>
+            )}
+            
             {/* Wishlist Button */}
             <div className="absolute top-2 right-2">
               <WishlistButton product={product} size="sm" />
@@ -72,6 +80,11 @@ export default function ProductCard({ product }: ProductCardProps) {
             </div>
           </div>
         </Link>
+      </div>
+      
+      {/* Add to Cart Button */}
+      <div className="mt-4 mb-4">
+        <AddToCartButton product={product} />
       </div>
       
       {/* Product Info */}

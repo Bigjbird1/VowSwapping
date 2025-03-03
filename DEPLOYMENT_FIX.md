@@ -1,53 +1,41 @@
-# Deployment Fix Guide
-
-This document explains the changes made to fix the deployment issues with the VowSwapping application on Vercel.
+# Database Connection Fix for Vercel Deployment
 
 ## Issue
 
-The deployment was failing with the error:
+When trying to register a user on the deployed application, the following error occurred:
 
 ```
-Module not found: Can't resolve 'date-fns'
+Registration error: Invalid `prisma.user.findUnique()` invocation: error: Error validating datasource `db`: the URL must start with the protocol `postgresql://` or `postgres://`.
 ```
 
-This was happening despite the date-fns package being listed in the package.json dependencies. The issue was related to a mismatch between the package.json and package-lock.json files.
+## Root Cause
 
-## Changes Made
+The error occurred because the database connection URL in the Vercel environment didn't have the required protocol prefix (`postgresql://` or `postgres://`) that Prisma requires. This happens because Vercel's PostgreSQL integration sometimes provides connection strings in a format that doesn't include the protocol prefix.
 
-After analyzing the error logs, we identified that Vercel was trying to use `npm ci` for installation, which requires the package.json and package-lock.json files to be in sync. The error specifically mentioned:
+## Solution
 
-```
-npm error Invalid: lock file's date-fns@4.1.0 does not satisfy date-fns@2.30.0
-```
+Two changes were made to fix this issue:
 
-To fix this issue, we:
+1. **Updated `src/lib/prisma.ts`** to ensure the database URL always has the correct protocol prefix:
+   - Added logic to check if the database URL starts with `postgresql://` or `postgres://`
+   - If not, the code now adds the `postgresql://` prefix
+   - Added better error handling for missing database URLs
 
-1. **Reverted date-fns version**: Changed the version back to `^4.1.0` in package.json to match what's in the package-lock.json file.
-
-2. **Simplified the configuration**: Removed unnecessary configuration files (.npmrc, .nvmrc, etc.) that might have been interfering with the build process.
-
-3. **Ensured vercel.json is properly configured**: Verified that the vercel.json file has the correct installation command.
+2. **Updated `vercel.json`** to format the `DATABASE_URL` environment variable:
+   - Changed from `"DATABASE_URL": "${POSTGRES_PRISMA_URL}"` to `"DATABASE_URL": "postgresql://${POSTGRES_PRISMA_URL#*@}"`
+   - This uses shell parameter expansion to extract the part of the URL after the @ symbol and prepends the required protocol
 
 ## Deployment Instructions
 
-1. **Commit and push all changes** to your GitHub repository:
+To apply these fixes:
 
-   ```bash
-   git add .
-   git commit -m "Fix deployment issues with date-fns"
-   git push
-   ```
+1. Push the changes to your repository
+2. Redeploy your application on Vercel:
+   - Go to your Vercel dashboard
+   - Select the VowSwapping project
+   - Click "Deployments" tab
+   - Click "Redeploy" on the latest deployment or create a new deployment
 
-2. **Deploy to Vercel** using your preferred method (GitHub integration, Vercel CLI, etc.)
+## Verification
 
-## Troubleshooting
-
-If you encounter any issues during deployment:
-
-1. **Check the Vercel build logs** for specific error messages.
-
-2. **Verify environment variables** are properly set in the Vercel dashboard.
-
-3. **Consider manually clearing the Vercel build cache** from the Vercel dashboard if issues persist.
-
-4. **If you need to update dependencies** in the future, make sure to update both package.json and package-lock.json together by running `npm install` locally after making changes to package.json.
+After redeploying, test the user registration functionality to ensure the database connection is working properly.

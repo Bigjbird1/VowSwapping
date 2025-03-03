@@ -12,10 +12,23 @@ const globalForPrisma = global as unknown as { prisma: PrismaClient };
 // Create a new PrismaClient instance with specific configuration
 const createPrismaClient = () => {
   // Use DATABASE_URL if available, otherwise fall back to Supabase's POSTGRES_PRISMA_URL
-  const databaseUrl = process.env.DATABASE_URL || process.env.POSTGRES_PRISMA_URL || process.env.POSTGRES_URL;
+  let databaseUrl = process.env.DATABASE_URL || process.env.POSTGRES_PRISMA_URL || process.env.POSTGRES_URL;
   
   if (!databaseUrl) {
     console.error('No database URL found. Please set DATABASE_URL, POSTGRES_PRISMA_URL, or POSTGRES_URL environment variable.');
+    return new PrismaClient();
+  }
+  
+  // Ensure the URL starts with postgresql:// or postgres://
+  if (!databaseUrl.startsWith('postgresql://') && !databaseUrl.startsWith('postgres://')) {
+    // If it doesn't have the protocol, add postgresql://
+    if (databaseUrl.includes('@') && databaseUrl.includes('/')) {
+      databaseUrl = 'postgresql://' + databaseUrl.split('@')[1];
+    } else {
+      // If we can't parse it, prepend postgresql:// as a fallback
+      databaseUrl = 'postgresql://' + databaseUrl;
+    }
+    console.log('Modified database URL to ensure it has the correct protocol prefix');
   }
   
   return new PrismaClient({
