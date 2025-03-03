@@ -70,11 +70,10 @@ export default function SignUpForm() {
         return;
       }
 
-      // For development purposes, bypass email verification
-      // Comment this out in production
-      if (process.env.NODE_ENV !== 'production') {
-        // Skip email verification in development
+      // Auto sign-in after registration if email is auto-verified
+      if (result.emailVerified || result.development || process.env.NODE_ENV !== 'production') {
         try {
+          console.log('Attempting auto sign-in after registration');
           // Attempt to sign in directly after registration
           const signInResult = await fetch('/api/auth/signin-after-register', {
             method: 'POST',
@@ -87,10 +86,15 @@ export default function SignUpForm() {
             }),
           });
           
-          if (signInResult.ok) {
+          const signInData = await signInResult.json();
+          
+          if (signInResult.ok && signInData.success) {
+            console.log('Auto sign-in successful, redirecting to profile');
             router.push('/profile');
             router.refresh();
             return;
+          } else {
+            console.log('Auto sign-in response not successful:', signInData);
           }
         } catch (error) {
           console.error('Auto sign-in error:', error);

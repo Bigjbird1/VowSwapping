@@ -74,7 +74,8 @@ export async function POST(request: NextRequest) {
         { 
           message: 'User registered successfully. Please verify your email.',
           userId: user.id,
-          development: process.env.NODE_ENV !== 'production'
+          development: process.env.NODE_ENV !== 'production',
+          emailVerified: process.env.NODE_ENV !== 'production'
         },
         { status: 201 }
       );

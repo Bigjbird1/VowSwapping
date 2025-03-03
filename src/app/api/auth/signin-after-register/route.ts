@@ -6,6 +6,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { cookies } from 'next/headers';
 import { encode } from 'next-auth/jwt';
+import { signIn } from 'next-auth/react';
 
 const signInSchema = z.object({
   email: z.string().email('Please enter a valid email address'),
@@ -14,13 +15,6 @@ const signInSchema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
-    // Only allow in development
-    if (process.env.NODE_ENV === 'production') {
-      return NextResponse.json(
-        { message: 'This endpoint is only available in development mode' },
-        { status: 403 }
-      );
-    }
 
     const body = await request.json();
     const validatedData = signInSchema.parse(body);
@@ -54,18 +48,36 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Create session manually
-    const session = {
-      user: {
-        id: user.id,
+    // Create a JWT token for the user
+    const token = await encode({
+      token: {
+        sub: user.id,
         email: user.email,
         name: user.name,
       },
-      expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 days
-    };
+      secret: process.env.NEXTAUTH_SECRET || 'default-secret',
+    });
+
+    // Set the session cookie
+    const cookieExpires = new Date();
+    cookieExpires.setDate(cookieExpires.getDate() + 30); // 30 days
+
+    cookies().set({
+      name: process.env.NODE_ENV === 'production' ? '__Secure-next-auth.session-token' : 'next-auth.session-token',
+      value: token,
+      expires: cookieExpires,
+      path: '/',
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+    });
 
     return NextResponse.json(
-      { message: 'Signed in successfully', user: { id: user.id, email: user.email, name: user.name } },
+      { 
+        message: 'Signed in successfully', 
+        user: { id: user.id, email: user.email, name: user.name },
+        success: true
+      },
       { status: 200 }
     );
   } catch (error) {
