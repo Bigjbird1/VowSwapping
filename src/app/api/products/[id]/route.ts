@@ -19,7 +19,16 @@ function mapDatabaseProductToAppProduct(dbProduct: any) {
     createdAt: dbProduct.createdAt.toISOString(),
     updatedAt: dbProduct.updatedAt.toISOString(),
     featured: dbProduct.featured,
-    sellerId: dbProduct.sellerId
+    sellerId: dbProduct.sellerId,
+    seller: dbProduct.seller ? {
+      id: dbProduct.seller.id,
+      name: dbProduct.seller.name,
+      shopName: dbProduct.seller.shopName,
+      sellerRating: dbProduct.seller.sellerRating,
+      sellerRatingsCount: dbProduct.seller.sellerRatingsCount,
+      sellerSince: dbProduct.seller.sellerSince ? dbProduct.seller.sellerSince.toISOString() : null,
+      sellerLogo: dbProduct.seller.sellerLogo
+    } : undefined
   };
 }
 
@@ -32,7 +41,20 @@ export async function GET(
   
   try {
     const product = await prisma.product.findUnique({
-      where: { id }
+      where: { id },
+      include: {
+        seller: {
+          select: {
+            id: true,
+            name: true,
+            shopName: true,
+            sellerRating: true,
+            sellerRatingsCount: true,
+            sellerSince: true,
+            sellerLogo: true
+          }
+        }
+      }
     });
     
     if (!product) {

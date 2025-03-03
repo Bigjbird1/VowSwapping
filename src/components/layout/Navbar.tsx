@@ -4,13 +4,16 @@ import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { useSession, signOut } from 'next-auth/react'
 import { useCartStore } from '@/store/cartStore'
+import { useWishlistStore } from '@/store/wishlistStore'
 
 export default function Navbar() {
   const [isSearchOpen, setIsSearchOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const { data: session, status } = useSession()
   const isAuthenticated = status === 'authenticated'
   const cartItemsCount = useCartStore(state => state.getItemsCount())
+  const wishlistItemsCount = useWishlistStore(state => state.items.length)
   const [mounted, setMounted] = useState(false)
   
   // Hydration fix for server/client mismatch with localStorage
@@ -89,8 +92,11 @@ export default function Navbar() {
 
             {/* Auth */}
             {isAuthenticated ? (
-              <div className="relative group">
-                <button className="text-gray-600 hover:text-primary-600 flex items-center">
+              <div className="relative">
+                <button 
+                  className="text-gray-600 hover:text-primary-600 flex items-center"
+                  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     className="h-6 w-6"
@@ -107,65 +113,84 @@ export default function Navbar() {
                   </svg>
                   <span className="ml-1 hidden md:inline">{session?.user?.name?.split(' ')[0]}</span>
                 </button>
-              <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10 hidden group-hover:block">
-                <Link
-                  href="/profile"
-                  className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                >
-                  Your Profile
-                </Link>
-                <Link
-                  href="/profile/orders"
-                  className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                >
-                  Your Orders
-                </Link>
-                <Link
-                  href="/profile/addresses"
-                  className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                >
-                  Your Addresses
-                </Link>
-                
-                {/* Seller Links */}
-                <div className="border-t border-gray-100 mt-1 pt-1">
+                <div className={`absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10 ${isDropdownOpen ? 'block' : 'hidden'}`}>
                   <Link
-                    href="/seller/dashboard"
+                    href="/profile"
                     className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                   >
-                    Seller Dashboard
+                    Your Profile
                   </Link>
                   <Link
-                    href="/seller/products"
+                    href="/profile/orders"
                     className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                   >
-                    Your Products
+                    Your Orders
                   </Link>
                   <Link
-                    href="/seller/orders"
+                    href="/profile/addresses"
                     className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                   >
-                    Seller Orders
+                    Your Addresses
                   </Link>
+                  <Link
+                    href="/profile/wishlist"
+                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                  >
+                    Your Wishlist
+                    {mounted && wishlistItemsCount > 0 && (
+                      <span className="ml-2 bg-primary-600 text-white text-xs rounded-full px-2 py-0.5">
+                        {wishlistItemsCount}
+                      </span>
+                    )}
+                  </Link>
+                  <Link
+                    href="/profile/reviews"
+                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                  >
+                    Your Reviews
+                  </Link>
+                  
+                  {/* Seller Links */}
+                  {session?.user?.isSeller && (
+                    <div className="border-t border-gray-100 mt-1 pt-1">
+                      <Link
+                        href="/seller/dashboard"
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      >
+                        Seller Dashboard
+                      </Link>
+                      <Link
+                        href="/seller/products"
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      >
+                        Your Products
+                      </Link>
+                      <Link
+                        href="/seller/orders"
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      >
+                        Seller Orders
+                      </Link>
+                    </div>
+                  )}
+                  
+                  {/* Admin Link - Can add admin check here if needed */}
+                  <Link
+                    href="/admin"
+                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                  >
+                    Admin Dashboard
+                  </Link>
+                  
+                  <div className="border-t border-gray-100 mt-1 pt-1">
+                    <button
+                      onClick={() => signOut({ callbackUrl: '/' })}
+                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    >
+                      Sign Out
+                    </button>
+                  </div>
                 </div>
-                
-                {/* Admin Link */}
-                <Link
-                  href="/admin"
-                  className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                >
-                  Admin Dashboard
-                </Link>
-                
-                <div className="border-t border-gray-100 mt-1 pt-1">
-                  <button
-                    onClick={() => signOut({ callbackUrl: '/' })}
-                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                  >
-                    Sign Out
-                  </button>
-                </div>
-              </div>
               </div>
             ) : (
               <Link href="/auth/signin" className="text-gray-600 hover:text-primary-600">

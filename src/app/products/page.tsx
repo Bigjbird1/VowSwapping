@@ -14,12 +14,12 @@ export default async function ProductsPage({
 }: {
   searchParams: { [key: string]: string | string[] | undefined }
 }) {
-  // Parse search params for filtering
-  const category = typeof searchParams.category === 'string' ? searchParams.category : undefined
-  const minPrice = typeof searchParams.minPrice === 'string' ? parseInt(searchParams.minPrice) : undefined
-  const maxPrice = typeof searchParams.maxPrice === 'string' ? parseInt(searchParams.maxPrice) : undefined
-  const condition = typeof searchParams.condition === 'string' ? searchParams.condition : undefined
-  const searchQuery = typeof searchParams.q === 'string' ? searchParams.q : undefined
+  // Handle search params directly without destructuring
+  const category = typeof searchParams.category === 'string' ? searchParams.category : undefined;
+  const minPrice = typeof searchParams.minPrice === 'string' ? parseInt(searchParams.minPrice) : undefined;
+  const maxPrice = typeof searchParams.maxPrice === 'string' ? parseInt(searchParams.maxPrice) : undefined;
+  const condition = typeof searchParams.condition === 'string' ? searchParams.condition : undefined;
+  const searchQuery = typeof searchParams.q === 'string' ? searchParams.q : undefined;
   
   // Fetch products with filters
   const products = await getProducts({
@@ -28,7 +28,7 @@ export default async function ProductsPage({
     maxPrice,
     condition: condition as ProductCondition | undefined,
     searchQuery,
-  })
+  });
   
   return (
     <div className="container py-8">

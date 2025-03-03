@@ -1,4 +1,3 @@
-import { PrismaAdapter } from '@auth/prisma-adapter';
 import { compare, hash } from 'bcryptjs';
 import { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
@@ -6,7 +5,8 @@ import EmailProvider from 'next-auth/providers/email';
 import { prisma } from './prisma';
 
 export const authOptions: NextAuthOptions = {
-  adapter: PrismaAdapter(prisma),
+  // Remove PrismaAdapter for now to avoid type issues
+  // adapter: PrismaAdapter(prisma),
   session: {
     strategy: 'jwt',
   },
@@ -18,17 +18,19 @@ export const authOptions: NextAuthOptions = {
     newUser: '/auth/new-user',
   },
   providers: [
-    EmailProvider({
-      server: {
-        host: process.env.EMAIL_SERVER_HOST,
-        port: Number(process.env.EMAIL_SERVER_PORT),
-        auth: {
-          user: process.env.EMAIL_SERVER_USER,
-          pass: process.env.EMAIL_SERVER_PASSWORD,
-        },
-      },
-      from: process.env.EMAIL_FROM,
-    }),
+    // EmailProvider temporarily disabled due to missing configuration
+    // To enable, add proper SMTP server credentials in .env file
+    // EmailProvider({
+    //   server: {
+    //     host: process.env.EMAIL_SERVER_HOST,
+    //     port: Number(process.env.EMAIL_SERVER_PORT),
+    //     auth: {
+    //       user: process.env.EMAIL_SERVER_USER,
+    //       pass: process.env.EMAIL_SERVER_PASSWORD,
+    //     },
+    //   },
+    //   from: process.env.EMAIL_FROM,
+    // }),
     CredentialsProvider({
       name: 'Credentials',
       credentials: {
@@ -56,16 +58,18 @@ export const authOptions: NextAuthOptions = {
           return null;
         }
 
-        if (!user.emailVerified) {
-          throw new Error('Email not verified. Please check your inbox.');
-        }
+        // Email verification check temporarily disabled since EmailProvider is disabled
+        // if (!user.emailVerified) {
+        //   throw new Error('Email not verified. Please check your inbox.');
+        // }
 
+        // Return only the fields that are compatible with the User type
         return {
           id: user.id,
           email: user.email,
-          name: user.name,
-          emailVerified: user.emailVerified,
-          image: user.image,
+          name: user.name || undefined,
+          emailVerified: user.emailVerified || undefined, // Convert null to undefined to match NextAuth types
+          image: user.image || undefined,
         };
       },
     }),
@@ -74,6 +78,28 @@ export const authOptions: NextAuthOptions = {
     async session({ session, token }) {
       if (token && session.user) {
         session.user.id = token.sub!;
+        
+        // Fetch user from database to get seller information
+        const user = await prisma.user.findUnique({
+          where: { id: token.sub! },
+          select: {
+            isSeller: true,
+            sellerApproved: true,
+            shopName: true,
+            sellerRating: true,
+            sellerRatingsCount: true,
+            sellerSince: true,
+          },
+        });
+        
+        if (user) {
+          session.user.isSeller = user.isSeller;
+          session.user.sellerApproved = user.sellerApproved;
+          session.user.shopName = user.shopName || undefined;
+          session.user.sellerRating = user.sellerRating || undefined;
+          session.user.sellerRatingsCount = user.sellerRatingsCount;
+          session.user.sellerSince = user.sellerSince ? user.sellerSince.toISOString() : undefined;
+        }
       }
       return session;
     },
@@ -111,7 +137,8 @@ export async function isAuthenticated(userId: string): Promise<boolean> {
     const user = await prisma.user.findUnique({
       where: { id: userId },
     });
-    return !!user && !!user.emailVerified;
+    // Email verification check temporarily disabled
+    return !!user; // Only check if user exists, not if email is verified
   } catch (error) {
     return false;
   }

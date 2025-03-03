@@ -20,7 +20,16 @@ function mapDatabaseProductToAppProduct(dbProduct: any) {
     createdAt: dbProduct.createdAt.toISOString(),
     updatedAt: dbProduct.updatedAt.toISOString(),
     featured: dbProduct.featured,
-    sellerId: dbProduct.sellerId
+    sellerId: dbProduct.sellerId,
+    seller: dbProduct.seller ? {
+      id: dbProduct.seller.id,
+      name: dbProduct.seller.name,
+      shopName: dbProduct.seller.shopName,
+      sellerRating: dbProduct.seller.sellerRating,
+      sellerRatingsCount: dbProduct.seller.sellerRatingsCount,
+      sellerSince: dbProduct.seller.sellerSince ? dbProduct.seller.sellerSince.toISOString() : null,
+      sellerLogo: dbProduct.seller.sellerLogo
+    } : undefined
   };
 }
 
@@ -34,10 +43,14 @@ export async function GET(request: Request) {
     const condition = searchParams.get('condition') as string | null;
     const minPrice = searchParams.get('minPrice') ? parseFloat(searchParams.get('minPrice')!) : undefined;
     const maxPrice = searchParams.get('maxPrice') ? parseFloat(searchParams.get('maxPrice')!) : undefined;
-    const searchQuery = searchParams.get('searchQuery');
+    const searchQuery = searchParams.get('q');
+    const sellerId = searchParams.get('sellerId');
     
     // Build Prisma where clause
-    const where: Prisma.ProductWhereInput = {};
+    const where: Prisma.ProductWhereInput = {
+      // Only show approved products in public API
+      approved: true
+    };
     
     if (category) {
       where.category = category.toUpperCase() as any;
@@ -45,6 +58,11 @@ export async function GET(request: Request) {
     
     if (condition) {
       where.condition = condition.toUpperCase().replace('-', '_') as any;
+    }
+    
+    // Seller filtering
+    if (sellerId) {
+      where.sellerId = sellerId;
     }
     
     // Price filtering
@@ -88,6 +106,19 @@ export async function GET(request: Request) {
       orderBy: {
         createdAt: 'desc',
       },
+      include: {
+        seller: {
+          select: {
+            id: true,
+            name: true,
+            shopName: true,
+            sellerRating: true,
+            sellerRatingsCount: true,
+            sellerSince: true,
+            sellerLogo: true
+          }
+        }
+      }
     });
     
     return NextResponse.json({ 

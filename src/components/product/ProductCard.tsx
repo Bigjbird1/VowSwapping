@@ -4,6 +4,7 @@ import { Product } from '@/types/product'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useState } from 'react'
+import WishlistButton from './WishlistButton'
 
 interface ProductCardProps {
   product: Product
@@ -58,6 +59,11 @@ export default function ProductCard({ product }: ProductCardProps) {
               {conditionLabel}
             </div>
             
+            {/* Wishlist Button */}
+            <div className="absolute top-2 right-2">
+              <WishlistButton product={product} size="sm" />
+            </div>
+            
             {/* Quick View Button */}
             <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
               <div className="bg-white bg-opacity-90 px-4 py-2 rounded-md font-medium text-primary-600 hover:text-primary-700">
@@ -80,14 +86,42 @@ export default function ProductCard({ product }: ProductCardProps) {
             {category}
           </p>
         </div>
-        <div className="mt-1 flex items-center">
-          {discountPrice ? (
-            <>
-              <p className="text-sm font-medium text-gray-900">{formattedDiscountPrice}</p>
-              <p className="ml-2 text-sm text-gray-500 line-through">{formattedPrice}</p>
-            </>
-          ) : (
-            <p className="text-sm font-medium text-gray-900">{formattedPrice}</p>
+        <div className="mt-1 flex items-center justify-between">
+          <div>
+            {discountPrice ? (
+              <>
+                <p className="text-sm font-medium text-gray-900">{formattedDiscountPrice}</p>
+                <p className="text-sm text-gray-500 line-through">{formattedPrice}</p>
+              </>
+            ) : (
+              <p className="text-sm font-medium text-gray-900">{formattedPrice}</p>
+            )}
+          </div>
+          
+          {/* Seller Info */}
+          {product.seller && (
+            <div className="text-xs text-gray-500">
+              <Link 
+                href={`/shop/${product.seller.id}`}
+                className="hover:text-primary-600"
+              >
+                {product.seller.shopName || product.seller.name || 'Seller'}
+              </Link>
+              {product.seller.sellerRating !== undefined && (
+                <div className="flex items-center mt-1">
+                  <svg
+                    className="h-3 w-3 text-yellow-400"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                  </svg>
+                  <span className="ml-1">
+                    {product.seller.sellerRating?.toFixed(1)}
+                  </span>
+                </div>
+              )}
+            </div>
           )}
         </div>
       </div>

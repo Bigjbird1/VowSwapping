@@ -2,7 +2,8 @@
 
 import { ProductCategory, ProductCondition } from '@/types/product'
 import { useRouter, usePathname } from 'next/navigation'
-import { useCallback, useState } from 'react'
+import { useCallback, useState, useEffect } from 'react'
+import { prisma } from '@/lib/prisma'
 
 interface ProductFiltersProps {
   selectedCategory?: string
@@ -10,6 +11,7 @@ interface ProductFiltersProps {
   selectedMaxPrice?: number
   selectedCondition?: ProductCondition
   searchQuery?: string
+  selectedSellerId?: string
 }
 
 export default function ProductFilters({
@@ -18,6 +20,7 @@ export default function ProductFilters({
   selectedMaxPrice,
   selectedCondition,
   searchQuery,
+  selectedSellerId,
 }: ProductFiltersProps) {
   const router = useRouter()
   const pathname = usePathname()
@@ -28,6 +31,29 @@ export default function ProductFilters({
   const [maxPrice, setMaxPrice] = useState<number | undefined>(selectedMaxPrice)
   const [condition, setCondition] = useState<ProductCondition | undefined>(selectedCondition)
   const [query, setQuery] = useState<string | undefined>(searchQuery)
+  const [sellerId, setSellerId] = useState<string | undefined>(selectedSellerId)
+  const [sellers, setSellers] = useState<Array<{id: string, name: string, shopName: string | null}>>([])
+  const [isLoadingSellers, setIsLoadingSellers] = useState(false)
+  
+  // Fetch sellers
+  useEffect(() => {
+    const fetchSellers = async () => {
+      setIsLoadingSellers(true)
+      try {
+        const response = await fetch('/api/sellers');
+        if (response.ok) {
+          const data = await response.json();
+          setSellers(data.sellers || []);
+        }
+      } catch (error) {
+        console.error('Error fetching sellers:', error);
+      } finally {
+        setIsLoadingSellers(false);
+      }
+    };
+    
+    fetchSellers();
+  }, []);
   
   // Categories
   const categories: { value: ProductCategory; label: string }[] = [
@@ -62,9 +88,10 @@ export default function ProductFilters({
     if (maxPrice !== undefined) params.set('maxPrice', maxPrice.toString())
     if (condition) params.set('condition', condition)
     if (query) params.set('q', query)
+    if (sellerId) params.set('sellerId', sellerId)
     
     router.push(`${pathname}?${params.toString()}`)
-  }, [router, pathname, category, minPrice, maxPrice, condition, query])
+  }, [router, pathname, category, minPrice, maxPrice, condition, query, sellerId])
   
   // Reset filters
   const resetFilters = useCallback(() => {
@@ -73,6 +100,7 @@ export default function ProductFilters({
     setMaxPrice(undefined)
     setCondition(undefined)
     setQuery(undefined)
+    setSellerId(undefined)
     router.push(pathname)
   }, [router, pathname])
   
@@ -174,6 +202,37 @@ export default function ProductFilters({
               </div>
             ))}
           </div>
+        </div>
+        
+        {/* Sellers */}
+        <div className="mb-6">
+          <h4 className="text-sm font-medium text-gray-900 mb-2">Sellers</h4>
+          {isLoadingSellers ? (
+            <div className="text-sm text-gray-500">Loading sellers...</div>
+          ) : sellers.length > 0 ? (
+            <div className="space-y-2">
+              {sellers.map((seller) => (
+                <div key={seller.id} className="flex items-center">
+                  <input
+                    id={`seller-${seller.id}`}
+                    name="seller"
+                    type="radio"
+                    className="h-4 w-4 text-primary-600 focus:ring-primary-500"
+                    checked={sellerId === seller.id}
+                    onChange={() => setSellerId(seller.id)}
+                  />
+                  <label
+                    htmlFor={`seller-${seller.id}`}
+                    className="ml-3 text-sm text-gray-700"
+                  >
+                    {seller.shopName || seller.name}
+                  </label>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-sm text-gray-500">No sellers available</div>
+          )}
         </div>
         
         {/* Action Buttons */}

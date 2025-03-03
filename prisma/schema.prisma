@@ -27,6 +27,7 @@ model User {
   accounts          Account[]
   sessions          Session[]
   products          Product[]
+  wishlists         Wishlist[]
   
   // Seller fields
   isSeller          Boolean   @default(false)
@@ -121,6 +122,7 @@ model Product {
   seller        User?            @relation(fields: [sellerId], references: [id])
   orderItems    OrderItem[]
   reviews       Review[]
+  wishlists     Wishlist[]
   approved      Boolean          @default(false)
 }
 
@@ -158,6 +160,18 @@ model VerificationToken {
   expires    DateTime
 
   @@unique([identifier, token])
+}
+
+model Wishlist {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, productId])
 }
 
 model Review {

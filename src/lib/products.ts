@@ -6,7 +6,10 @@ import { Prisma } from '@prisma/client';
 export async function getProducts(filters?: ProductFilters): Promise<Product[]> {
   try {
     // Build filter object
-    const filter: any = {};
+    const filter: any = {
+      // Only show approved products
+      approved: true
+    };
     
     if (filters) {
       if (filters.category) {
@@ -15,6 +18,11 @@ export async function getProducts(filters?: ProductFilters): Promise<Product[]> 
       
       if (filters.condition) {
         filter.condition = filters.condition.toUpperCase().replace('-', '_');
+      }
+      
+      // Seller filtering
+      if (filters.sellerId) {
+        filter.sellerId = filters.sellerId;
       }
       
       // Price filtering
@@ -54,6 +62,19 @@ export async function getProducts(filters?: ProductFilters): Promise<Product[]> 
       orderBy: {
         createdAt: 'desc',
       },
+      include: {
+        seller: {
+          select: {
+            id: true,
+            name: true,
+            shopName: true,
+            sellerRating: true,
+            sellerRatingsCount: true,
+            sellerSince: true,
+            sellerLogo: true
+          }
+        }
+      }
     });
     
     // Convert database model to application model
@@ -69,6 +90,19 @@ export async function getProductById(id: string): Promise<Product | null> {
   try {
     const product = await prisma.product.findUnique({
       where: { id },
+      include: {
+        seller: {
+          select: {
+            id: true,
+            name: true,
+            shopName: true,
+            sellerRating: true,
+            sellerRatingsCount: true,
+            sellerSince: true,
+            sellerLogo: true
+          }
+        }
+      }
     });
     
     if (!product) {
@@ -86,10 +120,26 @@ export async function getProductById(id: string): Promise<Product | null> {
 export async function getFeaturedProducts(): Promise<Product[]> {
   try {
     const products = await prisma.product.findMany({
-      where: { featured: true },
+      where: { 
+        featured: true,
+        approved: true
+      },
       orderBy: {
         createdAt: 'desc',
       },
+      include: {
+        seller: {
+          select: {
+            id: true,
+            name: true,
+            shopName: true,
+            sellerRating: true,
+            sellerRatingsCount: true,
+            sellerSince: true,
+            sellerLogo: true
+          }
+        }
+      }
     });
     
     return products.map(mapDatabaseProductToAppProduct);
@@ -103,10 +153,26 @@ export async function getFeaturedProducts(): Promise<Product[]> {
 export async function getProductsByCategory(category: ProductCategory): Promise<Product[]> {
   try {
     const products = await prisma.product.findMany({
-      where: { category: category.toUpperCase() as any },
+      where: { 
+        category: category.toUpperCase() as any,
+        approved: true
+      },
       orderBy: {
         createdAt: 'desc',
       },
+      include: {
+        seller: {
+          select: {
+            id: true,
+            name: true,
+            shopName: true,
+            sellerRating: true,
+            sellerRatingsCount: true,
+            sellerSince: true,
+            sellerLogo: true
+          }
+        }
+      }
     });
     
     return products.map(mapDatabaseProductToAppProduct);
@@ -131,11 +197,25 @@ export async function getRelatedProducts(productId: string, limit: number = 4): 
       where: {
         category: currentProduct.category,
         id: { not: productId },
+        approved: true
       },
       take: limit,
       orderBy: {
         createdAt: 'desc',
       },
+      include: {
+        seller: {
+          select: {
+            id: true,
+            name: true,
+            shopName: true,
+            sellerRating: true,
+            sellerRatingsCount: true,
+            sellerSince: true,
+            sellerLogo: true
+          }
+        }
+      }
     });
     
     return relatedProducts.map(mapDatabaseProductToAppProduct);
@@ -160,6 +240,16 @@ function mapDatabaseProductToAppProduct(dbProduct: any): Product {
     createdAt: dbProduct.createdAt.toISOString(),
     updatedAt: dbProduct.updatedAt.toISOString(),
     featured: dbProduct.featured,
+    sellerId: dbProduct.sellerId,
+    seller: dbProduct.seller ? {
+      id: dbProduct.seller.id,
+      name: dbProduct.seller.name,
+      shopName: dbProduct.seller.shopName,
+      sellerRating: dbProduct.seller.sellerRating,
+      sellerRatingsCount: dbProduct.seller.sellerRatingsCount,
+      sellerSince: dbProduct.seller.sellerSince ? dbProduct.seller.sellerSince.toISOString() : null,
+      sellerLogo: dbProduct.seller.sellerLogo
+    } : undefined
   };
 }
 

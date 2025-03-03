@@ -6,6 +6,12 @@ import ProductGrid from '@/components/product/ProductGrid';
 import { optimizeImage } from '@/lib/cloudinary';
 import { formatDistanceToNow } from 'date-fns';
 import { Product, ProductCategory, ProductCondition } from '@/types/product';
+import dynamic from 'next/dynamic';
+
+// Import the SellerReviews component dynamically to avoid SSR issues
+const SellerReviews = dynamic(() => import('@/components/review/SellerReviews'), {
+  ssr: false,
+});
 
 interface ShopPageProps {
   params: {
@@ -237,6 +243,9 @@ export default async function ShopPage({ params }: ShopPageProps) {
             )}
           </div>
         </div>
+        
+        {/* Seller Reviews */}
+        <SellerReviews sellerId={id} />
       </div>
     );
   } catch (error) {
