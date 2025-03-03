@@ -133,6 +133,7 @@ function StripePaymentForm({
         className={`w-full bg-primary-600 text-white py-3 rounded-md font-medium hover:bg-primary-700 transition-colors ${
           isLoading ? 'opacity-75 cursor-not-allowed' : ''
         }`}
+        data-testid="pay-button"
       >
         <span id="button-text">
           {isLoading ? "Processing..." : "Pay now"}

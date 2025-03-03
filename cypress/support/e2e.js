@@ -24,9 +24,25 @@ beforeEach(() => {
   cy.injectAxe();
 });
 
-// Preserve cookies between tests
-Cypress.Cookies.defaults({
-  preserve: ['next-auth.session-token', 'next-auth.csrf-token', 'next-auth.callback-url'],
+// Preserve cookies between tests using cy.session() (Cypress 12+ approach)
+Cypress.Commands.add('preserveSession', () => {
+  cy.session('auth-session', () => {
+    // This is a placeholder for actual authentication logic
+    // In real tests, you would perform login actions here
+    cy.log('Session preserved for auth tokens');
+  }, {
+    validate: () => {
+      // Check if the session is still valid
+      return true;
+    },
+    cacheAcrossSpecs: true
+  });
+});
+
+// Call preserveSession in beforeEach if needed
+beforeEach(() => {
+  // Uncomment the line below when you need to preserve session in tests
+  // cy.preserveSession();
 });
 
 // Handle uncaught exceptions

@@ -32,6 +32,28 @@ export const useCartStore = create<CartStore>()(
         const { items } = get();
         const existingItem = items.find(item => item.id === product.id);
         
+        // Handle potentially malformed images array
+        let imageArray = product.images;
+        if (typeof imageArray === 'string') {
+          try {
+            // Try to parse if it's a JSON string
+            imageArray = JSON.parse(imageArray);
+          } catch (e) {
+            // If parsing fails, use a default array
+            console.error('Error parsing images:', e);
+            imageArray = [];
+          }
+        }
+        
+        // Ensure imageArray is an array
+        if (!Array.isArray(imageArray)) {
+          imageArray = [];
+        }
+        
+        // Use default image if none are available
+        const defaultImage = 'https://via.placeholder.com/300x400?text=No+Image';
+        const displayImage = imageArray[0] || defaultImage;
+        
         if (existingItem) {
           // Update quantity if item already exists
           set({
@@ -51,7 +73,7 @@ export const useCartStore = create<CartStore>()(
                 title: product.title,
                 price: product.price,
                 discountPrice: product.discountPrice,
-                image: product.images[0],
+                image: displayImage,
                 quantity
               }
             ]

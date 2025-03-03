@@ -1,0 +1,10 @@
+{
+  "name": "test-products-api",
+  "version": "1.0.0",
+  "description": "Test script for products API",
+  "main": "test-products-api.js",
+  "type": "module",
+  "dependencies": {
+    "node-fetch": "^3.3.0"
+  }
+}

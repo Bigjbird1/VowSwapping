@@ -71,7 +71,7 @@ function OrderSuccessDisplay({ orderId }: { orderId: string }) {
           Your order has been successfully placed. We've sent a confirmation email with all the details.
         </p>
         
-        <div className="bg-white p-6 rounded-lg shadow-sm mb-8">
+        <div className="bg-white p-6 rounded-lg shadow-sm mb-8" data-testid="order-confirmation">
           <h2 className="text-lg font-semibold mb-2">Order Information</h2>
           <p className="text-gray-600 mb-1">Order ID: {orderId}</p>
           <p className="text-gray-600">

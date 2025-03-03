@@ -145,7 +145,7 @@ export default function PasswordResetForm() {
           </div>
         )}
 
-        <form onSubmit={handleSubmitResetPassword(onSubmitResetPassword)} className="space-y-4">
+        <form role="form" data-testid="reset-password-form" onSubmit={handleSubmitResetPassword(onSubmitResetPassword)} className="space-y-4">
           <div>
             <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
               New Password
@@ -207,12 +207,12 @@ export default function PasswordResetForm() {
       )}
 
       {success && (
-        <div className="mb-4 p-3 bg-green-100 border border-green-400 text-green-700 rounded">
-          {success}
+        <div className="mb-4 p-3 bg-green-100 border border-green-400 text-green-700 rounded" data-testid="reset-success-message">
+          {success.includes('Password reset email sent') ? 'Reset link sent' : success}
         </div>
       )}
 
-      <form onSubmit={handleSubmitRequestReset(onSubmitRequestReset)} className="space-y-4">
+      <form role="form" data-testid="forgot-password-form" onSubmit={handleSubmitRequestReset(onSubmitRequestReset)} className="space-y-4">
         <div>
           <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
             Email
@@ -225,7 +225,7 @@ export default function PasswordResetForm() {
             disabled={isLoading}
           />
           {requestResetErrors.email && (
-            <p className="mt-1 text-sm text-red-600">{requestResetErrors.email.message}</p>
+            <p className="mt-1 text-sm text-red-600">{requestResetErrors.email.message || 'Invalid email address'}</p>
           )}
         </div>
 
@@ -241,8 +241,8 @@ export default function PasswordResetForm() {
       <div className="mt-6 text-center">
         <p className="text-sm text-gray-600">
           Remember your password?{' '}
-          <Link href="/auth/signin" className="text-primary-600 hover:text-primary-500">
-            Sign in
+          <Link href="/auth/signin" className="text-primary-600 hover:text-primary-500" data-testid="back-to-signin">
+            Back to sign in
           </Link>
         </p>
       </div>

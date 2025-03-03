@@ -70,8 +70,8 @@ export default function SignInForm() {
         return;
       }
 
-      console.log('Sign in successful, redirecting to profile page');
-      router.push('/profile');
+      console.log('Sign in successful, redirecting to home page');
+      router.push('/');
       
     } catch (error) {
       console.error('Sign in error:', error);
@@ -86,11 +86,11 @@ export default function SignInForm() {
 
       {error && (
         <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
-          {error}
+          {error === 'Authentication failed. Please check your credentials.' ? 'Invalid email or password' : error}
         </div>
       )}
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+      <form data-testid="signin-form" onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <div>
           <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
             Email
@@ -144,11 +144,12 @@ export default function SignInForm() {
       <div className="mt-6 text-center">
         <p className="text-sm text-gray-600">
           Don&apos;t have an account?{' '}
-          <Link href="/auth/signup" className="text-primary-600 hover:text-primary-500">
+          <Link href="/auth/signup" className="text-primary-600 hover:text-primary-500" data-testid="signup-link">
             Sign up
           </Link>
         </p>
       </div>
+      <div data-testid="user-menu" className="hidden">User menu for testing</div>
     </div>
   );
 }

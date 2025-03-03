@@ -13,8 +13,15 @@ export default function EmailVerification() {
   const token = searchParams.get('token');
   const successParam = searchParams.get('success');
   const errorParam = searchParams.get('error');
+  const fromSignup = !token && !successParam && !errorParam;
 
   useEffect(() => {
+    // If we're coming from signup, don't show loading or error
+    if (fromSignup) {
+      setIsLoading(false);
+      return;
+    }
+    
     // Check if we already have a success or error from the URL
     if (successParam === 'true') {
       setSuccess(true);
@@ -77,12 +84,8 @@ export default function EmailVerification() {
       };
 
       verifyEmail();
-    } else if (!successParam && !errorParam) {
-      // No token, success, or error params
-      setError('Invalid or missing verification token');
-      setIsLoading(false);
     }
-  }, [token, successParam, errorParam]);
+  }, [token, successParam, errorParam, fromSignup]);
 
   if (isLoading) {
     return (
@@ -92,6 +95,26 @@ export default function EmailVerification() {
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
         </div>
         <p className="text-center text-gray-600">Please wait while we verify your email...</p>
+      </div>
+    );
+  }
+
+  if (fromSignup) {
+    return (
+      <div className="w-full max-w-md mx-auto p-6 bg-white rounded-lg shadow-md">
+        <h1 className="text-2xl font-bold text-center mb-6">Verify Your Email</h1>
+        <div className="p-4 bg-green-100 border border-green-400 text-green-700 rounded mb-6">
+          <p>Verification email sent. Please check your inbox and follow the instructions to verify your account.</p>
+        </div>
+        <p className="text-center text-gray-600 mb-4">
+          Once verified, you&apos;ll be able to sign in to your account.
+        </p>
+        <Link
+          href="/auth/signin"
+          className="block w-full text-center py-2 px-4 border border-transparent rounded-md shadow-sm text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+        >
+          Go to Sign In
+        </Link>
       </div>
     );
   }

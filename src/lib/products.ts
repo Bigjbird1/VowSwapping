@@ -27,7 +27,16 @@ export async function getProducts(filters?: ProductFilters): Promise<Product[]> 
       
       // Price filtering
       if (filters.minPrice !== undefined || filters.maxPrice !== undefined) {
-        filter.OR = [
+        // If we don't already have an OR condition
+        if (!filter.OR) {
+          filter.OR = [];
+        } else if (!Array.isArray(filter.OR)) {
+          // If OR exists but is not an array, convert it to an array
+          filter.OR = [filter.OR];
+        }
+        
+        // Add price conditions to the OR array
+        filter.OR.push(
           // Check regular price
           {
             price: {
@@ -41,18 +50,28 @@ export async function getProducts(filters?: ProductFilters): Promise<Product[]> 
               ...(filters.minPrice !== undefined && { gte: filters.minPrice }),
               ...(filters.maxPrice !== undefined && { lte: filters.maxPrice }),
             },
-          },
-        ];
+          }
+        );
       }
       
       // Search query
       if (filters.searchQuery) {
         const query = filters.searchQuery.toLowerCase();
-        filter.OR = [
-          { title: { contains: query, mode: 'insensitive' } },
-          { description: { contains: query, mode: 'insensitive' } },
-          { tags: { has: query } },
-        ];
+        
+        // If we don't already have an OR condition
+        if (!filter.OR) {
+          filter.OR = [];
+        } else if (!Array.isArray(filter.OR)) {
+          // If OR exists but is not an array, convert it to an array
+          filter.OR = [filter.OR];
+        }
+        
+        // Add search conditions to the OR array
+        filter.OR.push(
+          { title: { contains: query } },
+          { description: { contains: query } }
+          // Tags search removed due to Prisma compatibility issues
+        );
       }
     }
     

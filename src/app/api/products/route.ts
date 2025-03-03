@@ -67,7 +67,16 @@ export async function GET(request: Request) {
     
     // Price filtering
     if (minPrice !== undefined || maxPrice !== undefined) {
-      where.OR = [
+      // If we don't already have an OR condition
+      if (!where.OR) {
+        where.OR = [];
+      } else if (!Array.isArray(where.OR)) {
+        // If OR exists but is not an array, convert it to an array
+        where.OR = [where.OR];
+      }
+      
+      // Add price conditions to the OR array
+      (where.OR as Prisma.ProductWhereInput[]).push(
         // Check regular price
         {
           price: {
@@ -81,23 +90,22 @@ export async function GET(request: Request) {
             ...(minPrice !== undefined && { gte: minPrice }),
             ...(maxPrice !== undefined && { lte: maxPrice }),
           },
-        },
-      ];
+        }
+      );
     }
     
     // Search query
     if (searchQuery) {
-      const searchWhere: Prisma.ProductWhereInput = {
-        OR: [
-          { title: { contains: searchQuery, mode: 'insensitive' } },
-          { description: { contains: searchQuery, mode: 'insensitive' } },
-          { tags: { has: searchQuery } },
-        ],
-      };
+      // Create search conditions
+      const searchConditions = [
+        { title: { contains: searchQuery.toLowerCase() } },
+        { description: { contains: searchQuery.toLowerCase() } },
+        // Tags search removed due to Prisma compatibility issues
+      ];
       
-      // Combine with existing where clause
+      // Add search conditions to AND clause
       where.AND = where.AND || [];
-      (where.AND as Prisma.ProductWhereInput[]).push(searchWhere);
+      (where.AND as Prisma.ProductWhereInput[]).push({ OR: searchConditions });
     }
     
     // Execute query with Prisma

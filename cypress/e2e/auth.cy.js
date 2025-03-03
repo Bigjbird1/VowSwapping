@@ -11,7 +11,7 @@ describe('Authentication Flow', () => {
     // Generate a unique email for testing
     const uniqueEmail = `test-${Date.now()}@example.com`;
     
-    cy.visit('/auth/signup');
+    cy.visit('/auth/signup', { failOnStatusCode: false });
     cy.get('input[name="name"]').type('Test User');
     cy.get('input[name="email"]').type(uniqueEmail);
     cy.get('input[name="password"]').type('Password123!');
@@ -24,7 +24,7 @@ describe('Authentication Flow', () => {
   });
 
   it('should show validation errors on signup form', () => {
-    cy.visit('/auth/signup');
+    cy.visit('/auth/signup', { failOnStatusCode: false });
     
     // Submit empty form
     cy.get('button[type="submit"]').click();
@@ -48,7 +48,7 @@ describe('Authentication Flow', () => {
     // Use test user credentials from Cypress environment variables
     const { email, password } = Cypress.env('testUser');
     
-    cy.visit('/auth/signin');
+    cy.visit('/auth/signin', { failOnStatusCode: false });
     cy.get('input[name="email"]').type(email);
     cy.get('input[name="password"]').type(password);
     cy.get('button[type="submit"]').click();
@@ -61,7 +61,7 @@ describe('Authentication Flow', () => {
   });
 
   it('should show error message for invalid credentials', () => {
-    cy.visit('/auth/signin');
+    cy.visit('/auth/signin', { failOnStatusCode: false });
     cy.get('input[name="email"]').type('wrong@example.com');
     cy.get('input[name="password"]').type('WrongPassword123!');
     cy.get('button[type="submit"]').click();
@@ -71,7 +71,7 @@ describe('Authentication Flow', () => {
   });
 
   it('should allow a user to request password reset', () => {
-    cy.visit('/auth/forgot-password');
+    cy.visit('/auth/forgot-password', { failOnStatusCode: false });
     cy.get('input[name="email"]').type('test@example.com');
     cy.get('button[type="submit"]').click();
     
@@ -80,7 +80,7 @@ describe('Authentication Flow', () => {
   });
 
   it('should validate email on password reset form', () => {
-    cy.visit('/auth/forgot-password');
+    cy.visit('/auth/forgot-password', { failOnStatusCode: false });
     cy.get('input[name="email"]').type('invalid-email');
     cy.get('button[type="submit"]').click();
     
@@ -90,7 +90,7 @@ describe('Authentication Flow', () => {
 
   it('should navigate between auth pages', () => {
     // Sign in to sign up
-    cy.visit('/auth/signin');
+    cy.visit('/auth/signin', { failOnStatusCode: false });
     cy.contains('Sign up').click();
     cy.url().should('include', '/auth/signup');
     

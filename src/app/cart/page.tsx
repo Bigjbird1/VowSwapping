@@ -98,19 +98,21 @@ export default function CartPage() {
               </div>
             </div>
             
-            <button
-              onClick={handleCheckout}
-              className="w-full bg-primary-600 text-white py-3 rounded-md font-medium hover:bg-primary-700 transition-colors mb-3"
-            >
-              Proceed to Checkout
-            </button>
-            
-            <button
-              onClick={() => clearCart()}
-              className="w-full text-gray-600 py-2 border border-gray-300 rounded-md font-medium hover:bg-gray-50 transition-colors"
-            >
-              Clear Cart
-            </button>
+              <button
+                onClick={handleCheckout}
+                className="w-full bg-primary-600 text-white py-3 rounded-md font-medium hover:bg-primary-700 transition-colors mb-3"
+                data-testid="checkout-button"
+              >
+                Proceed to Checkout
+              </button>
+              
+              <button
+                onClick={() => clearCart()}
+                className="w-full text-gray-600 py-2 border border-gray-300 rounded-md font-medium hover:bg-gray-50 transition-colors"
+                data-testid="clear-cart-button"
+              >
+                Clear Cart
+              </button>
           </div>
         </div>
       </div>
@@ -128,7 +130,7 @@ function CartItemRow({
   removeItem: (id: string) => void;
 }) {
   return (
-    <div className="p-4 flex items-start">
+    <div className="p-4 flex items-start" data-testid="cart-item">
       <div className="relative h-20 w-20 rounded-md overflow-hidden flex-shrink-0">
         <Image
           src={item.image}
@@ -139,12 +141,12 @@ function CartItemRow({
       </div>
       
       <div className="ml-4 flex-grow">
-        <Link href={`/products/${item.id}`} className="font-medium text-gray-900 hover:text-primary-600">
+        <Link href={`/products/${item.id}`} className="font-medium text-gray-900 hover:text-primary-600" data-testid="item-title">
           {item.title}
         </Link>
         
         <div className="mt-1 flex justify-between">
-          <div>
+          <div data-testid="item-price">
             <span className="text-gray-600">
               {item.discountPrice ? (
                 <>
@@ -161,13 +163,15 @@ function CartItemRow({
             <button
               onClick={() => updateQuantity(item.id, item.quantity - 1)}
               className="text-gray-500 hover:text-gray-700 p-1"
+              data-testid="decrease-quantity"
             >
               -
             </button>
-            <span className="mx-2">{item.quantity}</span>
+            <span className="mx-2" data-testid="item-quantity">{item.quantity}</span>
             <button
               onClick={() => updateQuantity(item.id, item.quantity + 1)}
               className="text-gray-500 hover:text-gray-700 p-1"
+              data-testid="increase-quantity"
             >
               +
             </button>
@@ -182,6 +186,7 @@ function CartItemRow({
           <button
             onClick={() => removeItem(item.id)}
             className="text-red-600 hover:text-red-800 text-sm"
+            data-testid="remove-item"
           >
             Remove
           </button>

@@ -15,9 +15,10 @@ async function main() {
   
   try {
     // Test database connection
-    const databaseVersion = await prisma.$queryRaw`SELECT version();`;
+    // Use SQLite-compatible query to check connection
+    const databaseTest = await prisma.$queryRaw`SELECT 1 as test;`;
     console.log('Database connection successful!');
-    console.log('Database version:', databaseVersion[0].version);
+    console.log('Database test result:', databaseTest);
     
     // Test user table access
     console.log('\nTesting user table access...');

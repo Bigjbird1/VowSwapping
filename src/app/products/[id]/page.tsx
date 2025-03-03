@@ -68,29 +68,76 @@ export default async function ProductPage({ params }: { params: Params }) {
         {/* Product Images */}
         <div>
           <div className="relative h-96 w-full mb-4 rounded-lg overflow-hidden" style={{ position: 'relative', height: '24rem' }}>
-            <Image
-              src={product.images[0]}
-              alt={product.title}
-              fill
-              style={{ objectFit: 'cover' }}
-              priority
-            />
+            {(() => {
+              // Ensure images is an array
+              let imageArray = product.images;
+              if (typeof imageArray === 'string') {
+                try {
+                  // Try to parse if it's a JSON string
+                  imageArray = JSON.parse(imageArray);
+                } catch (e) {
+                  // If parsing fails, use a default array
+                  console.error('Error parsing images:', e);
+                  imageArray = [];
+                }
+              }
+              
+              // Ensure imageArray is an array
+              if (!Array.isArray(imageArray)) {
+                imageArray = [];
+              }
+              
+              // Use default image if none are available
+              const defaultImage = 'https://via.placeholder.com/300x400?text=No+Image';
+              const displayImage = imageArray[0] || defaultImage;
+              
+              return (
+                <Image
+                  src={displayImage}
+                  alt={product.title}
+                  fill
+                  style={{ objectFit: 'cover' }}
+                  priority
+                />
+              );
+            })()}
           </div>
           
-          {product.images.length > 1 && (
-            <div className="grid grid-cols-4 gap-2">
-              {product.images.map((image, index) => (
-                <div key={index} className="relative h-24 rounded-md overflow-hidden" style={{ position: 'relative', height: '6rem' }}>
-                  <Image
-                    src={image}
-                    alt={`${product.title} - Image ${index + 1}`}
-                    fill
-                    style={{ objectFit: 'cover' }}
-                  />
-                </div>
-              ))}
-            </div>
-          )}
+          {/* Handle potentially malformed images array */}
+          {(() => {
+            // Ensure images is an array
+            let imageArray = product.images;
+            if (typeof imageArray === 'string') {
+              try {
+                // Try to parse if it's a JSON string
+                imageArray = JSON.parse(imageArray);
+              } catch (e) {
+                // If parsing fails, use a default array
+                console.error('Error parsing images:', e);
+                imageArray = [];
+              }
+            }
+            
+            // Ensure imageArray is an array
+            if (!Array.isArray(imageArray)) {
+              imageArray = [];
+            }
+            
+            return imageArray.length > 1 ? (
+              <div className="grid grid-cols-4 gap-2">
+                {imageArray.map((image, index) => (
+                  <div key={index} className="relative h-24 rounded-md overflow-hidden" style={{ position: 'relative', height: '6rem' }}>
+                    <Image
+                      src={image}
+                      alt={`${product.title} - Image ${index + 1}`}
+                      fill
+                      style={{ objectFit: 'cover' }}
+                    />
+                  </div>
+                ))}
+              </div>
+            ) : null;
+          })()}
         </div>
         
         {/* Product Details */}
@@ -127,14 +174,34 @@ export default async function ProductPage({ params }: { params: Params }) {
           <div className="mb-8">
             <h2 className="text-lg font-medium mb-2">Tags</h2>
             <div className="flex flex-wrap gap-2">
-              {product.tags.map((tag) => (
-                <span
-                  key={tag}
-                  className="bg-gray-100 text-gray-700 px-3 py-1 text-sm rounded-full"
-                >
-                  {tag}
-                </span>
-              ))}
+              {(() => {
+                // Ensure tags is an array
+                let tagsArray = product.tags;
+                if (typeof tagsArray === 'string') {
+                  try {
+                    // Try to parse if it's a JSON string
+                    tagsArray = JSON.parse(tagsArray);
+                  } catch (e) {
+                    // If parsing fails, use a default array
+                    console.error('Error parsing tags:', e);
+                    tagsArray = [];
+                  }
+                }
+                
+                // Ensure tagsArray is an array
+                if (!Array.isArray(tagsArray)) {
+                  tagsArray = [];
+                }
+                
+                return tagsArray.map((tag) => (
+                  <span
+                    key={tag}
+                    className="bg-gray-100 text-gray-700 px-3 py-1 text-sm rounded-full"
+                  >
+                    {tag}
+                  </span>
+                ));
+              })()}
             </div>
           </div>
           

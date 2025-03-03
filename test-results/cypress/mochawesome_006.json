@@ -1,0 +1,224 @@
+{
+  "stats": {
+    "suites": 1,
+    "tests": 6,
+    "passes": 0,
+    "pending": 0,
+    "failures": 6,
+    "start": "2025-03-03T15:38:37.496Z",
+    "end": "2025-03-03T15:39:39.638Z",
+    "duration": 62142,
+    "testsRegistered": 6,
+    "passPercent": 0,
+    "pendingPercent": 0,
+    "other": 0,
+    "hasOther": false,
+    "skipped": 0,
+    "hasSkipped": false
+  },
+  "results": [
+    {
+      "uuid": "eac18a67-55cc-422b-bbdf-a068334a45ba",
+      "title": "",
+      "fullFile": "cypress/e2e/auth-flow.cy.js",
+      "file": "cypress/e2e/auth-flow.cy.js",
+      "beforeHooks": [],
+      "afterHooks": [],
+      "tests": [],
+      "suites": [
+        {
+          "uuid": "b6fe21b7-2448-4c51-936d-8f5ac9560900",
+          "title": "Complete Authentication Flow",
+          "fullFile": "",
+          "file": "",
+          "beforeHooks": [],
+          "afterHooks": [],
+          "tests": [
+            {
+              "title": "should complete the full registration and verification flow",
+              "fullTitle": "Complete Authentication Flow should complete the full registration and verification flow",
+              "timedOut": null,
+              "duration": 10515,
+              "state": "failed",
+              "speed": null,
+              "pass": false,
+              "fail": true,
+              "pending": false,
+              "context": null,
+              "code": "// Generate a unique email for testing\nconst uniqueEmail = `test-${Date.now()}@example.com`;\nconst testUser = {\n  name: 'Test User',\n  email: uniqueEmail,\n  password: 'Password123!'\n};\n// Step 1: Register a new user\ncy.visit('/auth/signup', {\n  failOnStatusCode: false\n});\ncy.get('input[name=\"name\"]').type(testUser.name);\ncy.get('input[name=\"email\"]').type(testUser.email);\ncy.get('input[name=\"password\"]').type(testUser.password);\ncy.get('input[name=\"confirmPassword\"]').type(testUser.password);\ncy.get('button[type=\"submit\"]').click();\n// Verify redirect to verification page\ncy.url().should('include', '/auth/verify-email');\ncy.contains('Verify Your Email').should('be.visible');\ncy.contains('verification email').should('be.visible');\n// In a real test environment, you would need to:\n// 1. Intercept the email sent to the user\n// 2. Extract the verification token from the email\n// 3. Visit the verification URL with the token\n// For this test, we'll simulate the verification by directly visiting the verification page with a success parameter\n// Note: In a real environment, you would need to set up a test email server or use a service like Mailhog\ncy.visit('/auth/verify-email?success=true', {\n  failOnStatusCode: false\n});\n// Verify successful verification\ncy.contains('Email Verified!').should('be.visible');\ncy.contains('Your email has been successfully verified').should('be.visible');\n// Step 2: Sign in with the newly created account\ncy.contains('Sign In').click();\ncy.url().should('include', '/auth/signin');\ncy.get('input[name=\"email\"]').type(testUser.email);\ncy.get('input[name=\"password\"]').type(testUser.password);\ncy.get('button[type=\"submit\"]').click();\n// Verify successful login and redirect to home page\ncy.url().should('eq', Cypress.config().baseUrl + '/');\n// Verify user is logged in\ncy.get('[data-testid=\"user-menu\"]').should('exist');\n// Step 3: Access user profile\ncy.get('[data-testid=\"user-menu\"]').click();\ncy.contains('Profile').click();\n// Verify profile page loads with user information\ncy.url().should('include', '/profile');\ncy.get('input[name=\"name\"]').should('have.value', testUser.name);\ncy.get('input[name=\"email\"]').should('have.value', testUser.email);",
+              "err": {
+                "message": "AssertionError: Timed out retrying after 10000ms: Expected to find element: `input[name=\"name\"]`, but never found it.",
+                "estack": "AssertionError: Timed out retrying after 10000ms: Expected to find element: `input[name=\"name\"]`, but never found it.\n    at Context.eval (webpack://vowswapping/./cypress/e2e/auth-flow.cy.js:20:7)",
+                "diff": null
+              },
+              "uuid": "39ddfbb8-6db1-4c75-a0c4-53be7d24ef2d",
+              "parentUUID": "b6fe21b7-2448-4c51-936d-8f5ac9560900",
+              "isHook": false,
+              "skipped": false
+            },
+            {
+              "title": "should complete the password reset flow",
+              "fullTitle": "Complete Authentication Flow should complete the password reset flow",
+              "timedOut": null,
+              "duration": 10335,
+              "state": "failed",
+              "speed": null,
+              "pass": false,
+              "fail": true,
+              "pending": false,
+              "context": null,
+              "code": "// This test requires a pre-existing user account\n// Use environment variables or a test user that's guaranteed to exist\nconst testEmail = Cypress.env('TEST_USER_EMAIL') || 'test@example.com';\nconst newPassword = `NewPassword${Date.now()}!`;\n// Step 1: Request password reset\ncy.visit('/auth/forgot-password', {\n  failOnStatusCode: false\n});\ncy.get('input[name=\"email\"]').type(testEmail);\ncy.get('button[type=\"submit\"]').click();\n// Verify success message\ncy.contains('Password reset email sent').should('be.visible');\n// In a real test environment, you would need to:\n// 1. Intercept the email sent to the user\n// 2. Extract the reset token from the email\n// 3. Visit the reset password URL with the token\n// For this test, we'll simulate having a valid token\n// Note: This part would need to be adapted for your actual testing environment\n// Mock a reset token (in a real test, you would get this from the intercepted email)\nconst mockToken = 'mock-reset-token';\n// Step 2: Reset password with token\ncy.visit(`/auth/reset-password?token=${mockToken}`, {\n  failOnStatusCode: false\n});\n// In a real environment, this would fail because the token is not valid\n// For testing purposes, we'll check if the form is displayed\ncy.get('input[name=\"password\"]').should('exist');\ncy.get('input[name=\"confirmPassword\"]').should('exist');\n// Fill the form (this would not actually work with a mock token)\ncy.get('input[name=\"password\"]').type(newPassword);\ncy.get('input[name=\"confirmPassword\"]').type(newPassword);\ncy.get('button[type=\"submit\"]').click();\n// Since we're using a mock token, we expect an error message\n// In a real test with a valid token, you would check for success\ncy.contains(/invalid|expired|error/i).should('be.visible');\n// Note: To fully test this flow, you would need:\n// 1. A way to generate a valid reset token in your test environment\n// 2. Or a way to mock the token validation in your API",
+              "err": {
+                "message": "AssertionError: Timed out retrying after 10000ms: Expected to find element: `input[name=\"email\"]`, but never found it.",
+                "estack": "AssertionError: Timed out retrying after 10000ms: Expected to find element: `input[name=\"email\"]`, but never found it.\n    at Context.eval (webpack://vowswapping/./cypress/e2e/auth-flow.cy.js:76:7)",
+                "diff": null
+              },
+              "uuid": "c7a16eff-db16-487b-a86d-852bece85724",
+              "parentUUID": "b6fe21b7-2448-4c51-936d-8f5ac9560900",
+              "isHook": false,
+              "skipped": false
+            },
+            {
+              "title": "should handle invalid login attempts",
+              "fullTitle": "Complete Authentication Flow should handle invalid login attempts",
+              "timedOut": null,
+              "duration": 10257,
+              "state": "failed",
+              "speed": null,
+              "pass": false,
+              "fail": true,
+              "pending": false,
+              "context": null,
+              "code": "cy.visit('/auth/signin', {\n  failOnStatusCode: false\n});\n// Test with non-existent email\ncy.get('input[name=\"email\"]').type('nonexistent@example.com');\ncy.get('input[name=\"password\"]').type('Password123!');\ncy.get('button[type=\"submit\"]').click();\n// Verify error message\ncy.contains(/invalid credentials|email or password/i).should('be.visible');\n// Test with wrong password\ncy.get('input[name=\"email\"]').clear().type('test@example.com');\ncy.get('input[name=\"password\"]').clear().type('WrongPassword123!');\ncy.get('button[type=\"submit\"]').click();\n// Verify error message\ncy.contains(/invalid credentials|email or password/i).should('be.visible');",
+              "err": {
+                "message": "AssertionError: Timed out retrying after 10000ms: Expected to find element: `input[name=\"email\"]`, but never found it.",
+                "estack": "AssertionError: Timed out retrying after 10000ms: Expected to find element: `input[name=\"email\"]`, but never found it.\n    at Context.eval (webpack://vowswapping/./cypress/e2e/auth-flow.cy.js:119:7)",
+                "diff": null
+              },
+              "uuid": "b0577e4d-9adf-4994-ab43-5043c421e337",
+              "parentUUID": "b6fe21b7-2448-4c51-936d-8f5ac9560900",
+              "isHook": false,
+              "skipped": false
+            },
+            {
+              "title": "should enforce password requirements on signup",
+              "fullTitle": "Complete Authentication Flow should enforce password requirements on signup",
+              "timedOut": null,
+              "duration": 10250,
+              "state": "failed",
+              "speed": null,
+              "pass": false,
+              "fail": true,
+              "pending": false,
+              "context": null,
+              "code": "cy.visit('/auth/signup', {\n  failOnStatusCode: false\n});\n// Fill form with valid data except for password\ncy.get('input[name=\"name\"]').type('Test User');\ncy.get('input[name=\"email\"]').type('test-password@example.com');\n// Test with short password\ncy.get('input[name=\"password\"]').type('short');\ncy.get('input[name=\"confirmPassword\"]').type('short');\ncy.get('button[type=\"submit\"]').click();\n// Verify validation error\ncy.contains(/password must be at least/i).should('be.visible');\n// Test with mismatched passwords\ncy.get('input[name=\"password\"]').clear().type('Password123!');\ncy.get('input[name=\"confirmPassword\"]').clear().type('DifferentPassword123!');\ncy.get('button[type=\"submit\"]').click();\n// Verify validation error\ncy.contains(/passwords do not match/i).should('be.visible');",
+              "err": {
+                "message": "AssertionError: Timed out retrying after 10000ms: Expected to find element: `input[name=\"name\"]`, but never found it.",
+                "estack": "AssertionError: Timed out retrying after 10000ms: Expected to find element: `input[name=\"name\"]`, but never found it.\n    at Context.eval (webpack://vowswapping/./cypress/e2e/auth-flow.cy.js:139:7)",
+                "diff": null
+              },
+              "uuid": "8a65e7f2-1e63-4a20-b0e6-f72567fdbd43",
+              "parentUUID": "b6fe21b7-2448-4c51-936d-8f5ac9560900",
+              "isHook": false,
+              "skipped": false
+            },
+            {
+              "title": "should navigate between auth pages",
+              "fullTitle": "Complete Authentication Flow should navigate between auth pages",
+              "timedOut": null,
+              "duration": 10244,
+              "state": "failed",
+              "speed": null,
+              "pass": false,
+              "fail": true,
+              "pending": false,
+              "context": null,
+              "code": "// Start at sign in page\ncy.visit('/auth/signin', {\n  failOnStatusCode: false\n});\n// Navigate to sign up page\ncy.contains('Sign up').click();\ncy.url().should('include', '/auth/signup');\n// Navigate back to sign in page\ncy.contains('Sign in').click();\ncy.url().should('include', '/auth/signin');\n// Navigate to forgot password page\ncy.contains('Forgot password').click();\ncy.url().should('include', '/auth/forgot-password');\n// Navigate back to sign in page\ncy.contains('Back to sign in').click();\ncy.url().should('include', '/auth/signin');",
+              "err": {
+                "message": "AssertionError: Timed out retrying after 10000ms: Expected to find content: 'Sign up' but never did.",
+                "estack": "AssertionError: Timed out retrying after 10000ms: Expected to find content: 'Sign up' but never did.\n    at Context.eval (webpack://vowswapping/./cypress/e2e/auth-flow.cy.js:164:7)",
+                "diff": null
+              },
+              "uuid": "72abe050-344f-4bba-92c3-e07e021da8ca",
+              "parentUUID": "b6fe21b7-2448-4c51-936d-8f5ac9560900",
+              "isHook": false,
+              "skipped": false
+            },
+            {
+              "title": "should logout successfully",
+              "fullTitle": "Complete Authentication Flow should logout successfully",
+              "timedOut": null,
+              "duration": 10322,
+              "state": "failed",
+              "speed": null,
+              "pass": false,
+              "fail": true,
+              "pending": false,
+              "context": null,
+              "code": "// Login first\ncy.login();\n// Verify we're logged in\ncy.visit('/', {\n  failOnStatusCode: false\n});\ncy.get('[data-testid=\"user-menu\"]').should('exist');\n// Logout\ncy.get('[data-testid=\"user-menu\"]').click();\ncy.contains('Logout').click();\n// Verify we're logged out\ncy.get('[data-testid=\"user-menu\"]').should('not.exist');\n// Verify we can't access protected pages\ncy.visit('/profile', {\n  failOnStatusCode: false\n});\ncy.url().should('include', '/auth/signin'); // Should redirect to login",
+              "err": {
+                "message": "AssertionError: Timed out retrying after 10000ms: Expected to find element: `input[name=\"email\"]`, but never found it.\n\nThis error occurred while creating the session. Because the session setup failed, we failed the test.",
+                "estack": "AssertionError: Timed out retrying after 10000ms: Expected to find element: `input[name=\"email\"]`, but never found it.\n\nThis error occurred while creating the session. Because the session setup failed, we failed the test.\n    at Object.eval [as setup] (webpack://vowswapping/./cypress/support/commands.js:36:7)",
+                "diff": null
+              },
+              "uuid": "c0cf59a2-352b-4bba-a803-b780b2863130",
+              "parentUUID": "b6fe21b7-2448-4c51-936d-8f5ac9560900",
+              "isHook": false,
+              "skipped": false
+            }
+          ],
+          "suites": [],
+          "passes": [],
+          "failures": [
+            "39ddfbb8-6db1-4c75-a0c4-53be7d24ef2d",
+            "c7a16eff-db16-487b-a86d-852bece85724",
+            "b0577e4d-9adf-4994-ab43-5043c421e337",
+            "8a65e7f2-1e63-4a20-b0e6-f72567fdbd43",
+            "72abe050-344f-4bba-92c3-e07e021da8ca",
+            "c0cf59a2-352b-4bba-a803-b780b2863130"
+          ],
+          "pending": [],
+          "skipped": [],
+          "duration": 61923,
+          "root": false,
+          "rootEmpty": false,
+          "_timeout": 2000
+        }
+      ],
+      "passes": [],
+      "failures": [],
+      "pending": [],
+      "skipped": [],
+      "duration": 0,
+      "root": true,
+      "rootEmpty": true,
+      "_timeout": 2000
+    }
+  ],
+  "meta": {
+    "mocha": {
+      "version": "7.0.1"
+    },
+    "mochawesome": {
+      "options": {
+        "quiet": false,
+        "reportFilename": "mochawesome",
+        "saveHtml": true,
+        "saveJson": true,
+        "consoleReporter": "spec",
+        "useInlineDiffs": false,
+        "code": true
+      },
+      "version": "7.1.3"
+    },
+    "marge": {
+      "options": {
+        "reportDir": "test-results/cypress",
+        "overwrite": false,
+        "html": true,
+        "json": true
+      },
+      "version": "6.2.0"
+    }
+  }
+}

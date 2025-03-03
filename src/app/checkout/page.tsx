@@ -207,6 +207,7 @@ export default function CheckoutPage() {
                         value={selectedAddressId}
                         {...register('addressId')}
                         onChange={handleAddressChange}
+                        data-testid="address-select"
                       >
                         <option value="new">Use a new address</option>
                         {addresses.map(address => (
@@ -226,6 +227,7 @@ export default function CheckoutPage() {
                           type="text"
                           className={`w-full p-2 border rounded-md ${errors.name ? 'border-red-500' : 'border-gray-300'}`}
                           {...register('name', { required: 'Name is required' })}
+                          data-testid="name-input"
                         />
                         {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name.message}</p>}
                       </div>
@@ -236,6 +238,7 @@ export default function CheckoutPage() {
                           type="text"
                           className={`w-full p-2 border rounded-md ${errors.street ? 'border-red-500' : 'border-gray-300'}`}
                           {...register('street', { required: 'Street address is required' })}
+                          data-testid="street-input"
                         />
                         {errors.street && <p className="text-red-500 text-sm mt-1">{errors.street.message}</p>}
                       </div>
@@ -247,6 +250,7 @@ export default function CheckoutPage() {
                             type="text"
                             className={`w-full p-2 border rounded-md ${errors.city ? 'border-red-500' : 'border-gray-300'}`}
                             {...register('city', { required: 'City is required' })}
+                            data-testid="city-input"
                           />
                           {errors.city && <p className="text-red-500 text-sm mt-1">{errors.city.message}</p>}
                         </div>
@@ -257,6 +261,7 @@ export default function CheckoutPage() {
                             type="text"
                             className={`w-full p-2 border rounded-md ${errors.state ? 'border-red-500' : 'border-gray-300'}`}
                             {...register('state', { required: 'State is required' })}
+                            data-testid="state-input"
                           />
                           {errors.state && <p className="text-red-500 text-sm mt-1">{errors.state.message}</p>}
                         </div>
@@ -269,6 +274,7 @@ export default function CheckoutPage() {
                             type="text"
                             className={`w-full p-2 border rounded-md ${errors.postalCode ? 'border-red-500' : 'border-gray-300'}`}
                             {...register('postalCode', { required: 'Postal code is required' })}
+                            data-testid="postal-code-input"
                           />
                           {errors.postalCode && <p className="text-red-500 text-sm mt-1">{errors.postalCode.message}</p>}
                         </div>
@@ -279,6 +285,7 @@ export default function CheckoutPage() {
                             type="text"
                             className={`w-full p-2 border rounded-md ${errors.country ? 'border-red-500' : 'border-gray-300'}`}
                             {...register('country', { required: 'Country is required' })}
+                            data-testid="country-input"
                           />
                           {errors.country && <p className="text-red-500 text-sm mt-1">{errors.country.message}</p>}
                         </div>
@@ -304,6 +311,7 @@ export default function CheckoutPage() {
                       className={`w-full bg-primary-600 text-white py-3 rounded-md font-medium hover:bg-primary-700 transition-colors ${
                         isSubmitting ? 'opacity-75 cursor-not-allowed' : ''
                       }`}
+                      data-testid="continue-button"
                     >
                       {isSubmitting ? 'Processing...' : 'Continue to Payment'}
                     </button>

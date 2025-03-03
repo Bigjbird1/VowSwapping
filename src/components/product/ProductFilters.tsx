@@ -122,12 +122,13 @@ export default function ProductFilters({
               className="w-full p-2 border border-gray-300 rounded-md"
               value={query || ''}
               onChange={(e) => setQuery(e.target.value)}
+              data-testid="search-input"
             />
           </div>
         </div>
         
         {/* Categories */}
-        <div className="mb-6">
+        <div className="mb-6" data-testid="category-filter">
           <h4 className="text-sm font-medium text-gray-900 mb-2">Categories</h4>
           <div className="space-y-2">
             {categories.map((cat) => (
@@ -152,7 +153,7 @@ export default function ProductFilters({
         </div>
         
         {/* Price Range */}
-        <div className="mb-6">
+        <div className="mb-6" data-testid="price-filter">
           <h4 className="text-sm font-medium text-gray-900 mb-2">Price Range</h4>
           <div className="space-y-2">
             {priceRanges.map((range, index) => (
@@ -167,6 +168,7 @@ export default function ProductFilters({
                     setMinPrice(range.min)
                     setMaxPrice(range.max)
                   }}
+                  data-testid={`price-range-${index}`}
                 />
                 <label
                   htmlFor={`price-${index}`}
@@ -180,7 +182,7 @@ export default function ProductFilters({
         </div>
         
         {/* Condition */}
-        <div className="mb-6">
+        <div className="mb-6" data-testid="condition-filter">
           <h4 className="text-sm font-medium text-gray-900 mb-2">Condition</h4>
           <div className="space-y-2">
             {conditions.map((cond) => (
@@ -192,6 +194,7 @@ export default function ProductFilters({
                   className="h-4 w-4 text-primary-600 focus:ring-primary-500"
                   checked={condition === cond.value}
                   onChange={() => setCondition(cond.value)}
+                  data-testid={`condition-${cond.value}`}
                 />
                 <label
                   htmlFor={`condition-${cond.value}`}
@@ -205,7 +208,7 @@ export default function ProductFilters({
         </div>
         
         {/* Sellers */}
-        <div className="mb-6">
+        <div className="mb-6" data-testid="seller-filter">
           <h4 className="text-sm font-medium text-gray-900 mb-2">Sellers</h4>
           {isLoadingSellers ? (
             <div className="text-sm text-gray-500">Loading sellers...</div>
@@ -241,6 +244,7 @@ export default function ProductFilters({
             type="button"
             onClick={applyFilters}
             className="flex-1 bg-primary-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-primary-700"
+            data-testid="apply-filters-button"
           >
             Apply Filters
           </button>
@@ -248,6 +252,7 @@ export default function ProductFilters({
             type="button"
             onClick={resetFilters}
             className="flex-1 bg-white text-gray-700 px-4 py-2 border border-gray-300 rounded-md text-sm font-medium hover:bg-gray-50"
+            data-testid="reset-filters-button"
           >
             Reset
           </button>

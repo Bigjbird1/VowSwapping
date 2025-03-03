@@ -29,13 +29,15 @@ export default function AddToCartButton({ product }: AddToCartButtonProps) {
         <button
           onClick={() => setQuantity(Math.max(1, quantity - 1))}
           className="bg-gray-100 text-gray-600 px-3 py-1 rounded-l-md"
+          data-testid="decrease-quantity"
         >
           -
         </button>
-        <span className="bg-gray-100 text-gray-800 px-4 py-1">{quantity}</span>
+        <span className="bg-gray-100 text-gray-800 px-4 py-1" data-testid="quantity-selector">{quantity}</span>
         <button
           onClick={() => setQuantity(quantity + 1)}
           className="bg-gray-100 text-gray-600 px-3 py-1 rounded-r-md"
+          data-testid="increase-quantity"
         >
           +
         </button>
@@ -43,6 +45,7 @@ export default function AddToCartButton({ product }: AddToCartButtonProps) {
       <button
         onClick={handleAddToCart}
         disabled={isAdding}
+        data-testid="add-to-cart-button"
         className={`w-full bg-primary-600 text-white px-6 py-3 rounded-md font-medium hover:bg-primary-700 transition-colors flex items-center justify-center ${
           isAdding ? 'opacity-75' : ''
         }`}

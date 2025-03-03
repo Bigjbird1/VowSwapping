@@ -1,5 +1,32 @@
 import '@testing-library/jest-dom';
 
+// Mock next/server
+jest.mock('next/server', () => ({
+  NextRequest: jest.fn().mockImplementation((url, options) => ({
+    url,
+    method: options?.method || 'GET',
+    headers: new Map(Object.entries(options?.headers || {})),
+    json: jest.fn().mockImplementation(async () => {
+      if (options?.body) {
+        return JSON.parse(options.body);
+      }
+      return {};
+    }),
+    nextUrl: new URL(url),
+  })),
+  NextResponse: {
+    json: jest.fn().mockImplementation((data, options) => ({
+      status: options?.status || 200,
+      json: async () => data,
+    })),
+    redirect: jest.fn().mockImplementation((url) => ({
+      url,
+      status: 302,
+      json: async () => ({}),
+    })),
+  },
+}));
+
 // Mock next/router
 jest.mock('next/navigation', () => ({
   useRouter: () => ({

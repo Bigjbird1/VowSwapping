@@ -57,6 +57,7 @@ export default function WishlistButton({
       onMouseLeave={() => setIsHovered(false)}
       aria-label={inWishlist ? 'Remove from wishlist' : 'Add to wishlist'}
       title={inWishlist ? 'Remove from wishlist' : 'Add to wishlist'}
+      data-testid="wishlist-button"
     >
       <div className="flex items-center">
         <Heart

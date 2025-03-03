@@ -61,6 +61,7 @@ export default function ProductCard({ product }: ProductCardProps) {
   return (
     <div 
       className="group relative"
+      data-testid="product-card"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
@@ -120,17 +121,17 @@ export default function ProductCard({ product }: ProductCardProps) {
             {category}
           </p>
         </div>
-        <div className="mt-1 flex items-center justify-between">
-          <div>
-            {discountPrice ? (
-              <>
-                <p className="text-sm font-medium text-gray-900">{formattedDiscountPrice}</p>
-                <p className="text-sm text-gray-500 line-through">{formattedPrice}</p>
-              </>
-            ) : (
-              <p className="text-sm font-medium text-gray-900">{formattedPrice}</p>
-            )}
-          </div>
+          <div className="mt-1 flex items-center justify-between">
+            <div>
+              {discountPrice ? (
+                <>
+                  <p className="text-sm font-medium text-gray-900" data-testid="item-price">{formattedDiscountPrice}</p>
+                  <p className="text-sm text-gray-500 line-through">{formattedPrice}</p>
+                </>
+              ) : (
+                <p className="text-sm font-medium text-gray-900" data-testid="item-price">{formattedPrice}</p>
+              )}
+            </div>
           
           {/* Seller Info */}
           {product.seller && (
