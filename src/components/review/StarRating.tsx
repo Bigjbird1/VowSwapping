@@ -8,6 +8,7 @@ interface StarRatingProps {
   color?: string;
   interactive?: boolean;
   onChange?: (rating: number) => void;
+  className?: string;
 }
 
 const StarRating: React.FC<StarRatingProps> = ({
@@ -17,6 +18,7 @@ const StarRating: React.FC<StarRatingProps> = ({
   color = '#FFD700', // Gold color
   interactive = false,
   onChange,
+  className,
 }) => {
   const [hoverRating, setHoverRating] = React.useState(0);
 
@@ -51,8 +53,10 @@ const StarRating: React.FC<StarRatingProps> = ({
           color={color}
           onClick={() => handleClick(starValue)}
           onMouseEnter={() => handleMouseEnter(starValue)}
-          onMouseLeave={handleMouseLeave}
           style={{ cursor: interactive ? 'pointer' : 'default' }}
+          data-testid={`star-filled-${index}`}
+          width={size}
+          height={size}
         />
       );
     }
@@ -66,8 +70,10 @@ const StarRating: React.FC<StarRatingProps> = ({
           color={color}
           onClick={() => handleClick(starValue - 0.5)}
           onMouseEnter={() => handleMouseEnter(starValue - 0.5)}
-          onMouseLeave={handleMouseLeave}
           style={{ cursor: interactive ? 'pointer' : 'default' }}
+          data-testid={`star-filled-${index}`}
+          width={size}
+          height={size}
         />
       );
     }
@@ -80,14 +86,20 @@ const StarRating: React.FC<StarRatingProps> = ({
         color={color}
         onClick={() => handleClick(starValue)}
         onMouseEnter={() => handleMouseEnter(starValue)}
-        onMouseLeave={handleMouseLeave}
         style={{ cursor: interactive ? 'pointer' : 'default' }}
+        data-testid={`star-empty-${index}`}
+        width={size}
+        height={size}
       />
     );
   };
 
   return (
-    <div className="flex items-center">
+    <div 
+      className={`flex items-center ${className || ''}`}
+      onMouseLeave={handleMouseLeave}
+      data-testid="star-rating-container"
+    >
       {Array.from({ length: maxRating }, (_, index) => renderStar(index))}
     </div>
   );

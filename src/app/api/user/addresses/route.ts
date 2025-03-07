@@ -85,6 +85,7 @@ export async function POST(request: NextRequest) {
 
     const isDefault = addressCount === 0 ? true : validatedData.isDefault || false;
 
+    // Create the address with the user ID
     const address = await prisma.address.create({
       data: {
         userId: session.user.id,
@@ -98,6 +99,7 @@ export async function POST(request: NextRequest) {
       },
     });
 
+    // Return the created address with status 201
     return NextResponse.json(
       {
         message: 'Address added successfully',
@@ -110,9 +112,15 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ message: error.errors[0].message }, { status: 400 });
     }
 
+    // Log the error for debugging
     console.error('Add address error:', error);
+    
+    // Return a more detailed error message for testing
     return NextResponse.json(
-      { message: 'An error occurred while adding your address' },
+      { 
+        message: 'An error occurred while adding your address',
+        error: error instanceof Error ? error.message : String(error)
+      },
       { status: 500 }
     );
   }

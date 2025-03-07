@@ -490,7 +490,15 @@
 <a name='L425'></a><a href='#L425'>425</a>
 <a name='L426'></a><a href='#L426'>426</a>
 <a name='L427'></a><a href='#L427'>427</a>
-<a name='L428'></a><a href='#L428'>428</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L428'></a><a href='#L428'>428</a>
+<a name='L429'></a><a href='#L429'>429</a>
+<a name='L430'></a><a href='#L430'>430</a>
+<a name='L431'></a><a href='#L431'>431</a>
+<a name='L432'></a><a href='#L432'>432</a>
+<a name='L433'></a><a href='#L433'>433</a>
+<a name='L434'></a><a href='#L434'>434</a>
+<a name='L435'></a><a href='#L435'>435</a>
+<a name='L436'></a><a href='#L436'>436</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -702,7 +710,15 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -1126,6 +1142,7 @@ export default function <span class="fstat-no" title="function not covered" >Che
                         value={selectedAddressId}
                         {...register('addressId')}
                         onChange={handleAddressChange}
+                        data-testid="address-select"
                       &gt;
                         &lt;option value="new"&gt;Use a new address&lt;/option&gt;
                         {addresses.map(<span class="fstat-no" title="function not covered" >ad</span>dress =&gt; (
@@ -1145,6 +1162,7 @@ export default function <span class="fstat-no" title="function not covered" >Che
                           type="text"
                           className={`w-full p-2 border rounded-md ${errors.name ? 'border-red-500' : 'border-gray-300'}`}
                           {...register('name', { required: 'Name is required' })}
+                          data-testid="name-input"
                         /&gt;
                         {errors.name &amp;&amp; &lt;p className="text-red-500 text-sm mt-1"&gt;{errors.name.message}&lt;/p&gt;}
                       &lt;/div&gt;
@@ -1155,6 +1173,7 @@ export default function <span class="fstat-no" title="function not covered" >Che
                           type="text"
                           className={`w-full p-2 border rounded-md ${errors.street ? 'border-red-500' : 'border-gray-300'}`}
                           {...register('street', { required: 'Street address is required' })}
+                          data-testid="street-input"
                         /&gt;
                         {errors.street &amp;&amp; &lt;p className="text-red-500 text-sm mt-1"&gt;{errors.street.message}&lt;/p&gt;}
                       &lt;/div&gt;
@@ -1166,6 +1185,7 @@ export default function <span class="fstat-no" title="function not covered" >Che
                             type="text"
                             className={`w-full p-2 border rounded-md ${errors.city ? 'border-red-500' : 'border-gray-300'}`}
                             {...register('city', { required: 'City is required' })}
+                            data-testid="city-input"
                           /&gt;
                           {errors.city &amp;&amp; &lt;p className="text-red-500 text-sm mt-1"&gt;{errors.city.message}&lt;/p&gt;}
                         &lt;/div&gt;
@@ -1176,6 +1196,7 @@ export default function <span class="fstat-no" title="function not covered" >Che
                             type="text"
                             className={`w-full p-2 border rounded-md ${errors.state ? 'border-red-500' : 'border-gray-300'}`}
                             {...register('state', { required: 'State is required' })}
+                            data-testid="state-input"
                           /&gt;
                           {errors.state &amp;&amp; &lt;p className="text-red-500 text-sm mt-1"&gt;{errors.state.message}&lt;/p&gt;}
                         &lt;/div&gt;
@@ -1188,6 +1209,7 @@ export default function <span class="fstat-no" title="function not covered" >Che
                             type="text"
                             className={`w-full p-2 border rounded-md ${errors.postalCode ? 'border-red-500' : 'border-gray-300'}`}
                             {...register('postalCode', { required: 'Postal code is required' })}
+                            data-testid="postal-code-input"
                           /&gt;
                           {errors.postalCode &amp;&amp; &lt;p className="text-red-500 text-sm mt-1"&gt;{errors.postalCode.message}&lt;/p&gt;}
                         &lt;/div&gt;
@@ -1198,6 +1220,7 @@ export default function <span class="fstat-no" title="function not covered" >Che
                             type="text"
                             className={`w-full p-2 border rounded-md ${errors.country ? 'border-red-500' : 'border-gray-300'}`}
                             {...register('country', { required: 'Country is required' })}
+                            data-testid="country-input"
                           /&gt;
                           {errors.country &amp;&amp; &lt;p className="text-red-500 text-sm mt-1"&gt;{errors.country.message}&lt;/p&gt;}
                         &lt;/div&gt;
@@ -1223,6 +1246,7 @@ export default function <span class="fstat-no" title="function not covered" >Che
                       className={`w-full bg-primary-600 text-white py-3 rounded-md font-medium hover:bg-primary-700 transition-colors ${
                         isSubmitting ? 'opacity-75 cursor-not-allowed' : ''
                       }`}
+                      data-testid="continue-button"
                     &gt;
                       {isSubmitting ? 'Processing...' : 'Continue to Payment'}
                     &lt;/button&gt;
@@ -1351,7 +1375,7 @@ export default function <span class="fstat-no" title="function not covered" >Che
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-03-03T15:38:20.223Z
+                at 2025-03-04T05:23:55.476Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>

@@ -1,0 +1,510 @@
+{
+  "stats": {
+    "suites": 5,
+    "tests": 15,
+    "passes": 0,
+    "pending": 0,
+    "failures": 15,
+    "start": "2025-03-03T19:09:38.498Z",
+    "end": "2025-03-03T19:15:09.979Z",
+    "duration": 331481,
+    "testsRegistered": 15,
+    "passPercent": 0,
+    "pendingPercent": 0,
+    "other": 0,
+    "hasOther": false,
+    "skipped": 0,
+    "hasSkipped": false
+  },
+  "results": [
+    {
+      "uuid": "8ce63a90-7b9e-463f-a813-8f0933fa5aa5",
+      "title": "",
+      "fullFile": "cypress/e2e/wishlist-reviews.cy.js",
+      "file": "cypress/e2e/wishlist-reviews.cy.js",
+      "beforeHooks": [],
+      "afterHooks": [],
+      "tests": [],
+      "suites": [
+        {
+          "uuid": "f6f14124-dc36-4f35-9254-feece0870879",
+          "title": "Wishlist & Reviews Functionality",
+          "fullFile": "",
+          "file": "",
+          "beforeHooks": [],
+          "afterHooks": [],
+          "tests": [],
+          "suites": [
+            {
+              "uuid": "1f090c5d-66ac-4063-a625-802cdd0da704",
+              "title": "Wishlist Functionality",
+              "fullFile": "",
+              "file": "",
+              "beforeHooks": [],
+              "afterHooks": [],
+              "tests": [
+                {
+                  "title": "should add a product to wishlist from product listing",
+                  "fullTitle": "Wishlist & Reviews Functionality Wishlist Functionality should add a product to wishlist from product listing",
+                  "timedOut": null,
+                  "duration": 20840,
+                  "state": "failed",
+                  "speed": null,
+                  "pass": false,
+                  "fail": true,
+                  "pending": false,
+                  "context": null,
+                  "code": "cy.visit('/products');\n// Find the first product's wishlist button\ncy.get('[data-testid=\"product-card\"]').first().within(() => {\n  cy.get('[data-testid=\"wishlist-button\"]').click();\n});\n// Verify success message\ncy.contains('Added to wishlist').should('be.visible');",
+                  "err": {
+                    "message": "CypressError: Timed out retrying after 10050ms: `cy.click()` failed because this element:\n\n`<button class=\"rounded-full transition-all duration-200 bg-gray-100 text-gray-600 hover:bg-gray-200 p-1.5 \" aria-label=\"Add to wishlist\" title=\"Add to wishlist\" data-testid=\"wishlist-button\">...</button>`\n\nis being covered by another element:\n\n`<div class=\"absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity\">...</div>`\n\nFix this problem, or use {force: true} to disable error checking.\n\nhttps://on.cypress.io/element-cannot-be-interacted-with",
+                    "estack": "CypressError: Timed out retrying after 10050ms: `cy.click()` failed because this element:\n\n`<button class=\"rounded-full transition-all duration-200 bg-gray-100 text-gray-600 hover:bg-gray-200 p-1.5 \" aria-label=\"Add to wishlist\" title=\"Add to wishlist\" data-testid=\"wishlist-button\">...</button>`\n\nis being covered by another element:\n\n`<div class=\"absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity\">...</div>`\n\nFix this problem, or use {force: true} to disable error checking.\n\nhttps://on.cypress.io/element-cannot-be-interacted-with\n    at ensureIsDescendent (http://localhost:3002/__cypress/runner/cypress_runner.js:112915:68)\n    at ensureDescendents (http://localhost:3002/__cypress/runner/cypress_runner.js:112966:5)\n    at ensureDescendentsAndScroll (http://localhost:3002/__cypress/runner/cypress_runner.js:112972:14)\n    at ensureElIsNotCovered (http://localhost:3002/__cypress/runner/cypress_runner.js:113103:5)\n    at runAllChecks (http://localhost:3002/__cypress/runner/cypress_runner.js:113302:52)\n    at retryActionability (http://localhost:3002/__cypress/runner/cypress_runner.js:113339:16)\n    at tryCatcher (http://localhost:3002/__cypress/runner/cypress_runner.js:1830:23)\n    at Promise.attempt.Promise.try (http://localhost:3002/__cypress/runner/cypress_runner.js:4338:29)\n    at whenStable (http://localhost:3002/__cypress/runner/cypress_runner.js:143744:68)\n    at <unknown> (http://localhost:3002/__cypress/runner/cypress_runner.js:143685:14)\n    at tryCatcher (http://localhost:3002/__cypress/runner/cypress_runner.js:1830:23)\n    at Promise._settlePromiseFromHandler (http://localhost:3002/__cypress/runner/cypress_runner.js:1542:31)\n    at Promise._settlePromise (http://localhost:3002/__cypress/runner/cypress_runner.js:1599:18)\n    at Promise._settlePromise0 (http://localhost:3002/__cypress/runner/cypress_runner.js:1644:10)\n    at Promise._settlePromises (http://localhost:3002/__cypress/runner/cypress_runner.js:1724:18)\n    at Promise._fulfill (http://localhost:3002/__cypress/runner/cypress_runner.js:1668:18)\n    at <unknown> (http://localhost:3002/__cypress/runner/cypress_runner.js:5473:46)\nFrom Your Spec Code:\n    at Context.eval (webpack://vowswapping/./cypress/e2e/wishlist-reviews.cy.js:19:50)",
+                    "diff": null
+                  },
+                  "uuid": "e0a2b2d4-15ca-40b7-9b70-ebf147774732",
+                  "parentUUID": "1f090c5d-66ac-4063-a625-802cdd0da704",
+                  "isHook": false,
+                  "skipped": false
+                },
+                {
+                  "title": "should add a product to wishlist from product detail page",
+                  "fullTitle": "Wishlist & Reviews Functionality Wishlist Functionality should add a product to wishlist from product detail page",
+                  "timedOut": null,
+                  "duration": 22792,
+                  "state": "failed",
+                  "speed": null,
+                  "pass": false,
+                  "fail": true,
+                  "pending": false,
+                  "context": null,
+                  "code": "cy.visit('/products');\n// Click on first product\ncy.get('[data-testid=\"product-card\"]').first().click();\n// Wait for page to load\ncy.wait(2000);\n// Click wishlist button on product detail page\ncy.get('[data-testid=\"wishlist-button\"]').click();\n// Verify success message\ncy.contains('Added to wishlist').should('be.visible');",
+                  "err": {
+                    "message": "AssertionError: Timed out retrying after 10000ms: Expected to find content: 'Added to wishlist' but never did.",
+                    "estack": "AssertionError: Timed out retrying after 10000ms: Expected to find content: 'Added to wishlist' but never did.\n    at Context.eval (webpack://vowswapping/./cypress/e2e/wishlist-reviews.cy.js:39:39)",
+                    "diff": null
+                  },
+                  "uuid": "3ef6a8ac-f7ef-4d46-9f08-93397b2c131d",
+                  "parentUUID": "1f090c5d-66ac-4063-a625-802cdd0da704",
+                  "isHook": false,
+                  "skipped": false
+                },
+                {
+                  "title": "should view wishlist page",
+                  "fullTitle": "Wishlist & Reviews Functionality Wishlist Functionality should view wishlist page",
+                  "timedOut": null,
+                  "duration": 30777,
+                  "state": "failed",
+                  "speed": null,
+                  "pass": false,
+                  "fail": true,
+                  "pending": false,
+                  "context": null,
+                  "code": "// Add a product to wishlist first\ncy.addToWishlist();\n// Navigate to wishlist page\ncy.visit('/profile');\ncy.contains('Wishlist').click();\n// Verify wishlist page\ncy.url().should('include', '/profile/wishlist');\ncy.get('[data-testid=\"wishlist-item\"]').should('exist');",
+                  "err": {
+                    "message": "AssertionError: Timed out retrying after 10000ms: Expected to find content: 'Added to wishlist' but never did.",
+                    "estack": "AssertionError: Timed out retrying after 10000ms: Expected to find content: 'Added to wishlist' but never did.\n    at Context.eval (webpack://vowswapping/./cypress/support/commands.js:100:35)",
+                    "diff": null
+                  },
+                  "uuid": "56ec0456-f08e-4498-a5a4-ca8d0c0a1012",
+                  "parentUUID": "1f090c5d-66ac-4063-a625-802cdd0da704",
+                  "isHook": false,
+                  "skipped": false
+                },
+                {
+                  "title": "should remove a product from wishlist",
+                  "fullTitle": "Wishlist & Reviews Functionality Wishlist Functionality should remove a product from wishlist",
+                  "timedOut": null,
+                  "duration": 30956,
+                  "state": "failed",
+                  "speed": null,
+                  "pass": false,
+                  "fail": true,
+                  "pending": false,
+                  "context": null,
+                  "code": "// Add a product to wishlist first\ncy.addToWishlist();\n// Navigate to wishlist page\ncy.visit('/profile/wishlist');\n// Get wishlist item count before removal\ncy.get('[data-testid=\"wishlist-item\"]').then($items => {\n  const countBefore = $items.length;\n  // Remove product from wishlist\n  cy.get('[data-testid=\"remove-from-wishlist\"]').first().click();\n  // Verify product was removed\n  cy.contains('Removed from wishlist').should('be.visible');\n  // If there was only one item, check for empty wishlist message\n  if (countBefore === 1) {\n    cy.contains('Your wishlist is empty').should('be.visible');\n  } else {\n    // Otherwise, check that the count decreased\n    cy.get('[data-testid=\"wishlist-item\"]').should('have.length', countBefore - 1);\n  }\n});",
+                  "err": {
+                    "message": "AssertionError: Timed out retrying after 10000ms: Expected to find content: 'Added to wishlist' but never did.",
+                    "estack": "AssertionError: Timed out retrying after 10000ms: Expected to find content: 'Added to wishlist' but never did.\n    at Context.eval (webpack://vowswapping/./cypress/support/commands.js:100:35)",
+                    "diff": null
+                  },
+                  "uuid": "cb2ca967-281a-4255-a25f-23a74f4445ac",
+                  "parentUUID": "1f090c5d-66ac-4063-a625-802cdd0da704",
+                  "isHook": false,
+                  "skipped": false
+                },
+                {
+                  "title": "should add product to cart from wishlist",
+                  "fullTitle": "Wishlist & Reviews Functionality Wishlist Functionality should add product to cart from wishlist",
+                  "timedOut": null,
+                  "duration": 30917,
+                  "state": "failed",
+                  "speed": null,
+                  "pass": false,
+                  "fail": true,
+                  "pending": false,
+                  "context": null,
+                  "code": "// Add a product to wishlist first\ncy.addToWishlist();\n// Navigate to wishlist page\ncy.visit('/profile/wishlist');\n// Add to cart from wishlist\ncy.get('[data-testid=\"add-to-cart-from-wishlist\"]').first().click();\n// Verify product was added to cart\ncy.contains('Added to cart').should('be.visible');\n// Verify cart count increased\ncy.get('[data-testid=\"cart-count\"]').should('exist');",
+                  "err": {
+                    "message": "AssertionError: Timed out retrying after 10000ms: Expected to find content: 'Added to wishlist' but never did.",
+                    "estack": "AssertionError: Timed out retrying after 10000ms: Expected to find content: 'Added to wishlist' but never did.\n    at Context.eval (webpack://vowswapping/./cypress/support/commands.js:100:35)",
+                    "diff": null
+                  },
+                  "uuid": "53e64dfd-ce2b-4847-bac6-71be622f0c6e",
+                  "parentUUID": "1f090c5d-66ac-4063-a625-802cdd0da704",
+                  "isHook": false,
+                  "skipped": false
+                }
+              ],
+              "suites": [],
+              "passes": [],
+              "failures": [
+                "e0a2b2d4-15ca-40b7-9b70-ebf147774732",
+                "3ef6a8ac-f7ef-4d46-9f08-93397b2c131d",
+                "56ec0456-f08e-4498-a5a4-ca8d0c0a1012",
+                "cb2ca967-281a-4255-a25f-23a74f4445ac",
+                "53e64dfd-ce2b-4847-bac6-71be622f0c6e"
+              ],
+              "pending": [],
+              "skipped": [],
+              "duration": 136282,
+              "root": false,
+              "rootEmpty": false,
+              "_timeout": 2000
+            },
+            {
+              "uuid": "14ab4cd9-bc9f-41a4-bfb7-9206aae9824c",
+              "title": "Product Reviews",
+              "fullFile": "",
+              "file": "",
+              "beforeHooks": [],
+              "afterHooks": [],
+              "tests": [
+                {
+                  "title": "should view product reviews on product detail page",
+                  "fullTitle": "Wishlist & Reviews Functionality Product Reviews should view product reviews on product detail page",
+                  "timedOut": null,
+                  "duration": 22799,
+                  "state": "failed",
+                  "speed": null,
+                  "pass": false,
+                  "fail": true,
+                  "pending": false,
+                  "context": null,
+                  "code": "cy.visit('/products');\n// Click on first product\ncy.get('[data-testid=\"product-card\"]').first().click();\n// Wait for page to load\ncy.wait(2000);\n// Verify reviews section exists\ncy.get('[data-testid=\"product-reviews\"]').should('exist');",
+                  "err": {
+                    "message": "AssertionError: Timed out retrying after 10000ms: Expected to find element: `[data-testid=\"product-reviews\"]`, but never found it.",
+                    "estack": "AssertionError: Timed out retrying after 10000ms: Expected to find element: `[data-testid=\"product-reviews\"]`, but never found it.\n    at Context.eval (webpack://vowswapping/./cypress/e2e/wishlist-reviews.cy.js:116:48)",
+                    "diff": null
+                  },
+                  "uuid": "294f3c27-95cb-4882-b347-ac42e7095fbe",
+                  "parentUUID": "14ab4cd9-bc9f-41a4-bfb7-9206aae9824c",
+                  "isHook": false,
+                  "skipped": false
+                },
+                {
+                  "title": "should create a product review",
+                  "fullTitle": "Wishlist & Reviews Functionality Product Reviews should create a product review",
+                  "timedOut": null,
+                  "duration": 23478,
+                  "state": "failed",
+                  "speed": null,
+                  "pass": false,
+                  "fail": true,
+                  "pending": false,
+                  "context": null,
+                  "code": "cy.visit('/products');\n// Click on first product\ncy.get('[data-testid=\"product-card\"]').first().click();\n// Wait for page to load\ncy.wait(2000);\n// Click write review button\ncy.get('[data-testid=\"write-review-button\"]').click();\n// Generate unique review text\nconst reviewText = `This is a great product! Highly recommended. ${Date.now()}`;\n// Fill review form\ncy.get('[data-testid=\"star-rating-input\"]').within(() => {\n  cy.get('[data-testid=\"star-4\"]').click(); // 4-star rating\n});\ncy.get('textarea[name=\"comment\"]').type(reviewText);\n// Submit review\ncy.get('button[type=\"submit\"]').click();\n// Verify success message\ncy.contains('Review submitted successfully').should('be.visible');\n// Verify review appears in the list\ncy.get('[data-testid=\"review-list\"]').contains(reviewText).should('be.visible');",
+                  "err": {
+                    "message": "AssertionError: Timed out retrying after 10000ms: Expected to find element: `[data-testid=\"write-review-button\"]`, but never found it.",
+                    "estack": "AssertionError: Timed out retrying after 10000ms: Expected to find element: `[data-testid=\"write-review-button\"]`, but never found it.\n    at Context.eval (webpack://vowswapping/./cypress/e2e/wishlist-reviews.cy.js:129:9)",
+                    "diff": null
+                  },
+                  "uuid": "dec0c95e-0cdd-4d22-a345-5533f90d8ae5",
+                  "parentUUID": "14ab4cd9-bc9f-41a4-bfb7-9206aae9824c",
+                  "isHook": false,
+                  "skipped": false
+                },
+                {
+                  "title": "should edit a product review",
+                  "fullTitle": "Wishlist & Reviews Functionality Product Reviews should edit a product review",
+                  "timedOut": null,
+                  "duration": 21944,
+                  "state": "failed",
+                  "speed": null,
+                  "pass": false,
+                  "fail": true,
+                  "pending": false,
+                  "context": null,
+                  "code": "// Navigate to user's reviews\ncy.visit('/profile/reviews');\n// Click edit on the first review\ncy.get('[data-testid=\"edit-review-button\"]').first().click();\n// Generate unique updated review text\nconst updatedReview = `Updated review - even better than I thought! ${Date.now()}`;\n// Update review\ncy.get('[data-testid=\"star-rating-input\"]').within(() => {\n  cy.get('[data-testid=\"star-5\"]').click(); // Change to 5-star\n});\ncy.get('textarea[name=\"comment\"]').clear().type(updatedReview);\n// Submit updated review\ncy.get('button[type=\"submit\"]').click();\n// Verify success message\ncy.contains('Review updated successfully').should('be.visible');\n// Verify updated review appears\ncy.contains(updatedReview).should('be.visible');",
+                  "err": {
+                    "message": "AssertionError: Timed out retrying after 10000ms: Expected to find element: `[data-testid=\"edit-review-button\"]`, but never found it.",
+                    "estack": "AssertionError: Timed out retrying after 10000ms: Expected to find element: `[data-testid=\"edit-review-button\"]`, but never found it.\n    at Context.eval (webpack://vowswapping/./cypress/e2e/wishlist-reviews.cy.js:155:9)",
+                    "diff": null
+                  },
+                  "uuid": "59674d71-c77c-4f52-8914-62871416905b",
+                  "parentUUID": "14ab4cd9-bc9f-41a4-bfb7-9206aae9824c",
+                  "isHook": false,
+                  "skipped": false
+                },
+                {
+                  "title": "should delete a product review",
+                  "fullTitle": "Wishlist & Reviews Functionality Product Reviews should delete a product review",
+                  "timedOut": null,
+                  "duration": 21569,
+                  "state": "failed",
+                  "speed": null,
+                  "pass": false,
+                  "fail": true,
+                  "pending": false,
+                  "context": null,
+                  "code": "// Navigate to user's reviews\ncy.visit('/profile/reviews');\n// Get review count before deletion\ncy.get('[data-testid=\"review-item\"]').then($items => {\n  const countBefore = $items.length;\n  // Click delete on first review\n  cy.get('[data-testid=\"delete-review-button\"]').first().click();\n  // Confirm deletion\n  cy.get('[data-testid=\"confirm-delete-button\"]').click();\n  // Verify review was deleted\n  cy.contains('Review deleted successfully').should('be.visible');\n  // If there was only one review, check for empty reviews message\n  if (countBefore === 1) {\n    cy.contains('You have not written any reviews yet').should('be.visible');\n  } else {\n    // Otherwise, check that the count decreased\n    cy.get('[data-testid=\"review-item\"]').should('have.length', countBefore - 1);\n  }\n});",
+                  "err": {
+                    "message": "AssertionError: Timed out retrying after 10000ms: Expected to find element: `[data-testid=\"review-item\"]`, but never found it.",
+                    "estack": "AssertionError: Timed out retrying after 10000ms: Expected to find element: `[data-testid=\"review-item\"]`, but never found it.\n    at Context.eval (webpack://vowswapping/./cypress/e2e/wishlist-reviews.cy.js:181:9)",
+                    "diff": null
+                  },
+                  "uuid": "981b7b57-6218-47d2-ad61-241faf7dfe85",
+                  "parentUUID": "14ab4cd9-bc9f-41a4-bfb7-9206aae9824c",
+                  "isHook": false,
+                  "skipped": false
+                }
+              ],
+              "suites": [],
+              "passes": [],
+              "failures": [
+                "294f3c27-95cb-4882-b347-ac42e7095fbe",
+                "dec0c95e-0cdd-4d22-a345-5533f90d8ae5",
+                "59674d71-c77c-4f52-8914-62871416905b",
+                "981b7b57-6218-47d2-ad61-241faf7dfe85"
+              ],
+              "pending": [],
+              "skipped": [],
+              "duration": 89790,
+              "root": false,
+              "rootEmpty": false,
+              "_timeout": 2000
+            },
+            {
+              "uuid": "64fa9148-489e-4bba-9d7c-f1f0b14b56b4",
+              "title": "Seller Reviews",
+              "fullFile": "",
+              "file": "",
+              "beforeHooks": [],
+              "afterHooks": [],
+              "tests": [
+                {
+                  "title": "should view seller reviews on shop page",
+                  "fullTitle": "Wishlist & Reviews Functionality Seller Reviews should view seller reviews on shop page",
+                  "timedOut": null,
+                  "duration": 21142,
+                  "state": "failed",
+                  "speed": null,
+                  "pass": false,
+                  "fail": true,
+                  "pending": false,
+                  "context": null,
+                  "code": "cy.visit('/shops');\n// Click on first shop\ncy.get('[data-testid=\"shop-card\"]').first().click();\n// Wait for page to load\ncy.wait(2000);\n// Verify reviews section exists\ncy.get('[data-testid=\"seller-reviews\"]').should('exist');",
+                  "err": {
+                    "message": "AssertionError: Timed out retrying after 10000ms: Expected to find element: `[data-testid=\"shop-card\"]`, but never found it.",
+                    "estack": "AssertionError: Timed out retrying after 10000ms: Expected to find element: `[data-testid=\"shop-card\"]`, but never found it.\n    at Context.eval (webpack://vowswapping/./cypress/e2e/wishlist-reviews.cy.js:214:9)",
+                    "diff": null
+                  },
+                  "uuid": "a09a81c8-94e8-46a0-baed-e2b350def8af",
+                  "parentUUID": "64fa9148-489e-4bba-9d7c-f1f0b14b56b4",
+                  "isHook": false,
+                  "skipped": false
+                },
+                {
+                  "title": "should create a seller review",
+                  "fullTitle": "Wishlist & Reviews Functionality Seller Reviews should create a seller review",
+                  "timedOut": null,
+                  "duration": 20889,
+                  "state": "failed",
+                  "speed": null,
+                  "pass": false,
+                  "fail": true,
+                  "pending": false,
+                  "context": null,
+                  "code": "cy.visit('/shops');\n// Click on first shop\ncy.get('[data-testid=\"shop-card\"]').first().click();\n// Wait for page to load\ncy.wait(2000);\n// Click write review button\ncy.get('[data-testid=\"write-seller-review-button\"]').click();\n// Generate unique review text\nconst reviewText = `Excellent seller! Fast shipping and great communication. ${Date.now()}`;\n// Fill review form\ncy.get('[data-testid=\"star-rating-input\"]').within(() => {\n  cy.get('[data-testid=\"star-5\"]').click(); // 5-star rating\n});\ncy.get('textarea[name=\"comment\"]').type(reviewText);\n// Submit review\ncy.get('button[type=\"submit\"]').click();\n// Verify success message\ncy.contains('Review submitted successfully').should('be.visible');\n// Verify review appears in the list\ncy.get('[data-testid=\"seller-review-list\"]').contains(reviewText).should('be.visible');",
+                  "err": {
+                    "message": "AssertionError: Timed out retrying after 10000ms: Expected to find element: `[data-testid=\"shop-card\"]`, but never found it.",
+                    "estack": "AssertionError: Timed out retrying after 10000ms: Expected to find element: `[data-testid=\"shop-card\"]`, but never found it.\n    at Context.eval (webpack://vowswapping/./cypress/e2e/wishlist-reviews.cy.js:227:9)",
+                    "diff": null
+                  },
+                  "uuid": "ed2444ef-c68f-4f04-9a6c-89ca9250bff1",
+                  "parentUUID": "64fa9148-489e-4bba-9d7c-f1f0b14b56b4",
+                  "isHook": false,
+                  "skipped": false
+                },
+                {
+                  "title": "should edit a seller review",
+                  "fullTitle": "Wishlist & Reviews Functionality Seller Reviews should edit a seller review",
+                  "timedOut": null,
+                  "duration": 20720,
+                  "state": "failed",
+                  "speed": null,
+                  "pass": false,
+                  "fail": true,
+                  "pending": false,
+                  "context": null,
+                  "code": "// Navigate to user's reviews\ncy.visit('/profile/reviews');\n// Switch to seller reviews tab\ncy.get('[data-testid=\"seller-reviews-tab\"]').click();\n// Click edit on the first review\ncy.get('[data-testid=\"edit-review-button\"]').first().click();\n// Generate unique updated review text\nconst updatedReview = `Updated seller review - good experience overall. ${Date.now()}`;\n// Update review\ncy.get('[data-testid=\"star-rating-input\"]').within(() => {\n  cy.get('[data-testid=\"star-4\"]').click(); // Change to 4-star\n});\ncy.get('textarea[name=\"comment\"]').clear().type(updatedReview);\n// Submit updated review\ncy.get('button[type=\"submit\"]').click();\n// Verify success message\ncy.contains('Review updated successfully').should('be.visible');\n// Verify updated review appears\ncy.contains(updatedReview).should('be.visible');",
+                  "err": {
+                    "message": "AssertionError: Timed out retrying after 10000ms: Expected to find element: `[data-testid=\"seller-reviews-tab\"]`, but never found it.",
+                    "estack": "AssertionError: Timed out retrying after 10000ms: Expected to find element: `[data-testid=\"seller-reviews-tab\"]`, but never found it.\n    at Context.eval (webpack://vowswapping/./cypress/e2e/wishlist-reviews.cy.js:259:9)",
+                    "diff": null
+                  },
+                  "uuid": "c78e327e-4038-4db0-85d4-550ed3d04cf9",
+                  "parentUUID": "64fa9148-489e-4bba-9d7c-f1f0b14b56b4",
+                  "isHook": false,
+                  "skipped": false
+                },
+                {
+                  "title": "should delete a seller review",
+                  "fullTitle": "Wishlist & Reviews Functionality Seller Reviews should delete a seller review",
+                  "timedOut": null,
+                  "duration": 20714,
+                  "state": "failed",
+                  "speed": null,
+                  "pass": false,
+                  "fail": true,
+                  "pending": false,
+                  "context": null,
+                  "code": "// Navigate to user's reviews\ncy.visit('/profile/reviews');\n// Switch to seller reviews tab\ncy.get('[data-testid=\"seller-reviews-tab\"]').click();\n// Get review count before deletion\ncy.get('[data-testid=\"review-item\"]').then($items => {\n  const countBefore = $items.length;\n  // Click delete on first review\n  cy.get('[data-testid=\"delete-review-button\"]').first().click();\n  // Confirm deletion\n  cy.get('[data-testid=\"confirm-delete-button\"]').click();\n  // Verify review was deleted\n  cy.contains('Review deleted successfully').should('be.visible');\n  // If there was only one review, check for empty reviews message\n  if (countBefore === 1) {\n    cy.contains('You have not written any seller reviews yet').should('be.visible');\n  } else {\n    // Otherwise, check that the count decreased\n    cy.get('[data-testid=\"review-item\"]').should('have.length', countBefore - 1);\n  }\n});",
+                  "err": {
+                    "message": "AssertionError: Timed out retrying after 10000ms: Expected to find element: `[data-testid=\"seller-reviews-tab\"]`, but never found it.",
+                    "estack": "AssertionError: Timed out retrying after 10000ms: Expected to find element: `[data-testid=\"seller-reviews-tab\"]`, but never found it.\n    at Context.eval (webpack://vowswapping/./cypress/e2e/wishlist-reviews.cy.js:288:9)",
+                    "diff": null
+                  },
+                  "uuid": "3b70b56c-c36b-4a8a-b895-122c2e93dd40",
+                  "parentUUID": "64fa9148-489e-4bba-9d7c-f1f0b14b56b4",
+                  "isHook": false,
+                  "skipped": false
+                }
+              ],
+              "suites": [],
+              "passes": [],
+              "failures": [
+                "a09a81c8-94e8-46a0-baed-e2b350def8af",
+                "ed2444ef-c68f-4f04-9a6c-89ca9250bff1",
+                "c78e327e-4038-4db0-85d4-550ed3d04cf9",
+                "3b70b56c-c36b-4a8a-b895-122c2e93dd40"
+              ],
+              "pending": [],
+              "skipped": [],
+              "duration": 83465,
+              "root": false,
+              "rootEmpty": false,
+              "_timeout": 2000
+            },
+            {
+              "uuid": "26ce0a44-276f-44f5-b20f-8c817398a054",
+              "title": "Review Filtering and Sorting",
+              "fullFile": "",
+              "file": "",
+              "beforeHooks": [],
+              "afterHooks": [],
+              "tests": [
+                {
+                  "title": "should filter reviews by rating",
+                  "fullTitle": "Wishlist & Reviews Functionality Review Filtering and Sorting should filter reviews by rating",
+                  "timedOut": null,
+                  "duration": 10815,
+                  "state": "failed",
+                  "speed": null,
+                  "pass": false,
+                  "fail": true,
+                  "pending": false,
+                  "context": null,
+                  "code": "// Wait for reviews to load\ncy.get('[data-testid=\"product-reviews\"]').should('exist');\n// Get total review count\ncy.get('[data-testid=\"review-item\"]').then($allReviews => {\n  const totalCount = $allReviews.length;\n  // Filter by 5-star ratings\n  cy.get('[data-testid=\"filter-5-star\"]').click();\n  // Verify filtered reviews\n  cy.get('[data-testid=\"review-item\"]').then($filteredReviews => {\n    // Either we have fewer reviews or the same number if all were 5-star\n    expect($filteredReviews.length).to.be.at.most(totalCount);\n    // Check that all visible reviews are 5-star\n    cy.get('[data-testid=\"review-rating-5\"]').should('have.length', $filteredReviews.length);\n  });\n});",
+                  "err": {
+                    "message": "AssertionError: Timed out retrying after 10000ms: Expected to find element: `[data-testid=\"product-reviews\"]`, but never found it.",
+                    "estack": "AssertionError: Timed out retrying after 10000ms: Expected to find element: `[data-testid=\"product-reviews\"]`, but never found it.\n    at Context.eval (webpack://vowswapping/./cypress/e2e/wishlist-reviews.cy.js:323:48)",
+                    "diff": null
+                  },
+                  "uuid": "775546a8-d88c-4689-94d5-13702a785f41",
+                  "parentUUID": "26ce0a44-276f-44f5-b20f-8c817398a054",
+                  "isHook": false,
+                  "skipped": false
+                },
+                {
+                  "title": "should sort reviews by date",
+                  "fullTitle": "Wishlist & Reviews Functionality Review Filtering and Sorting should sort reviews by date",
+                  "timedOut": null,
+                  "duration": 10831,
+                  "state": "failed",
+                  "speed": null,
+                  "pass": false,
+                  "fail": true,
+                  "pending": false,
+                  "context": null,
+                  "code": "// Wait for reviews to load\ncy.get('[data-testid=\"product-reviews\"]').should('exist');\n// Sort by newest first\ncy.get('[data-testid=\"sort-reviews\"]').select('newest');\n// Verify the first review has the newest date\ncy.get('[data-testid=\"review-date\"]').first().invoke('text').then(firstDate => {\n  cy.get('[data-testid=\"review-date\"]').last().invoke('text').then(lastDate => {\n    // Convert dates to timestamps for comparison\n    const firstTimestamp = new Date(firstDate).getTime();\n    const lastTimestamp = new Date(lastDate).getTime();\n    // First date should be more recent (larger timestamp)\n    expect(firstTimestamp).to.be.at.least(lastTimestamp);\n  });\n});",
+                  "err": {
+                    "message": "AssertionError: Timed out retrying after 10000ms: Expected to find element: `[data-testid=\"product-reviews\"]`, but never found it.",
+                    "estack": "AssertionError: Timed out retrying after 10000ms: Expected to find element: `[data-testid=\"product-reviews\"]`, but never found it.\n    at Context.eval (webpack://vowswapping/./cypress/e2e/wishlist-reviews.cy.js:345:48)",
+                    "diff": null
+                  },
+                  "uuid": "0f7b4a35-0e7f-48f8-a0e3-65530d3e06ac",
+                  "parentUUID": "26ce0a44-276f-44f5-b20f-8c817398a054",
+                  "isHook": false,
+                  "skipped": false
+                }
+              ],
+              "suites": [],
+              "passes": [],
+              "failures": [
+                "775546a8-d88c-4689-94d5-13702a785f41",
+                "0f7b4a35-0e7f-48f8-a0e3-65530d3e06ac"
+              ],
+              "pending": [],
+              "skipped": [],
+              "duration": 21646,
+              "root": false,
+              "rootEmpty": false,
+              "_timeout": 2000
+            }
+          ],
+          "passes": [],
+          "failures": [],
+          "pending": [],
+          "skipped": [],
+          "duration": 0,
+          "root": false,
+          "rootEmpty": false,
+          "_timeout": 2000
+        }
+      ],
+      "passes": [],
+      "failures": [],
+      "pending": [],
+      "skipped": [],
+      "duration": 0,
+      "root": true,
+      "rootEmpty": true,
+      "_timeout": 2000
+    }
+  ],
+  "meta": {
+    "mocha": {
+      "version": "7.0.1"
+    },
+    "mochawesome": {
+      "options": {
+        "quiet": false,
+        "reportFilename": "mochawesome",
+        "saveHtml": true,
+        "saveJson": true,
+        "consoleReporter": "spec",
+        "useInlineDiffs": false,
+        "code": true
+      },
+      "version": "7.1.3"
+    },
+    "marge": {
+      "options": {
+        "reportDir": "test-results/cypress",
+        "overwrite": false,
+        "html": true,
+        "json": true
+      },
+      "version": "6.2.0"
+    }
+  }
+}

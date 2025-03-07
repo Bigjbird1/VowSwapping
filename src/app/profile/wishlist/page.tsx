@@ -98,7 +98,7 @@ export default function WishlistPage() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {items.map((item) => (
-            <div key={item.id} className="bg-white rounded-lg shadow-md overflow-hidden">
+            <div key={item.id} className="bg-white rounded-lg shadow-md overflow-hidden" data-testid="wishlist-item">
               <div className="relative h-48 w-full">
                 <Link href={`/products/${item.product.id}`}>
                   <Image
@@ -146,6 +146,7 @@ export default function WishlistPage() {
                     onClick={() => removeFromWishlist(item.productId)}
                     className="flex items-center text-red-600 hover:text-red-800"
                     aria-label="Remove from wishlist"
+                    data-testid="remove-from-wishlist"
                   >
                     <Trash2 size={16} className="mr-1" />
                     <span>Remove</span>
@@ -154,6 +155,7 @@ export default function WishlistPage() {
                     onClick={() => handleMoveToCart(item)}
                     className="flex items-center bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700"
                     aria-label="Move to cart"
+                    data-testid="add-to-cart-from-wishlist"
                   >
                     <ShoppingCart size={16} className="mr-1" />
                     <span>Add to Cart</span>

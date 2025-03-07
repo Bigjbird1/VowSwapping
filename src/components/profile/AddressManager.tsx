@@ -45,7 +45,7 @@ export default function AddressManager({ addresses }: AddressManagerProps) {
     register,
     handleSubmit,
     reset,
-    formState: { errors },
+    formState: { errors, isSubmitted },
   } = useForm<AddressFormValues>({
     resolver: zodResolver(addressSchema),
     defaultValues: {
@@ -184,7 +184,7 @@ export default function AddressManager({ addresses }: AddressManagerProps) {
               disabled={isLoading}
               placeholder="Home, Work, etc."
             />
-            {errors.name && <p className="mt-1 text-sm text-red-600">{errors.name.message}</p>}
+            {errors.name && <p className="mt-1 text-sm text-red-600">{errors.name.message || 'Name is required'}</p>}
           </div>
 
           <div>
@@ -198,7 +198,7 @@ export default function AddressManager({ addresses }: AddressManagerProps) {
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
               disabled={isLoading}
             />
-            {errors.street && <p className="mt-1 text-sm text-red-600">{errors.street.message}</p>}
+            {errors.street && <p className="mt-1 text-sm text-red-600">{errors.street.message || 'Street is required'}</p>}
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -213,7 +213,7 @@ export default function AddressManager({ addresses }: AddressManagerProps) {
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
                 disabled={isLoading}
               />
-              {errors.city && <p className="mt-1 text-sm text-red-600">{errors.city.message}</p>}
+              {errors.city && <p className="mt-1 text-sm text-red-600">{errors.city.message || 'City is required'}</p>}
             </div>
 
             <div>
@@ -227,7 +227,7 @@ export default function AddressManager({ addresses }: AddressManagerProps) {
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
                 disabled={isLoading}
               />
-              {errors.state && <p className="mt-1 text-sm text-red-600">{errors.state.message}</p>}
+              {errors.state && <p className="mt-1 text-sm text-red-600">{errors.state.message || 'State is required'}</p>}
             </div>
           </div>
 
@@ -244,7 +244,7 @@ export default function AddressManager({ addresses }: AddressManagerProps) {
                 disabled={isLoading}
               />
               {errors.postalCode && (
-                <p className="mt-1 text-sm text-red-600">{errors.postalCode.message}</p>
+                <p className="mt-1 text-sm text-red-600">{errors.postalCode.message || 'Postal code is required'}</p>
               )}
             </div>
 
@@ -260,7 +260,7 @@ export default function AddressManager({ addresses }: AddressManagerProps) {
                 disabled={isLoading}
               />
               {errors.country && (
-                <p className="mt-1 text-sm text-red-600">{errors.country.message}</p>
+                <p className="mt-1 text-sm text-red-600">{errors.country.message || 'Country is required'}</p>
               )}
             </div>
           </div>
@@ -308,48 +308,102 @@ export default function AddressManager({ addresses }: AddressManagerProps) {
 
       <div>
         <h3 className="text-lg font-medium mb-4">Saved Addresses</h3>
-        {addresses.length === 0 ? (
-          <p className="text-gray-500">You don't have any saved addresses yet.</p>
-        ) : (
-          <div className="space-y-4">
-            {addresses.map((address) => (
-              <div
-                key={address.id}
-                className="border border-gray-200 rounded-md p-4 relative"
+        <div data-testid="addresses-list">
+          {addresses.length === 0 ? (
+            <p className="text-gray-500">You don't have any saved addresses yet.</p>
+          ) : (
+            <div className="space-y-4">
+              {addresses.map((address) => (
+                <div
+                  key={address.id}
+                  className={`border border-gray-200 rounded-md p-4 relative ${address.isDefault ? 'default-address' : ''}`}
+                  data-testid="address-card"
+                >
+                  {address.isDefault && (
+                    <span className="absolute top-2 right-2 bg-primary-100 text-primary-800 text-xs px-2 py-1 rounded-full">
+                      Default
+                    </span>
+                  )}
+                  <div className="mb-2">
+                    <h4 className="font-medium">{address.name}</h4>
+                  </div>
+                  <p className="text-gray-600">
+                    {address.street}
+                    <br />
+                    {address.city}, {address.state} {address.postalCode}
+                    <br />
+                    {address.country}
+                  </p>
+                  <div className="mt-3 flex space-x-3">
+                    <button
+                      onClick={() => startEditing(address)}
+                      className="text-sm text-primary-600 hover:text-primary-500"
+                      data-testid="edit-address-button"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => deleteAddress(address.id)}
+                      className="text-sm text-red-600 hover:text-red-500"
+                      data-testid="delete-address-button"
+                    >
+                      Delete
+                    </button>
+                    {!address.isDefault && (
+                      <button
+                        onClick={() => {
+                          // Set as default logic
+                          const formData = {
+                            ...address,
+                            isDefault: true
+                          };
+                          setCurrentAddressId(address.id);
+                          onSubmit(formData as AddressFormValues);
+                        }}
+                        className="text-sm text-blue-600 hover:text-blue-500"
+                        data-testid="set-default-button"
+                      >
+                        Set as Default
+                      </button>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+      
+      {/* Confirmation dialog for delete */}
+      <div id="delete-confirmation-dialog" className="hidden">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
+            <h3 className="text-lg font-medium mb-4">Confirm Deletion</h3>
+            <p className="mb-6">Are you sure you want to delete this address?</p>
+            <div className="flex justify-end space-x-3">
+              <button
+                className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+                onClick={() => {
+                  document.getElementById('delete-confirmation-dialog')?.classList.add('hidden');
+                }}
               >
-                {address.isDefault && (
-                  <span className="absolute top-2 right-2 bg-primary-100 text-primary-800 text-xs px-2 py-1 rounded-full">
-                    Default
-                  </span>
-                )}
-                <div className="mb-2">
-                  <h4 className="font-medium">{address.name}</h4>
-                </div>
-                <p className="text-gray-600">
-                  {address.street}
-                  <br />
-                  {address.city}, {address.state} {address.postalCode}
-                  <br />
-                  {address.country}
-                </p>
-                <div className="mt-3 flex space-x-3">
-                  <button
-                    onClick={() => startEditing(address)}
-                    className="text-sm text-primary-600 hover:text-primary-500"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => deleteAddress(address.id)}
-                    className="text-sm text-red-600 hover:text-red-500"
-                  >
-                    Delete
-                  </button>
-                </div>
-              </div>
-            ))}
+                Cancel
+              </button>
+              <button
+                data-testid="confirm-delete-button"
+                className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
+                onClick={() => {
+                  if (currentAddressId) {
+                    deleteAddress(currentAddressId);
+                  }
+                  document.getElementById('delete-confirmation-dialog')?.classList.add('hidden');
+                }}
+              >
+                Delete
+              </button>
+            </div>
           </div>
-        )}
+        </div>
       </div>
     </div>
   );

@@ -1,0 +1,90 @@
+{
+  "stats": {
+    "suites": 0,
+    "tests": 1,
+    "passes": 0,
+    "pending": 0,
+    "failures": 1,
+    "start": "2025-03-04T05:26:41.852Z",
+    "end": "2025-03-04T05:26:42.021Z",
+    "duration": 169,
+    "testsRegistered": 1,
+    "passPercent": 0,
+    "pendingPercent": 0,
+    "other": 0,
+    "hasOther": false,
+    "skipped": 0,
+    "hasSkipped": false
+  },
+  "results": [
+    {
+      "uuid": "64785516-8f81-4fb8-8776-fc28d8206acf",
+      "title": "",
+      "fullFile": "cypress/e2e/wishlist-reviews.cy.js",
+      "file": "cypress/e2e/wishlist-reviews.cy.js",
+      "beforeHooks": [],
+      "afterHooks": [],
+      "tests": [
+        {
+          "title": "An uncaught error was detected outside of a test",
+          "fullTitle": "An uncaught error was detected outside of a test",
+          "timedOut": null,
+          "duration": 145,
+          "state": "failed",
+          "speed": null,
+          "pass": false,
+          "fail": true,
+          "pending": false,
+          "context": null,
+          "code": "throw err;",
+          "err": {
+            "message": "Error: The following error originated from your test code, not from Cypress.\n\n  > Cannot find module './testDataCommands.js'\n\nWhen Cypress detects uncaught errors originating from your test code it will automatically fail the current test.\n\nCypress could not associate this error to any specific test.\n\nWe dynamically generated a new test to display this failure.",
+            "estack": "Error: The following error originated from your test code, not from Cypress.\n\n  > Cannot find module './testDataCommands.js'\n\nWhen Cypress detects uncaught errors originating from your test code it will automatically fail the current test.\n\nCypress could not associate this error to any specific test.\n\nWe dynamically generated a new test to display this failure.\n    at webpackMissingModule (webpack://vowswapping/./cypress/support/e2e.js:23:0)\n    at eval (webpack://vowswapping/./cypress/support/e2e.js:23:0)\n    at eval (http://localhost:3002/__cypress/tests?p=cypress/support/e2e.js:944:3)\n    at eval (http://localhost:3002/__cypress/tests?p=cypress/support/e2e.js:946:12)\n    at eval (<anonymous>)",
+            "diff": null
+          },
+          "uuid": "d3eb13d0-3ef2-4018-b3fc-772534b031c9",
+          "parentUUID": "64785516-8f81-4fb8-8776-fc28d8206acf",
+          "isHook": false,
+          "skipped": false
+        }
+      ],
+      "suites": [],
+      "passes": [],
+      "failures": [
+        "d3eb13d0-3ef2-4018-b3fc-772534b031c9"
+      ],
+      "pending": [],
+      "skipped": [],
+      "duration": 145,
+      "root": true,
+      "rootEmpty": false,
+      "_timeout": 2000
+    }
+  ],
+  "meta": {
+    "mocha": {
+      "version": "7.0.1"
+    },
+    "mochawesome": {
+      "options": {
+        "quiet": false,
+        "reportFilename": "mochawesome",
+        "saveHtml": true,
+        "saveJson": true,
+        "consoleReporter": "spec",
+        "useInlineDiffs": false,
+        "code": true
+      },
+      "version": "7.1.3"
+    },
+    "marge": {
+      "options": {
+        "reportDir": "test-results/cypress",
+        "overwrite": false,
+        "html": true,
+        "json": true
+      },
+      "version": "6.2.0"
+    }
+  }
+}

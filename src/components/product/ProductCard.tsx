@@ -95,8 +95,8 @@ export default function ProductCard({ product }: ProductCardProps) {
             </div>
             
             {/* Quick View Button */}
-            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-              <div className="bg-white bg-opacity-90 px-4 py-2 rounded-md font-medium text-primary-600 hover:text-primary-700">
+            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+              <div className="bg-white bg-opacity-90 px-4 py-2 rounded-md font-medium text-primary-600 hover:text-primary-700 pointer-events-auto">
                 Quick View
               </div>
             </div>

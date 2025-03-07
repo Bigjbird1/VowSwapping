@@ -9,9 +9,9 @@ import Link from 'next/link';
 
 const signUpSchema = z
   .object({
-    name: z.string().min(2, 'Name must be at least 2 characters'),
-    email: z.string().email('Please enter a valid email address'),
-    password: z.string().min(8, 'Password must be at least 8 characters'),
+    name: z.string().min(1, 'Name is required').min(2, 'Name must be at least 2 characters'),
+    email: z.string().min(1, 'Email is required').email('Please enter a valid email address'),
+    password: z.string().min(1, 'Password is required').min(8, 'Password must be at least 8 characters'),
     confirmPassword: z.string(),
   })
   .refine((data) => data.password === data.confirmPassword, {
@@ -133,7 +133,6 @@ export default function SignUpForm() {
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
             disabled={isLoading}
           />
-          {isSubmitted && !errors.name && <p className="mt-1 text-sm text-red-600">Name is required</p>}
           {errors.name && <p className="mt-1 text-sm text-red-600">{errors.name.message}</p>}
         </div>
 
@@ -148,7 +147,6 @@ export default function SignUpForm() {
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
             disabled={isLoading}
           />
-          {isSubmitted && !errors.email && <p className="mt-1 text-sm text-red-600">Email is required</p>}
           {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>}
         </div>
 
@@ -163,7 +161,6 @@ export default function SignUpForm() {
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
             disabled={isLoading}
           />
-          {isSubmitted && !errors.password && <p className="mt-1 text-sm text-red-600">Password is required</p>}
           {errors.password && <p className="mt-1 text-sm text-red-600">{errors.password.message}</p>}
         </div>
 

@@ -72,7 +72,7 @@ const ReviewList: React.FC<ReviewListProps> = ({
         </div>
       </div>
 
-      <div>
+      <div data-testid="review-list">
         {reviews.map((review) => (
           <ReviewCard
             key={review.id}

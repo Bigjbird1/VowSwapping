@@ -1,0 +1,540 @@
+{
+  "stats": {
+    "suites": 6,
+    "tests": 16,
+    "passes": 4,
+    "pending": 0,
+    "failures": 12,
+    "start": "2025-03-04T05:21:41.946Z",
+    "end": "2025-03-04T05:26:37.267Z",
+    "duration": 295321,
+    "testsRegistered": 16,
+    "passPercent": 25,
+    "pendingPercent": 0,
+    "other": 0,
+    "hasOther": false,
+    "skipped": 0,
+    "hasSkipped": false
+  },
+  "results": [
+    {
+      "uuid": "f5dc81e8-8b1a-4ab7-b4ca-d91f296eacac",
+      "title": "",
+      "fullFile": "cypress/e2e/profile-management.cy.js",
+      "file": "cypress/e2e/profile-management.cy.js",
+      "beforeHooks": [],
+      "afterHooks": [],
+      "tests": [],
+      "suites": [
+        {
+          "uuid": "027c51a8-b6d2-4f04-a008-3a1793c9c90e",
+          "title": "User Profile Management",
+          "fullFile": "",
+          "file": "",
+          "beforeHooks": [],
+          "afterHooks": [],
+          "tests": [],
+          "suites": [
+            {
+              "uuid": "68e12552-0e2a-4b8a-bdb3-90008ddd3e49",
+              "title": "Profile Information",
+              "fullFile": "",
+              "file": "",
+              "beforeHooks": [],
+              "afterHooks": [],
+              "tests": [
+                {
+                  "title": "should allow updating user profile information",
+                  "fullTitle": "User Profile Management Profile Information should allow updating user profile information",
+                  "timedOut": null,
+                  "duration": 20770,
+                  "state": "failed",
+                  "speed": null,
+                  "pass": false,
+                  "fail": true,
+                  "pending": false,
+                  "context": null,
+                  "code": "cy.visit('/profile', {\n  failOnStatusCode: false\n});\n// Update profile information\ncy.get('input[name=\"name\"]').clear().type('Updated Name');\ncy.get('button[type=\"submit\"]').click();\n// Verify success message\ncy.contains('Profile updated successfully').should('be.visible');\n// Reload page and verify changes persisted\ncy.reload();\ncy.get('input[name=\"name\"]').should('have.value', 'Updated Name');",
+                  "err": {
+                    "message": "AssertionError: Timed out retrying after 10000ms: Expected to find element: `input[name=\"name\"]`, but never found it.",
+                    "estack": "AssertionError: Timed out retrying after 10000ms: Expected to find element: `input[name=\"name\"]`, but never found it.\n    at Context.eval (webpack://vowswapping/./cypress/e2e/profile-management.cy.js:14:9)",
+                    "diff": null
+                  },
+                  "uuid": "4c5a1f29-1c39-40b8-be5c-f3be251d4b1a",
+                  "parentUUID": "68e12552-0e2a-4b8a-bdb3-90008ddd3e49",
+                  "isHook": false,
+                  "skipped": false
+                },
+                {
+                  "title": "should validate required fields",
+                  "fullTitle": "User Profile Management Profile Information should validate required fields",
+                  "timedOut": null,
+                  "duration": 20696,
+                  "state": "failed",
+                  "speed": null,
+                  "pass": false,
+                  "fail": true,
+                  "pending": false,
+                  "context": null,
+                  "code": "cy.visit('/profile', {\n  failOnStatusCode: false\n});\n// Clear required field\ncy.get('input[name=\"name\"]').clear();\ncy.get('button[type=\"submit\"]').click();\n// Verify validation error\ncy.contains('Name is required').should('be.visible');",
+                  "err": {
+                    "message": "AssertionError: Timed out retrying after 10000ms: Expected to find element: `input[name=\"name\"]`, but never found it.",
+                    "estack": "AssertionError: Timed out retrying after 10000ms: Expected to find element: `input[name=\"name\"]`, but never found it.\n    at Context.eval (webpack://vowswapping/./cypress/e2e/profile-management.cy.js:29:9)",
+                    "diff": null
+                  },
+                  "uuid": "796dd53c-a27a-4caa-9fd9-4cb8fd99a2a9",
+                  "parentUUID": "68e12552-0e2a-4b8a-bdb3-90008ddd3e49",
+                  "isHook": false,
+                  "skipped": false
+                },
+                {
+                  "title": "should validate email format",
+                  "fullTitle": "User Profile Management Profile Information should validate email format",
+                  "timedOut": null,
+                  "duration": 21144,
+                  "state": "failed",
+                  "speed": null,
+                  "pass": false,
+                  "fail": true,
+                  "pending": false,
+                  "context": null,
+                  "code": "cy.visit('/profile', {\n  failOnStatusCode: false\n});\n// Enter invalid email\ncy.get('input[name=\"email\"]').clear().type('invalid-email');\ncy.get('button[type=\"submit\"]').click();\n// Verify validation error\ncy.contains('Please enter a valid email address').should('be.visible');",
+                  "err": {
+                    "message": "AssertionError: Timed out retrying after 10000ms: Expected to find content: 'Please enter a valid email address' but never did.",
+                    "estack": "AssertionError: Timed out retrying after 10000ms: Expected to find content: 'Please enter a valid email address' but never did.\n    at Context.eval (webpack://vowswapping/./cypress/e2e/profile-management.cy.js:44:56)",
+                    "diff": null
+                  },
+                  "uuid": "d2447cbd-ad47-44e2-bd27-4afc3fa8d65e",
+                  "parentUUID": "68e12552-0e2a-4b8a-bdb3-90008ddd3e49",
+                  "isHook": false,
+                  "skipped": false
+                }
+              ],
+              "suites": [],
+              "passes": [],
+              "failures": [
+                "4c5a1f29-1c39-40b8-be5c-f3be251d4b1a",
+                "796dd53c-a27a-4caa-9fd9-4cb8fd99a2a9",
+                "d2447cbd-ad47-44e2-bd27-4afc3fa8d65e"
+              ],
+              "pending": [],
+              "skipped": [],
+              "duration": 62610,
+              "root": false,
+              "rootEmpty": false,
+              "_timeout": 2000
+            },
+            {
+              "uuid": "c61f07b4-8c9c-4dd8-8ed0-45a3f5e6881c",
+              "title": "Address Management",
+              "fullFile": "",
+              "file": "",
+              "beforeHooks": [],
+              "afterHooks": [],
+              "tests": [
+                {
+                  "title": "should display user addresses",
+                  "fullTitle": "User Profile Management Address Management should display user addresses",
+                  "timedOut": null,
+                  "duration": 20651,
+                  "state": "failed",
+                  "speed": null,
+                  "pass": false,
+                  "fail": true,
+                  "pending": false,
+                  "context": null,
+                  "code": "cy.visit('/profile/addresses', {\n  failOnStatusCode: false\n});\n// Check if the addresses section is visible\ncy.get('[data-testid=\"addresses-list\"]').should('exist');",
+                  "err": {
+                    "message": "AssertionError: Timed out retrying after 10000ms: Expected to find element: `[data-testid=\"addresses-list\"]`, but never found it.",
+                    "estack": "AssertionError: Timed out retrying after 10000ms: Expected to find element: `[data-testid=\"addresses-list\"]`, but never found it.\n    at Context.eval (webpack://vowswapping/./cypress/e2e/profile-management.cy.js:53:47)",
+                    "diff": null
+                  },
+                  "uuid": "05e34603-e086-47b0-a763-41db5d8ef8c0",
+                  "parentUUID": "c61f07b4-8c9c-4dd8-8ed0-45a3f5e6881c",
+                  "isHook": false,
+                  "skipped": false
+                },
+                {
+                  "title": "should allow adding a new address",
+                  "fullTitle": "User Profile Management Address Management should allow adding a new address",
+                  "timedOut": null,
+                  "duration": 20725,
+                  "state": "failed",
+                  "speed": null,
+                  "pass": false,
+                  "fail": true,
+                  "pending": false,
+                  "context": null,
+                  "code": "cy.visit('/profile/addresses', {\n  failOnStatusCode: false\n});\n// Click add new address button\ncy.contains('Add New Address').click();\n// Fill address form\ncy.get('input[name=\"name\"]').type('Home Address');\ncy.get('input[name=\"street\"]').type('123 Test Street');\ncy.get('input[name=\"city\"]').type('Test City');\ncy.get('input[name=\"state\"]').type('Test State');\ncy.get('input[name=\"postalCode\"]').type('12345');\ncy.get('input[name=\"country\"]').type('Test Country');\ncy.get('button[type=\"submit\"]').click();\n// Verify success message\ncy.contains('Address added successfully').should('be.visible');\n// Verify address appears in the list\ncy.contains('Home Address').should('be.visible');\ncy.contains('123 Test Street').should('be.visible');",
+                  "err": {
+                    "message": "AssertionError: Timed out retrying after 10000ms: Expected to find content: 'Add New Address' but never did.",
+                    "estack": "AssertionError: Timed out retrying after 10000ms: Expected to find content: 'Add New Address' but never did.\n    at Context.eval (webpack://vowswapping/./cypress/e2e/profile-management.cy.js:60:9)",
+                    "diff": null
+                  },
+                  "uuid": "cfcccf00-b7ab-4dc8-9a62-55e0af999a2f",
+                  "parentUUID": "c61f07b4-8c9c-4dd8-8ed0-45a3f5e6881c",
+                  "isHook": false,
+                  "skipped": false
+                },
+                {
+                  "title": "should allow editing an existing address",
+                  "fullTitle": "User Profile Management Address Management should allow editing an existing address",
+                  "timedOut": null,
+                  "duration": 20706,
+                  "state": "failed",
+                  "speed": null,
+                  "pass": false,
+                  "fail": true,
+                  "pending": false,
+                  "context": null,
+                  "code": "cy.visit('/profile/addresses', {\n  failOnStatusCode: false\n});\n// Ensure there's at least one address\ncy.get('[data-testid=\"address-card\"]').should('have.length.at.least', 1);\n// Click edit button on first address\ncy.get('[data-testid=\"edit-address-button\"]').first().click();\n// Update address\ncy.get('input[name=\"street\"]').clear().type('456 Updated Street');\ncy.get('button[type=\"submit\"]').click();\n// Verify success message\ncy.contains('Address updated successfully').should('be.visible');\n// Verify address was updated\ncy.contains('456 Updated Street').should('be.visible');",
+                  "err": {
+                    "message": "AssertionError: Timed out retrying after 10000ms: Expected to find element: `[data-testid=\"address-card\"]`, but never found it.",
+                    "estack": "AssertionError: Timed out retrying after 10000ms: Expected to find element: `[data-testid=\"address-card\"]`, but never found it.\n    at Context.eval (webpack://vowswapping/./cypress/e2e/profile-management.cy.js:83:45)",
+                    "diff": null
+                  },
+                  "uuid": "9a101acf-c080-4760-832b-a1115b1d0ed0",
+                  "parentUUID": "c61f07b4-8c9c-4dd8-8ed0-45a3f5e6881c",
+                  "isHook": false,
+                  "skipped": false
+                },
+                {
+                  "title": "should allow setting an address as default",
+                  "fullTitle": "User Profile Management Address Management should allow setting an address as default",
+                  "timedOut": null,
+                  "duration": 20781,
+                  "state": "failed",
+                  "speed": null,
+                  "pass": false,
+                  "fail": true,
+                  "pending": false,
+                  "context": null,
+                  "code": "cy.visit('/profile/addresses', {\n  failOnStatusCode: false\n});\n// Ensure there's at least one address\ncy.get('[data-testid=\"address-card\"]').should('have.length.at.least', 1);\n// Find a non-default address and set it as default\ncy.get('[data-testid=\"address-card\"]').not('.default-address').first().within(() => {\n  cy.get('[data-testid=\"set-default-button\"]').click();\n});\n// Verify success message\ncy.contains('Default address updated').should('be.visible');\n// Verify the address is now marked as default\ncy.get('[data-testid=\"address-card\"]').first().should('have.class', 'default-address');",
+                  "err": {
+                    "message": "AssertionError: Timed out retrying after 10000ms: Expected to find element: `[data-testid=\"address-card\"]`, but never found it.",
+                    "estack": "AssertionError: Timed out retrying after 10000ms: Expected to find element: `[data-testid=\"address-card\"]`, but never found it.\n    at Context.eval (webpack://vowswapping/./cypress/e2e/profile-management.cy.js:103:45)",
+                    "diff": null
+                  },
+                  "uuid": "6c6ec48a-955e-4656-92d7-662b99d60986",
+                  "parentUUID": "c61f07b4-8c9c-4dd8-8ed0-45a3f5e6881c",
+                  "isHook": false,
+                  "skipped": false
+                },
+                {
+                  "title": "should allow deleting an address",
+                  "fullTitle": "User Profile Management Address Management should allow deleting an address",
+                  "timedOut": null,
+                  "duration": 21203,
+                  "state": "failed",
+                  "speed": null,
+                  "pass": false,
+                  "fail": true,
+                  "pending": false,
+                  "context": null,
+                  "code": "cy.visit('/profile/addresses', {\n  failOnStatusCode: false\n});\n// Ensure there's at least one address\ncy.get('[data-testid=\"address-card\"]').should('have.length.at.least', 1);\n// Get address text for verification\ncy.get('[data-testid=\"address-card\"]').first().invoke('text').as('addressText');\n// Click delete button on first address\ncy.get('[data-testid=\"delete-address-button\"]').first().click();\n// Confirm deletion\ncy.get('[data-testid=\"confirm-delete-button\"]').click();\n// Verify success message\ncy.contains('Address deleted successfully').should('be.visible');\n// Verify address no longer appears\ncy.get('@addressText').then(text => {\n  cy.contains(text).should('not.exist');\n});",
+                  "err": {
+                    "message": "AssertionError: Timed out retrying after 10000ms: Expected to find element: `[data-testid=\"address-card\"]`, but never found it.",
+                    "estack": "AssertionError: Timed out retrying after 10000ms: Expected to find element: `[data-testid=\"address-card\"]`, but never found it.\n    at Context.eval (webpack://vowswapping/./cypress/e2e/profile-management.cy.js:124:45)",
+                    "diff": null
+                  },
+                  "uuid": "9ba4b80d-5f44-411a-8e53-55b2d4912614",
+                  "parentUUID": "c61f07b4-8c9c-4dd8-8ed0-45a3f5e6881c",
+                  "isHook": false,
+                  "skipped": false
+                },
+                {
+                  "title": "should validate required fields when adding an address",
+                  "fullTitle": "User Profile Management Address Management should validate required fields when adding an address",
+                  "timedOut": null,
+                  "duration": 21010,
+                  "state": "failed",
+                  "speed": null,
+                  "pass": false,
+                  "fail": true,
+                  "pending": false,
+                  "context": null,
+                  "code": "cy.visit('/profile/addresses', {\n  failOnStatusCode: false\n});\n// Click add new address button\ncy.contains('Add New Address').click();\n// Submit without filling required fields\ncy.get('button[type=\"submit\"]').click();\n// Verify validation errors\ncy.contains('Name is required').should('be.visible');\ncy.contains('Street is required').should('be.visible');\ncy.contains('City is required').should('be.visible');\ncy.contains('State is required').should('be.visible');\ncy.contains('Postal code is required').should('be.visible');\ncy.contains('Country is required').should('be.visible');",
+                  "err": {
+                    "message": "AssertionError: Timed out retrying after 10000ms: Expected to find content: 'Add New Address' but never did.",
+                    "estack": "AssertionError: Timed out retrying after 10000ms: Expected to find content: 'Add New Address' but never did.\n    at Context.eval (webpack://vowswapping/./cypress/e2e/profile-management.cy.js:148:9)",
+                    "diff": null
+                  },
+                  "uuid": "8a2142d6-d592-44ef-bbb2-abaf7b882ad5",
+                  "parentUUID": "c61f07b4-8c9c-4dd8-8ed0-45a3f5e6881c",
+                  "isHook": false,
+                  "skipped": false
+                }
+              ],
+              "suites": [],
+              "passes": [],
+              "failures": [
+                "05e34603-e086-47b0-a763-41db5d8ef8c0",
+                "cfcccf00-b7ab-4dc8-9a62-55e0af999a2f",
+                "9a101acf-c080-4760-832b-a1115b1d0ed0",
+                "6c6ec48a-955e-4656-92d7-662b99d60986",
+                "9ba4b80d-5f44-411a-8e53-55b2d4912614",
+                "8a2142d6-d592-44ef-bbb2-abaf7b882ad5"
+              ],
+              "pending": [],
+              "skipped": [],
+              "duration": 125076,
+              "root": false,
+              "rootEmpty": false,
+              "_timeout": 2000
+            },
+            {
+              "uuid": "d37681c0-04b6-4c75-a147-436f7cbbe4c0",
+              "title": "Order History",
+              "fullFile": "",
+              "file": "",
+              "beforeHooks": [],
+              "afterHooks": [],
+              "tests": [
+                {
+                  "title": "should display user order history",
+                  "fullTitle": "User Profile Management Order History should display user order history",
+                  "timedOut": null,
+                  "duration": 21810,
+                  "state": "failed",
+                  "speed": null,
+                  "pass": false,
+                  "fail": true,
+                  "pending": false,
+                  "context": null,
+                  "code": "cy.visit('/profile/orders', {\n  failOnStatusCode: false\n});\n// Check if the orders section is visible\ncy.get('[data-testid=\"orders-list\"]').should('exist');",
+                  "err": {
+                    "message": "AssertionError: Timed out retrying after 10000ms: Expected to find element: `[data-testid=\"orders-list\"]`, but never found it.",
+                    "estack": "AssertionError: Timed out retrying after 10000ms: Expected to find element: `[data-testid=\"orders-list\"]`, but never found it.\n    at Context.eval (webpack://vowswapping/./cypress/e2e/profile-management.cy.js:168:44)",
+                    "diff": null
+                  },
+                  "uuid": "b760393e-3c84-4681-bdb5-4f099f0cc7a0",
+                  "parentUUID": "d37681c0-04b6-4c75-a147-436f7cbbe4c0",
+                  "isHook": false,
+                  "skipped": false
+                },
+                {
+                  "title": "should allow viewing order details",
+                  "fullTitle": "User Profile Management Order History should allow viewing order details",
+                  "timedOut": null,
+                  "duration": 10799,
+                  "state": "passed",
+                  "speed": "slow",
+                  "pass": true,
+                  "fail": false,
+                  "pending": false,
+                  "context": null,
+                  "code": "cy.visit('/profile/orders', {\n  failOnStatusCode: false\n});\n// Check if there are any orders\ncy.get('body').then($body => {\n  if ($body.find('[data-testid=\"order-card\"]').length > 0) {\n    // Click on the first order to view details\n    cy.get('[data-testid=\"order-card\"]').first().click();\n    // Verify order details are displayed\n    cy.get('[data-testid=\"order-details\"]').should('be.visible');\n    cy.contains('Order Items').should('be.visible');\n    cy.contains('Shipping Address').should('be.visible');\n  } else {\n    // Skip test if no orders exist\n    cy.log('No orders found to test');\n  }\n});",
+                  "err": {},
+                  "uuid": "88bf7d7d-3551-4930-a9b8-5de23ef7ce32",
+                  "parentUUID": "d37681c0-04b6-4c75-a147-436f7cbbe4c0",
+                  "isHook": false,
+                  "skipped": false
+                }
+              ],
+              "suites": [],
+              "passes": [
+                "88bf7d7d-3551-4930-a9b8-5de23ef7ce32"
+              ],
+              "failures": [
+                "b760393e-3c84-4681-bdb5-4f099f0cc7a0"
+              ],
+              "pending": [],
+              "skipped": [],
+              "duration": 32609,
+              "root": false,
+              "rootEmpty": false,
+              "_timeout": 2000
+            },
+            {
+              "uuid": "5b609bd6-ad82-4d6b-8534-ef7c77e03d4f",
+              "title": "Wishlist Management",
+              "fullFile": "",
+              "file": "",
+              "beforeHooks": [],
+              "afterHooks": [],
+              "tests": [
+                {
+                  "title": "should display user wishlist",
+                  "fullTitle": "User Profile Management Wishlist Management should display user wishlist",
+                  "timedOut": null,
+                  "duration": 20993,
+                  "state": "failed",
+                  "speed": null,
+                  "pass": false,
+                  "fail": true,
+                  "pending": false,
+                  "context": null,
+                  "code": "cy.visit('/profile/wishlist', {\n  failOnStatusCode: false\n});\n// Check if the wishlist section is visible\ncy.get('[data-testid=\"wishlist-items\"]').should('exist');",
+                  "err": {
+                    "message": "AssertionError: Timed out retrying after 10000ms: Expected to find element: `[data-testid=\"wishlist-items\"]`, but never found it.",
+                    "estack": "AssertionError: Timed out retrying after 10000ms: Expected to find element: `[data-testid=\"wishlist-items\"]`, but never found it.\n    at Context.eval (webpack://vowswapping/./cypress/e2e/profile-management.cy.js:197:47)",
+                    "diff": null
+                  },
+                  "uuid": "5cd673c3-6ca0-475c-b7db-808649071e0b",
+                  "parentUUID": "5b609bd6-ad82-4d6b-8534-ef7c77e03d4f",
+                  "isHook": false,
+                  "skipped": false
+                },
+                {
+                  "title": "should allow removing items from wishlist",
+                  "fullTitle": "User Profile Management Wishlist Management should allow removing items from wishlist",
+                  "timedOut": null,
+                  "duration": 10772,
+                  "state": "passed",
+                  "speed": "slow",
+                  "pass": true,
+                  "fail": false,
+                  "pending": false,
+                  "context": null,
+                  "code": "cy.visit('/profile/wishlist', {\n  failOnStatusCode: false\n});\n// Check if there are any wishlist items\ncy.get('body').then($body => {\n  if ($body.find('[data-testid=\"wishlist-item\"]').length > 0) {\n    // Get item text for verification\n    cy.get('[data-testid=\"wishlist-item\"]').first().invoke('text').as('itemText');\n    // Click remove button on first item\n    cy.get('[data-testid=\"remove-from-wishlist\"]').first().click();\n    // Verify success message\n    cy.contains('Item removed from wishlist').should('be.visible');\n    // Verify item no longer appears\n    cy.get('@itemText').then(text => {\n      cy.contains(text).should('not.exist');\n    });\n  } else {\n    // Skip test if no wishlist items exist\n    cy.log('No wishlist items found to test');\n  }\n});",
+                  "err": {},
+                  "uuid": "3d8187fd-e739-4a01-a0ae-82827fab40d8",
+                  "parentUUID": "5b609bd6-ad82-4d6b-8534-ef7c77e03d4f",
+                  "isHook": false,
+                  "skipped": false
+                }
+              ],
+              "suites": [],
+              "passes": [
+                "3d8187fd-e739-4a01-a0ae-82827fab40d8"
+              ],
+              "failures": [
+                "5cd673c3-6ca0-475c-b7db-808649071e0b"
+              ],
+              "pending": [],
+              "skipped": [],
+              "duration": 31765,
+              "root": false,
+              "rootEmpty": false,
+              "_timeout": 2000
+            },
+            {
+              "uuid": "751d6599-b519-4544-842f-d38ba915c21a",
+              "title": "Reviews Management",
+              "fullFile": "",
+              "file": "",
+              "beforeHooks": [],
+              "afterHooks": [],
+              "tests": [
+                {
+                  "title": "should display user reviews",
+                  "fullTitle": "User Profile Management Reviews Management should display user reviews",
+                  "timedOut": null,
+                  "duration": 21019,
+                  "state": "failed",
+                  "speed": null,
+                  "pass": false,
+                  "fail": true,
+                  "pending": false,
+                  "context": null,
+                  "code": "cy.visit('/profile/reviews', {\n  failOnStatusCode: false\n});\n// Check if the reviews section is visible\ncy.get('[data-testid=\"user-reviews\"]').should('exist');",
+                  "err": {
+                    "message": "AssertionError: Timed out retrying after 10000ms: Expected to find element: `[data-testid=\"user-reviews\"]`, but never found it.",
+                    "estack": "AssertionError: Timed out retrying after 10000ms: Expected to find element: `[data-testid=\"user-reviews\"]`, but never found it.\n    at Context.eval (webpack://vowswapping/./cypress/e2e/profile-management.cy.js:232:45)",
+                    "diff": null
+                  },
+                  "uuid": "0e75f41b-77e9-438f-ab44-1bcf437cd0bb",
+                  "parentUUID": "751d6599-b519-4544-842f-d38ba915c21a",
+                  "isHook": false,
+                  "skipped": false
+                },
+                {
+                  "title": "should allow editing a review",
+                  "fullTitle": "User Profile Management Reviews Management should allow editing a review",
+                  "timedOut": null,
+                  "duration": 10878,
+                  "state": "passed",
+                  "speed": "slow",
+                  "pass": true,
+                  "fail": false,
+                  "pending": false,
+                  "context": null,
+                  "code": "cy.visit('/profile/reviews', {\n  failOnStatusCode: false\n});\n// Check if there are any reviews\ncy.get('body').then($body => {\n  if ($body.find('[data-testid=\"review-item\"]').length > 0) {\n    // Click edit button on first review\n    cy.get('[data-testid=\"edit-review-button\"]').first().click();\n    // Update review\n    cy.get('textarea[name=\"comment\"]').clear().type('Updated review comment');\n    cy.get('button[type=\"submit\"]').click();\n    // Verify success message\n    cy.contains('Review updated successfully').should('be.visible');\n    // Verify review was updated\n    cy.contains('Updated review comment').should('be.visible');\n  } else {\n    // Skip test if no reviews exist\n    cy.log('No reviews found to test');\n  }\n});",
+                  "err": {},
+                  "uuid": "2da5950c-17b3-4d23-a104-9ab9d67c0acd",
+                  "parentUUID": "751d6599-b519-4544-842f-d38ba915c21a",
+                  "isHook": false,
+                  "skipped": false
+                },
+                {
+                  "title": "should allow deleting a review",
+                  "fullTitle": "User Profile Management Reviews Management should allow deleting a review",
+                  "timedOut": null,
+                  "duration": 10813,
+                  "state": "passed",
+                  "speed": "slow",
+                  "pass": true,
+                  "fail": false,
+                  "pending": false,
+                  "context": null,
+                  "code": "cy.visit('/profile/reviews', {\n  failOnStatusCode: false\n});\n// Check if there are any reviews\ncy.get('body').then($body => {\n  if ($body.find('[data-testid=\"review-item\"]').length > 0) {\n    // Get review text for verification\n    cy.get('[data-testid=\"review-item\"]').first().invoke('text').as('reviewText');\n    // Click delete button on first review\n    cy.get('[data-testid=\"delete-review-button\"]').first().click();\n    // Confirm deletion\n    cy.get('[data-testid=\"confirm-delete-button\"]').click();\n    // Verify success message\n    cy.contains('Review deleted successfully').should('be.visible');\n    // Verify review no longer appears\n    cy.get('@reviewText').then(text => {\n      cy.contains(text).should('not.exist');\n    });\n  } else {\n    // Skip test if no reviews exist\n    cy.log('No reviews found to test');\n  }\n});",
+                  "err": {},
+                  "uuid": "e813a8ab-e691-4b4e-b009-5d901a2d1d15",
+                  "parentUUID": "751d6599-b519-4544-842f-d38ba915c21a",
+                  "isHook": false,
+                  "skipped": false
+                }
+              ],
+              "suites": [],
+              "passes": [
+                "2da5950c-17b3-4d23-a104-9ab9d67c0acd",
+                "e813a8ab-e691-4b4e-b009-5d901a2d1d15"
+              ],
+              "failures": [
+                "0e75f41b-77e9-438f-ab44-1bcf437cd0bb"
+              ],
+              "pending": [],
+              "skipped": [],
+              "duration": 42710,
+              "root": false,
+              "rootEmpty": false,
+              "_timeout": 2000
+            }
+          ],
+          "passes": [],
+          "failures": [],
+          "pending": [],
+          "skipped": [],
+          "duration": 0,
+          "root": false,
+          "rootEmpty": false,
+          "_timeout": 2000
+        }
+      ],
+      "passes": [],
+      "failures": [],
+      "pending": [],
+      "skipped": [],
+      "duration": 0,
+      "root": true,
+      "rootEmpty": true,
+      "_timeout": 2000
+    }
+  ],
+  "meta": {
+    "mocha": {
+      "version": "7.0.1"
+    },
+    "mochawesome": {
+      "options": {
+        "quiet": false,
+        "reportFilename": "mochawesome",
+        "saveHtml": true,
+        "saveJson": true,
+        "consoleReporter": "spec",
+        "useInlineDiffs": false,
+        "code": true
+      },
+      "version": "7.1.3"
+    },
+    "marge": {
+      "options": {
+        "reportDir": "test-results/cypress",
+        "overwrite": false,
+        "html": true,
+        "json": true
+      },
+      "version": "6.2.0"
+    }
+  }
+}

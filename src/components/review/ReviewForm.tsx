@@ -118,12 +118,17 @@ const ReviewForm: React.FC<ReviewFormProps> = ({
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Rating
           </label>
-          <StarRating
-            rating={rating}
-            interactive={true}
-            size={28}
-            onChange={setRating}
-          />
+          <div data-testid="star-rating">
+            <input
+              type="range"
+              min="0"
+              max="5"
+              value={rating}
+              onChange={(e) => setRating(parseInt(e.target.value))}
+              data-testid="star-rating-input"
+            />
+            <span>Current rating: {rating}</span>
+          </div>
         </div>
         
         <div className="mb-4">

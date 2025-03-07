@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/3</span>
+                <span class='fraction'>3/3</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">26.08% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/23</span>
+                <span class='fraction'>6/23</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/1</span>
+                <span class='fraction'>1/1</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/3</span>
+                <span class='fraction'>3/3</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -160,16 +160,16 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">8x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -245,16 +245,16 @@ interface ReviewCardProps {
   showSeller?: boolean;
 }
 &nbsp;
-const ReviewCard: React.FC&lt;ReviewCardProps&gt; = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >({</span></span>
+const ReviewCard: React.FC&lt;ReviewCardProps&gt; = ({
   review,
-  showProduct = <span class="branch-0 cbranch-no" title="branch not covered" >false,</span>
-  showSeller = <span class="branch-0 cbranch-no" title="branch not covered" >false,</span>
+  showProduct = false,
+  showSeller = false,
 }) =&gt; {
-  const formattedDate = <span class="cstat-no" title="statement not covered" >formatDistanceToNow(new Date(review.createdAt), {</span>
+  const formattedDate = formatDistanceToNow(new Date(review.createdAt), {
     addSuffix: true,
   });
 &nbsp;
-<span class="cstat-no" title="statement not covered" >  return (</span>
+  return (
     &lt;div className="bg-white rounded-lg shadow-md p-4 mb-4"&gt;
       &lt;div className="flex items-start justify-between mb-2"&gt;
         &lt;div className="flex items-center"&gt;
@@ -274,8 +274,8 @@ const ReviewCard: React.FC&lt;ReviewCardProps&gt; = <span class="cstat-no" title
         &lt;/div&gt;
       )}
 &nbsp;
-      {showProduct &amp;&amp; review.productId &amp;&amp; (
-        &lt;div className="mt-3 pt-3 border-t border-gray-200"&gt;
+      {showProduct &amp;&amp; <span class="branch-1 cbranch-no" title="branch not covered" >review.productId </span>&amp;&amp; (
+<span class="branch-2 cbranch-no" title="branch not covered" >        &lt;div className="mt-3 pt-3 border-t border-gray-200"&gt;</span>
           &lt;p className="text-sm text-gray-500 mb-2"&gt;Product reviewed:&lt;/p&gt;
           &lt;div className="flex items-center"&gt;
             {review.product?.images?.[0] &amp;&amp; (
@@ -293,8 +293,8 @@ const ReviewCard: React.FC&lt;ReviewCardProps&gt; = <span class="cstat-no" title
         &lt;/div&gt;
       )}
 &nbsp;
-      {showSeller &amp;&amp; review.sellerId &amp;&amp; (
-        &lt;div className="mt-3 pt-3 border-t border-gray-200"&gt;
+      {showSeller &amp;&amp; <span class="branch-1 cbranch-no" title="branch not covered" >review.sellerId </span>&amp;&amp; (
+<span class="branch-2 cbranch-no" title="branch not covered" >        &lt;div className="mt-3 pt-3 border-t border-gray-200"&gt;</span>
           &lt;p className="text-sm text-gray-500 mb-2"&gt;Seller reviewed:&lt;/p&gt;
           &lt;div className="flex items-center"&gt;
             {review.seller?.image &amp;&amp; (
@@ -325,7 +325,7 @@ export default ReviewCard;
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-03-03T15:38:20.223Z
+                at 2025-03-04T05:23:55.476Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>

@@ -1,0 +1,13 @@
+[
+  {
+    "id": "address1",
+    "userId": "user1",
+    "name": "Home Address",
+    "street": "123 Test St",
+    "city": "Testville",
+    "state": "TS",
+    "postalCode": "12345",
+    "country": "Testland",
+    "isDefault": true
+  }
+]

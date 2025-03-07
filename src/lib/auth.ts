@@ -153,6 +153,11 @@ export async function verifyPassword(password: string, hashedPassword: string): 
   return compare(password, hashedPassword);
 }
 
+// Standardized response formatter for auth endpoints
+export const formatAuthResponse = (status: number, message: string, data?: object) => {
+  return Response.json({ status, message, ...data }, { status });
+};
+
 // Function to generate a random token
 export function generateToken(length: number = 32): string {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';

@@ -55,12 +55,19 @@ describe('EmailVerification Component', () => {
     expect(screen.getByText(/please wait while we verify your email/i)).toBeInTheDocument();
   });
 
-  it('should display error when no token is provided', async () => {
+  it('should display verification email sent message when accessed post-signup', async () => {
+    // No token, success, or error params - simulates post-signup scenario
     render(<EmailVerification />);
     
     await waitFor(() => {
-      expect(screen.getByText(/verification failed/i)).toBeInTheDocument();
-      expect(screen.getByText(/invalid or missing verification token/i)).toBeInTheDocument();
+      expect(screen.getByText(/verify your email/i)).toBeInTheDocument();
+      expect(screen.getByText(/verification email sent/i)).toBeInTheDocument();
+      expect(screen.getByText(/please check your inbox/i)).toBeInTheDocument();
+      expect(screen.getByText(/once verified/i)).toBeInTheDocument();
+      
+      const signInLink = screen.getByRole('link', { name: /go to sign in/i });
+      expect(signInLink).toBeInTheDocument();
+      expect(signInLink.getAttribute('href')).toBe('/auth/signin');
     });
   });
 

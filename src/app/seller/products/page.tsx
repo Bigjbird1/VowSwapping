@@ -106,6 +106,7 @@ export default function SellerProductsPage() {
           <Link
             href="/seller/products/create"
             className="inline-block bg-primary-600 text-white px-4 py-2 rounded-md hover:bg-primary-700 transition-colors"
+            data-testid="create-product-button"
           >
             Add New Product
           </Link>

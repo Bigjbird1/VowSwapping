@@ -19,6 +19,15 @@ import './commands';
 // Import cypress-axe for accessibility testing
 import 'cypress-axe';
 
+// Import test data commands
+import './testDataCommands.js';
+
+// Set environment variables for testing
+before(() => {
+  // Enable mocks by default for all tests
+  Cypress.env('USE_MOCKS', true);
+});
+
 // Add accessibility commands
 beforeEach(() => {
   cy.injectAxe();

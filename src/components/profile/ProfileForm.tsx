@@ -97,7 +97,7 @@ export default function ProfileForm({ user }: ProfileFormProps) {
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
             disabled={isLoading}
           />
-          {errors.name && <p className="mt-1 text-sm text-red-600">{errors.name.message}</p>}
+          {errors.name && <p className="mt-1 text-sm text-red-600">{errors.name.message || 'Name is required'}</p>}
         </div>
 
         <div>
@@ -112,6 +112,7 @@ export default function ProfileForm({ user }: ProfileFormProps) {
             disabled={true}
           />
           <p className="mt-1 text-xs text-gray-500">Email cannot be changed</p>
+          {errors.email && <p className="mt-1 text-sm text-red-600">Please enter a valid email address</p>}
         </div>
 
         <button

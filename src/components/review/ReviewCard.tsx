@@ -8,26 +8,35 @@ interface ReviewCardProps {
   review: Review;
   showProduct?: boolean;
   showSeller?: boolean;
+  className?: string;
 }
 
 const ReviewCard: React.FC<ReviewCardProps> = ({
   review,
   showProduct = false,
   showSeller = false,
+  className = '',
 }) => {
-  const formattedDate = formatDistanceToNow(new Date(review.createdAt), {
-    addSuffix: true,
-  });
+  let formattedDate = 'Unknown date';
+  try {
+    formattedDate = formatDistanceToNow(new Date(review.createdAt), {
+      addSuffix: true,
+    });
+  } catch (error) {
+    console.error('Error formatting date:', error);
+  }
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-4 mb-4">
+    <div className={`bg-white rounded-lg shadow-md p-4 mb-4 ${className}`}>
       <div className="flex items-start justify-between mb-2">
         <div className="flex items-center">
-          <div className="mr-3">
+          <div className="mr-3" data-testid="star-rating-wrapper">
             <StarRating rating={review.rating} size={16} />
           </div>
           <div>
-            <p className="font-semibold">{review.reviewerName}</p>
+            <p className="font-semibold">
+              {review.reviewerName || 'Anonymous User'}
+            </p>
             <p className="text-gray-500 text-sm">{formattedDate}</p>
           </div>
         </div>

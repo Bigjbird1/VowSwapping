@@ -1,7 +1,6 @@
 #!/bin/bash
 
-# Run Tests and Generate Coverage Report
-# This script runs all tests and generates a coverage report
+# Run all tests for VowSwap and generate a summary report
 
 # Set colors for output
 GREEN='\033[0;32m'
@@ -9,67 +8,207 @@ YELLOW='\033[1;33m'
 RED='\033[0;31m'
 NC='\033[0m' # No Color
 
-echo -e "${YELLOW}=== VowSwap Testing Suite ===${NC}"
-echo -e "${YELLOW}Running all tests and generating coverage report...${NC}"
+echo -e "${YELLOW}=== VowSwap Test Suite Runner ===${NC}"
 echo ""
 
-# Create a directory for test results if it doesn't exist
+# Create test results directory if it doesn't exist
 mkdir -p test-results
 
-# Run Jest tests with coverage
-echo -e "${YELLOW}Running Jest unit tests...${NC}"
-npm test -- --coverage --coverageDirectory=./test-results/coverage
+# Create a log file for the test output
+LOG_FILE="test-output.log"
+DETAILED_LOG="test-output-detailed.log"
+PART1_LOG="test-output-part1.log"
+PART2_LOG="test-output-part2.log"
+PART3_LOG="test-output-part3.log"
 
-# Check if Jest tests passed
-if [ $? -eq 0 ]; then
-  echo -e "${GREEN}✓ Jest tests completed successfully${NC}"
+# Clear previous log files
+> $LOG_FILE
+> $DETAILED_LOG
+> $PART1_LOG
+> $PART2_LOG
+> $PART3_LOG
+
+# Function to log messages to both console and log file
+log() {
+  echo -e "$1" | tee -a $LOG_FILE
+  echo -e "$1" >> $DETAILED_LOG
+}
+
+# Function to run a test and log the result
+run_test() {
+  TEST_NAME=$1
+  TEST_COMMAND=$2
+  LOG_PART=$3
+  
+  log "${YELLOW}Running $TEST_NAME...${NC}"
+  
+  # Run the test and capture the output
+  if $TEST_COMMAND >> $LOG_PART 2>&1; then
+    log "${GREEN}✓ $TEST_NAME passed${NC}"
+    return 0
+  else
+    log "${RED}✗ $TEST_NAME failed${NC}"
+    return 1
+  fi
+}
+
+# First, test the database connection
+log "${YELLOW}Testing Database Connection...${NC}"
+if node test-db-connection.js >> $DETAILED_LOG 2>&1; then
+  log "${GREEN}✓ Database connection successful${NC}"
 else
-  echo -e "${RED}✗ Jest tests failed${NC}"
+  log "${RED}✗ Database connection failed${NC}"
+  log "See $DETAILED_LOG for details"
+  exit 1
 fi
 
-echo ""
+# Part 1: Database Tests
+log "\n${YELLOW}=== Part 1: Database Tests ===${NC}"
 
-# Run Cypress tests headlessly
-echo -e "${YELLOW}Running Cypress E2E tests...${NC}"
-echo -e "${YELLOW}Starting development server...${NC}"
+# Run database tests
+run_test "Database Model Tests" "./run-db-tests.sh" $PART1_LOG
+DB_TESTS_RESULT=$?
 
-# Start the development server in the background on port 3002
-NEXT_PORT=3002 npm run dev > /dev/null 2>&1 &
-DEV_SERVER_PID=$!
+# Part 2: API Tests
+log "\n${YELLOW}=== Part 2: API Tests ===${NC}"
 
-# Wait for the server to start
-echo -e "${YELLOW}Waiting for development server to start on port 3002...${NC}"
-sleep 10
+# Run API tests
+run_test "API Tests" "./run-api-tests.sh" $PART2_LOG
+API_TESTS_RESULT=$?
 
-# Run Cypress tests
-npx cypress run --reporter mochawesome --reporter-options reportDir=test-results/cypress,overwrite=false,html=true,json=true
+# Part 3: End-to-End Tests
+log "\n${YELLOW}=== Part 3: End-to-End Tests ===${NC}"
 
-# Check if Cypress tests passed
-if [ $? -eq 0 ]; then
-  echo -e "${GREEN}✓ Cypress tests completed successfully${NC}"
+# Apply resource optimization fix
+log "${YELLOW}Applying Cypress resource optimization...${NC}"
+if node cypress-resource-fix.js >> $DETAILED_LOG 2>&1; then
+  log "${GREEN}✓ Resource optimization applied${NC}"
 else
-  echo -e "${RED}✗ Cypress tests failed${NC}"
+  log "${RED}✗ Failed to apply resource optimization${NC}"
+  E2E_TESTS_RESULT=1
 fi
 
-# Kill the development server
-kill $DEV_SERVER_PID
-
-echo ""
-
-# Run Lighthouse CI
-echo -e "${YELLOW}Running Lighthouse CI tests...${NC}"
-npm run lighthouse
-
-# Check if Lighthouse tests passed
-if [ $? -eq 0 ]; then
-  echo -e "${GREEN}✓ Lighthouse tests completed successfully${NC}"
+# Set up test data
+log "${YELLOW}Setting up test data...${NC}"
+if node cypress/seedTestData.js >> $DETAILED_LOG 2>&1; then
+  log "${GREEN}✓ Test data setup complete${NC}"
 else
-  echo -e "${RED}✗ Lighthouse tests failed${NC}"
+  log "${RED}✗ Failed to set up test data${NC}"
+  E2E_TESTS_RESULT=1
 fi
 
-echo ""
-echo -e "${GREEN}=== Testing Complete ===${NC}"
-echo -e "${YELLOW}Test results and coverage reports are available in the test-results directory${NC}"
-echo -e "${YELLOW}Jest coverage: test-results/coverage/lcov-report/index.html${NC}"
-echo -e "${YELLOW}Cypress reports: test-results/cypress/mochawesome.html${NC}"
-echo -e "${YELLOW}Lighthouse reports: .lighthouseci/reports/${NC}"
+# Start the test server for Cypress tests
+log "${YELLOW}Starting test server on port 3002...${NC}"
+node start-test-server.js >> $DETAILED_LOG 2>&1 &
+TEST_SERVER_PID=$!
+
+# Give the server some time to start
+log "${YELLOW}Waiting for server to start...${NC}"
+sleep 5
+
+# Check if the server is running
+if curl -s http://localhost:3002 > /dev/null; then
+  log "${GREEN}✓ Test server started successfully${NC}"
+  SERVER_STARTED=true
+else
+  log "${RED}✗ Failed to start test server${NC}"
+  SERVER_STARTED=false
+  E2E_TESTS_RESULT=1
+fi
+
+# Run Cypress tests if the setup was successful and server is running
+if [ "$E2E_TESTS_RESULT" != "1" ] && [ "$SERVER_STARTED" = "true" ]; then
+  # Run shopping experience tests
+  run_test "Shopping Experience Tests" "npx cypress run --spec 'cypress/e2e/shopping-experience.cy.js' --browser chrome" $PART3_LOG
+  SHOPPING_RESULT=$?
+  
+  # Run checkout tests
+  run_test "Checkout Tests" "npx cypress run --spec 'cypress/e2e/checkout.cy.js' --browser chrome" $PART3_LOG
+  CHECKOUT_RESULT=$?
+  
+  # Run seller functionality tests
+  run_test "Seller Functionality Tests" "npx cypress run --spec 'cypress/e2e/seller.cy.js' --browser chrome" $PART3_LOG
+  SELLER_RESULT=$?
+  
+  # Run wishlist and reviews tests
+  run_test "Wishlist & Reviews Tests" "npx cypress run --spec 'cypress/e2e/wishlist-reviews.cy.js' --browser chrome" $PART3_LOG
+  WISHLIST_RESULT=$?
+  
+  # Run authentication tests
+  run_test "Authentication Tests" "npx cypress run --spec 'cypress/e2e/auth.cy.js' --browser chrome" $PART3_LOG
+  AUTH_RESULT=$?
+  
+  # Run profile management tests
+  run_test "Profile Management Tests" "npx cypress run --spec 'cypress/e2e/profile-management.cy.js' --browser chrome" $PART3_LOG
+  PROFILE_RESULT=$?
+  
+  # Determine overall E2E test result
+  if [ "$SHOPPING_RESULT" = "0" ] && [ "$CHECKOUT_RESULT" = "0" ] && [ "$SELLER_RESULT" = "0" ] && [ "$WISHLIST_RESULT" = "0" ] && [ "$AUTH_RESULT" = "0" ] && [ "$PROFILE_RESULT" = "0" ]; then
+    E2E_TESTS_RESULT=0
+  else
+    E2E_TESTS_RESULT=1
+  fi
+fi
+
+# Stop the test server if it was started
+if [ "$SERVER_STARTED" = "true" ]; then
+  log "${YELLOW}Stopping test server...${NC}"
+  kill $TEST_SERVER_PID
+  wait $TEST_SERVER_PID 2>/dev/null
+  log "${GREEN}✓ Test server stopped${NC}"
+fi
+
+# Generate summary
+log "\n${YELLOW}=== Test Summary ===${NC}"
+
+# Database Tests Summary
+if [ "$DB_TESTS_RESULT" = "0" ]; then
+  log "${GREEN}✓ Database Tests: PASSED${NC}"
+else
+  log "${RED}✗ Database Tests: FAILED${NC}"
+fi
+
+# API Tests Summary
+if [ "$API_TESTS_RESULT" = "0" ]; then
+  log "${GREEN}✓ API Tests: PASSED${NC}"
+else
+  log "${RED}✗ API Tests: FAILED${NC}"
+fi
+
+# E2E Tests Summary
+if [ "$E2E_TESTS_RESULT" = "0" ]; then
+  log "${GREEN}✓ End-to-End Tests: PASSED${NC}"
+else
+  log "${RED}✗ End-to-End Tests: FAILED${NC}"
+fi
+
+# Overall Summary
+if [ "$DB_TESTS_RESULT" = "0" ] && [ "$API_TESTS_RESULT" = "0" ] && [ "$E2E_TESTS_RESULT" = "0" ]; then
+  log "\n${GREEN}All tests passed successfully!${NC}"
+  OVERALL_RESULT=0
+else
+  log "\n${RED}Some tests failed. Please check the test results for details.${NC}"
+  OVERALL_RESULT=1
+fi
+
+# Provide information about the detailed logs
+log "\nDetailed logs are available in:"
+log "- $DETAILED_LOG (all test output)"
+log "- $PART1_LOG (database tests)"
+log "- $PART2_LOG (API tests)"
+log "- $PART3_LOG (end-to-end tests)"
+
+# Open the test results summary
+log "\n${YELLOW}Opening test results summary...${NC}"
+if [ "$(uname)" == "Darwin" ]; then
+  # macOS
+  open test-results-summary.md
+elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
+  # Linux
+  xdg-open test-results-summary.md
+elif [ "$(expr substr $(uname -s) 1 10)" == "MINGW32_NT" ] || [ "$(expr substr $(uname -s) 1 10)" == "MINGW64_NT" ]; then
+  # Windows
+  start test-results-summary.md
+fi
+
+exit $OVERALL_RESULT

@@ -29,8 +29,32 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const body = await request.json();
-    const validatedData = sellerRegistrationSchema.parse(body);
+    // Parse and validate request body
+    let body;
+    try {
+      body = await request.json();
+    } catch (parseError) {
+      console.error('Error parsing request body:', parseError);
+      return NextResponse.json(
+        { message: 'Invalid request format. Please provide valid JSON.' },
+        { status: 400 }
+      );
+    }
+
+    // Validate data against schema
+    let validatedData;
+    try {
+      validatedData = sellerRegistrationSchema.parse(body);
+    } catch (validationError) {
+      if (validationError instanceof z.ZodError) {
+        const errorMessage = validationError.errors[0].message;
+        return NextResponse.json({ message: errorMessage }, { status: 400 });
+      }
+      return NextResponse.json(
+        { message: 'Invalid seller registration data' },
+        { status: 400 }
+      );
+    }
 
     // Check if user is already a seller
     const existingUser = await prisma.user.findUnique({
@@ -70,8 +94,8 @@ export async function POST(request: NextRequest) {
         shopName: validatedData.shopName,
         shopDescription: validatedData.shopDescription,
         sellerBio: validatedData.sellerBio,
-        sellerLogo: validatedData.sellerLogo,
-        sellerBanner: validatedData.sellerBanner,
+        sellerLogo: validatedData.sellerLogo || null,
+        sellerBanner: validatedData.sellerBanner || null,
         sellerSocial: sellerSocial as any, // Prisma expects JSON as any
         sellerSince: new Date(), // Set the registration date
       },

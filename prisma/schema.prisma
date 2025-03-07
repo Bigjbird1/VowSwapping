@@ -6,7 +6,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -40,7 +40,7 @@ model User {
   sellerBio         String?   
   sellerLogo        String?
   sellerBanner      String?
-  sellerSocial      String?   // Store social media links as JSON string for SQLite
+  sellerSocial      Json?     // Store social media links as JSON
   reviews           Review[]  // Reviews received as a seller
 }
 
@@ -89,10 +89,10 @@ model Product {
   description   String   
   price         Float
   discountPrice Float?
-  images        String   // Store as JSON string for SQLite
-  category      String   // Using string for enum in SQLite
-  condition     String   // Using string for enum in SQLite
-  tags          String   // Store as JSON string for SQLite
+  images        Json     // Store as JSON array
+  category      String   // Category enum
+  condition     String   // Condition enum
+  tags          Json     // Store as JSON array
   featured      Boolean  @default(false)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt

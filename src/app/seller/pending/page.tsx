@@ -77,7 +77,7 @@ export default function SellerPendingPage() {
             </svg>
           </div>
           
-          <h1 className="text-2xl font-bold mb-4">Your Seller Application is Pending</h1>
+          <h1 className="text-2xl font-bold mb-4">Your seller application is pending approval</h1>
           
           <p className="text-gray-600 mb-6">
             Thank you for applying to become a seller on VowSwap! Our team is currently reviewing your application.

@@ -14,6 +14,51 @@ const addressSchema = z.object({
   isDefault: z.boolean().optional(),
 });
 
+export async function GET(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const session = await getServerSession(authOptions);
+
+    if (!session || !session.user) {
+      return NextResponse.json(
+        { message: 'You must be logged in to view address details' },
+        { status: 401 }
+      );
+    }
+
+    const addressId = params.id;
+
+    // Fetch the address
+    const address = await prisma.address.findUnique({
+      where: {
+        id: addressId,
+      },
+    });
+
+    if (!address) {
+      return NextResponse.json({ message: 'Address not found' }, { status: 404 });
+    }
+
+    // Check if the address belongs to the user
+    if (address.userId !== session.user.id) {
+      return NextResponse.json(
+        { message: 'You do not have permission to view this address' },
+        { status: 403 }
+      );
+    }
+
+    return NextResponse.json({ address }, { status: 200 });
+  } catch (error) {
+    console.error('Get address error:', error);
+    return NextResponse.json(
+      { message: 'An error occurred while fetching the address' },
+      { status: 500 }
+    );
+  }
+}
+
 export async function PUT(
   request: NextRequest,
   { params }: { params: { id: string } }

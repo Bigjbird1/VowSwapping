@@ -5,6 +5,11 @@ const nextConfig = {
   devIndicators: {
     port: 3002,
   },
+  // Force Next.js to use SWC for compilation
+  swcMinify: true,
+  experimental: {
+    forceSwcTransforms: true,
+  },
   webpack: (config) => {
     config.resolve.fallback = {
       ...config.resolve.fallback,

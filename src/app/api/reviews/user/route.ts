@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
     // Check if user is authenticated
     if (!session || !session.user) {
       return NextResponse.json(
-        { error: 'You must be logged in to view your reviews' },
+        { error: 'Unauthorized: You must be logged in to view your reviews' },
         { status: 401 }
       );
     }

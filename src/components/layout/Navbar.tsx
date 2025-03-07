@@ -151,10 +151,11 @@ export default function Navbar() {
                   </Link>
                   
                   {/* Seller Links */}
-                  {session?.user?.isSeller && (
+                  {session?.user?.isSeller ? (
                     <div className="border-t border-gray-100 mt-1 pt-1">
                       <Link
                         href="/seller/dashboard"
+                        data-testid="seller-dashboard-link"
                         className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                       >
                         Seller Dashboard
@@ -170,6 +171,16 @@ export default function Navbar() {
                         className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                       >
                         Seller Orders
+                      </Link>
+                    </div>
+                  ) : (
+                    <div className="border-t border-gray-100 mt-1 pt-1">
+                      <Link
+                        href="/seller/register"
+                        data-testid="become-seller-link"
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      >
+                        Become a Seller
                       </Link>
                     </div>
                   )}
@@ -228,7 +239,7 @@ export default function Navbar() {
                 />
               </svg>
               {mounted && (
-                <span className="absolute -top-2 -right-2 bg-primary-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                <span className="absolute -top-2 -right-2 bg-primary-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center" data-testid="cart-count">
                   {cartItemsCount}
                 </span>
               )}

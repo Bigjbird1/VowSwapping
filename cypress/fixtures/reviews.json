@@ -1,0 +1,26 @@
+[
+  {
+    "id": "review1",
+    "productId": "product1",
+    "rating": 5,
+    "comment": "This dress is absolutely beautiful! The quality is amazing and it fits perfectly.",
+    "reviewerId": "user1",
+    "reviewerName": "Test User"
+  },
+  {
+    "id": "review2",
+    "productId": "product2",
+    "rating": 4,
+    "comment": "Lovely vintage style, but needed some alterations to fit properly.",
+    "reviewerId": "user1",
+    "reviewerName": "Test User"
+  },
+  {
+    "id": "review3",
+    "sellerId": "seller1",
+    "rating": 5,
+    "comment": "Excellent seller! Fast shipping and great communication.",
+    "reviewerId": "user1",
+    "reviewerName": "Test User"
+  }
+]

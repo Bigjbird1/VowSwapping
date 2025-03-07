@@ -1,0 +1,24 @@
+[
+  {
+    "id": "order1",
+    "userId": "user1",
+    "total": 1149.98,
+    "status": "COMPLETED",
+    "items": [
+      {
+        "id": "orderItem1",
+        "orderId": "order1",
+        "productId": "product1",
+        "quantity": 1,
+        "price": 999.99
+      },
+      {
+        "id": "orderItem2",
+        "orderId": "order1",
+        "productId": "product3",
+        "quantity": 1,
+        "price": 149.99
+      }
+    ]
+  }
+]

@@ -1,0 +1,15 @@
+{
+  "regularUser": {
+    "email": "test@example.com",
+    "password": "Password123!",
+    "name": "Test User"
+  },
+  "sellerUser": {
+    "email": "seller@example.com",
+    "password": "Password123!",
+    "name": "Test Seller",
+    "shopName": "Test Bridal Shop",
+    "shopDescription": "The best wedding dresses for your special day",
+    "sellerBio": "Family-owned business with 20 years of experience"
+  }
+}

@@ -1,0 +1,44 @@
+[
+  {
+    "id": "product1",
+    "title": "Elegant Wedding Dress",
+    "description": "A beautiful white wedding dress with lace details",
+    "price": 999.99,
+    "category": "DRESSES",
+    "condition": "NEW",
+    "tags": "wedding,dress,elegant,white",
+    "images": [
+      "https://picsum.photos/200"
+    ],
+    "sellerId": "seller1",
+    "approved": true
+  },
+  {
+    "id": "product2",
+    "title": "Vintage Wedding Gown",
+    "description": "A classic vintage-style wedding gown with pearl embellishments",
+    "price": 799.99,
+    "category": "DRESSES",
+    "condition": "NEW",
+    "tags": "wedding,dress,vintage,pearls",
+    "images": [
+      "https://picsum.photos/200"
+    ],
+    "sellerId": "seller1",
+    "approved": true
+  },
+  {
+    "id": "product3",
+    "title": "Bridal Veil",
+    "description": "A delicate lace-trimmed bridal veil",
+    "price": 149.99,
+    "category": "ACCESSORIES",
+    "condition": "NEW",
+    "tags": "wedding,veil,lace,accessory",
+    "images": [
+      "https://picsum.photos/200"
+    ],
+    "sellerId": "seller1",
+    "approved": true
+  }
+]

@@ -59,7 +59,7 @@ const ProductReviews: React.FC<ProductReviewsProps> = ({ productId }) => {
   const hasUserReviewed = session?.user?.id && reviews.some(review => review.reviewerId === session.user.id);
 
   return (
-    <div className="mt-16">
+    <div className="mt-16" data-testid="product-reviews">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold">Customer Reviews</h2>
         
@@ -67,6 +67,7 @@ const ProductReviews: React.FC<ProductReviewsProps> = ({ productId }) => {
           <button
             onClick={() => setShowReviewForm(true)}
             className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            data-testid="write-review-button"
           >
             Write a Review
           </button>

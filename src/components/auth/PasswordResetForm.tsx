@@ -8,7 +8,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 
 const requestResetSchema = z.object({
-  email: z.string().email('Please enter a valid email address'),
+  email: z.string().min(1, 'Email is required').email('Invalid email address'),
 });
 
 const resetPasswordSchema = z
@@ -208,7 +208,7 @@ export default function PasswordResetForm() {
 
       {success && (
         <div className="mb-4 p-3 bg-green-100 border border-green-400 text-green-700 rounded" data-testid="reset-success-message">
-          {success.includes('Password reset email sent') ? 'Reset link sent' : success}
+          {success}
         </div>
       )}
 
@@ -225,7 +225,7 @@ export default function PasswordResetForm() {
             disabled={isLoading}
           />
           {requestResetErrors.email && (
-            <p className="mt-1 text-sm text-red-600">{requestResetErrors.email.message || 'Invalid email address'}</p>
+            <p className="mt-1 text-sm text-red-600">{requestResetErrors.email.message}</p>
           )}
         </div>
 

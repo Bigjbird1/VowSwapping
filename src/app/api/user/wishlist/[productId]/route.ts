@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth/next';
+import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
+import { prisma } from '@/lib/prisma';
 
 /**
  * NOTE: This is a temporary implementation using client-side state management.
@@ -12,6 +13,45 @@ import { authOptions } from '@/lib/auth';
  * to maintain the API contract.
  */
 
+// GET /api/user/wishlist/[productId] - Check if product is in wishlist
+export async function GET(
+  req: NextRequest,
+  { params }: { params: { productId: string } }
+) {
+  try {
+    const session = await getServerSession(authOptions);
+    
+    if (!session?.user?.email) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+
+    const userId = session.user.id;
+    const { productId } = params;
+
+    // Check if product is in wishlist
+    const wishlistItem = await prisma.wishlist.findFirst({
+      where: {
+        userId,
+        productId
+      }
+    });
+
+    return NextResponse.json(
+      { inWishlist: !!wishlistItem },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error('Error checking wishlist:', error);
+    return NextResponse.json(
+      { error: 'Failed to check wishlist status' },
+      { status: 500 }
+    );
+  }
+}
+
 // DELETE /api/user/wishlist/[productId] - Remove product from wishlist
 export async function DELETE(
   req: NextRequest,
@@ -22,13 +62,35 @@ export async function DELETE(
     
     if (!session?.user?.email) {
       return NextResponse.json(
-        { error: 'You must be logged in to manage your wishlist' },
+        { error: 'Unauthorized' },
         { status: 401 }
       );
     }
 
-    // In the client-side implementation, the actual removal is handled by the Zustand store
-    // This endpoint just returns a success response to maintain the API contract
+    const userId = session.user.id;
+    const { productId } = params;
+
+    // Find the wishlist item
+    const wishlistItem = await prisma.wishlist.findFirst({
+      where: {
+        userId,
+        productId
+      }
+    });
+
+    if (!wishlistItem) {
+      return NextResponse.json(
+        { error: 'Product not found in wishlist' },
+        { status: 404 }
+      );
+    }
+
+    // Remove from wishlist
+    await prisma.wishlist.delete({
+      where: {
+        id: wishlistItem.id
+      }
+    });
 
     return NextResponse.json(
       { message: 'Product removed from wishlist' },

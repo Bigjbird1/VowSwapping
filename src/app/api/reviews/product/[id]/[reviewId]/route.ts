@@ -43,6 +43,14 @@ export async function GET(
   }
 }
 
+// PUT /api/reviews/product/[id]/[reviewId]
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: { id: string; reviewId: string } }
+) {
+  return PATCH(request, { params });
+}
+
 // PATCH /api/reviews/product/[id]/[reviewId]
 export async function PATCH(
   request: NextRequest,
@@ -54,7 +62,7 @@ export async function PATCH(
     // Check if user is authenticated
     if (!session || !session.user) {
       return NextResponse.json(
-        { error: 'You must be logged in to update a review' },
+        { error: 'Unauthorized: You must be logged in to update a review' },
         { status: 401 }
       );
     }
@@ -79,7 +87,7 @@ export async function PATCH(
     // Check if user is the author of the review
     if (review.reviewerId !== session.user.id) {
       return NextResponse.json(
-        { error: 'You can only update your own reviews' },
+        { error: 'Forbidden: You can only update your own reviews' },
         { status: 403 }
       );
     }
@@ -129,7 +137,7 @@ export async function DELETE(
     // Check if user is authenticated
     if (!session || !session.user) {
       return NextResponse.json(
-        { error: 'You must be logged in to delete a review' },
+        { error: 'Unauthorized: You must be logged in to delete a review' },
         { status: 401 }
       );
     }
@@ -154,7 +162,7 @@ export async function DELETE(
     // Check if user is the author of the review
     if (review.reviewerId !== session.user.id) {
       return NextResponse.json(
-        { error: 'You can only delete your own reviews' },
+        { error: 'Forbidden: You can only delete your own reviews' },
         { status: 403 }
       );
     }

@@ -1,0 +1,224 @@
+{
+  "stats": {
+    "suites": 1,
+    "tests": 1,
+    "passes": 0,
+    "pending": 0,
+    "failures": 1,
+    "start": "2025-03-04T05:21:20.507Z",
+    "end": "2025-03-04T05:21:41.177Z",
+    "duration": 20670,
+    "testsRegistered": 7,
+    "passPercent": 0,
+    "pendingPercent": 0,
+    "other": 0,
+    "hasOther": false,
+    "skipped": 6,
+    "hasSkipped": true
+  },
+  "results": [
+    {
+      "uuid": "91f24267-fda9-441a-a97e-4839175379a1",
+      "title": "",
+      "fullFile": "cypress/e2e/checkout.cy.js",
+      "file": "cypress/e2e/checkout.cy.js",
+      "beforeHooks": [],
+      "afterHooks": [],
+      "tests": [],
+      "suites": [
+        {
+          "uuid": "d50a8665-d7c5-4942-acdf-62eecfc1973a",
+          "title": "Checkout Process",
+          "fullFile": "",
+          "file": "",
+          "beforeHooks": [],
+          "afterHooks": [],
+          "tests": [
+            {
+              "title": "should navigate to checkout from cart",
+              "fullTitle": "Checkout Process should navigate to checkout from cart",
+              "timedOut": null,
+              "duration": 20584,
+              "state": "failed",
+              "speed": null,
+              "pass": false,
+              "fail": true,
+              "pending": false,
+              "context": null,
+              "code": "cy.visit('/cart');\ncy.get('[data-testid=\"checkout-button\"]').click();\ncy.url().should('include', '/checkout');",
+              "err": {
+                "message": "AssertionError: Timed out retrying after 10000ms: Expected to find element: `[data-testid=\"product-card\"]`, but never found it.\n\nBecause this error occurred during a `before each` hook we are skipping the remaining tests in the current suite: `Checkout Process`",
+                "estack": "AssertionError: Timed out retrying after 10000ms: Expected to find element: `[data-testid=\"product-card\"]`, but never found it.\n\nBecause this error occurred during a `before each` hook we are skipping the remaining tests in the current suite: `Checkout Process`\n    at Context.eval (webpack://vowswapping/./cypress/support/commands.js:69:7)",
+                "diff": null
+              },
+              "uuid": "67cba463-3897-45db-8b92-a5ad2b6c938f",
+              "parentUUID": "d50a8665-d7c5-4942-acdf-62eecfc1973a",
+              "isHook": false,
+              "skipped": false
+            },
+            {
+              "title": "should allow selecting an existing address",
+              "fullTitle": "Checkout Process should allow selecting an existing address",
+              "timedOut": null,
+              "duration": 0,
+              "state": "skipped",
+              "speed": null,
+              "pass": false,
+              "fail": false,
+              "pending": false,
+              "context": null,
+              "code": "// Create a test address if needed\ncy.createTestAddress().then(() => {\n  cy.visit('/checkout');\n  // Select the first address from dropdown\n  cy.get('select[name=\"addressId\"]').select('1'); // Assuming address ID 1 exists\n  // Verify address details are displayed\n  cy.get('[data-testid=\"address-details\"]').should('be.visible');\n});",
+              "err": {},
+              "uuid": "da17c64e-bf98-4a7e-b40d-9674fa1312e2",
+              "parentUUID": "d50a8665-d7c5-4942-acdf-62eecfc1973a",
+              "isHook": false,
+              "skipped": true
+            },
+            {
+              "title": "should allow adding a new address during checkout",
+              "fullTitle": "Checkout Process should allow adding a new address during checkout",
+              "timedOut": null,
+              "duration": 0,
+              "state": "skipped",
+              "speed": null,
+              "pass": false,
+              "fail": false,
+              "pending": false,
+              "context": null,
+              "code": "cy.visit('/checkout');\n// Select \"Add new address\" option\ncy.get('select[name=\"addressId\"]').select('new');\n// Fill address form\ncy.get('input[name=\"name\"]').type('Test User');\ncy.get('input[name=\"street\"]').type('123 Test St');\ncy.get('input[name=\"city\"]').type('Test City');\ncy.get('input[name=\"state\"]').type('Test State');\ncy.get('input[name=\"postalCode\"]').type('12345');\ncy.get('input[name=\"country\"]').type('Test Country');\n// Continue to payment\ncy.get('[data-testid=\"continue-to-payment\"]').click();\n// Verify we're on the payment step\ncy.url().should('include', '/checkout?step=payment');",
+              "err": {},
+              "uuid": "ff29d954-d0cf-4f9d-b13d-649566dd0c44",
+              "parentUUID": "d50a8665-d7c5-4942-acdf-62eecfc1973a",
+              "isHook": false,
+              "skipped": true
+            },
+            {
+              "title": "should display order summary with correct totals",
+              "fullTitle": "Checkout Process should display order summary with correct totals",
+              "timedOut": null,
+              "duration": 0,
+              "state": "skipped",
+              "speed": null,
+              "pass": false,
+              "fail": false,
+              "pending": false,
+              "context": null,
+              "code": "cy.visit('/checkout');\n// Verify order summary\ncy.get('[data-testid=\"order-summary\"]').should('be.visible');\ncy.get('[data-testid=\"subtotal\"]').should('exist');\ncy.get('[data-testid=\"shipping\"]').should('exist');\ncy.get('[data-testid=\"tax\"]').should('exist');\ncy.get('[data-testid=\"total\"]').should('exist');\n// Verify the total is calculated correctly\ncy.get('[data-testid=\"subtotal\"]').invoke('text').then(subtotalText => {\n  const subtotal = parseFloat(subtotalText.replace(/[^0-9.]/g, ''));\n  cy.get('[data-testid=\"shipping\"]').invoke('text').then(shippingText => {\n    const shipping = parseFloat(shippingText.replace(/[^0-9.]/g, ''));\n    cy.get('[data-testid=\"tax\"]').invoke('text').then(taxText => {\n      const tax = parseFloat(taxText.replace(/[^0-9.]/g, ''));\n      cy.get('[data-testid=\"total\"]').invoke('text').then(totalText => {\n        const displayedTotal = parseFloat(totalText.replace(/[^0-9.]/g, ''));\n        const calculatedTotal = (subtotal + shipping + tax).toFixed(2);\n        // Compare with a small tolerance for floating point errors\n        expect(displayedTotal).to.be.closeTo(parseFloat(calculatedTotal), 0.01);\n      });\n    });\n  });\n});",
+              "err": {},
+              "uuid": "1faa1e98-b025-4305-bfc5-14aa3eebe361",
+              "parentUUID": "d50a8665-d7c5-4942-acdf-62eecfc1973a",
+              "isHook": false,
+              "skipped": true
+            },
+            {
+              "title": "should display Stripe payment form",
+              "fullTitle": "Checkout Process should display Stripe payment form",
+              "timedOut": null,
+              "duration": 0,
+              "state": "skipped",
+              "speed": null,
+              "pass": false,
+              "fail": false,
+              "pending": false,
+              "context": null,
+              "code": "cy.visit('/checkout?step=payment');\n// Verify Stripe elements are loaded\ncy.get('[data-testid=\"stripe-payment-form\"]').should('be.visible');\n// Check for Stripe iframe\ncy.get('iframe[title=\"Secure card payment input frame\"]').should('be.visible');",
+              "err": {},
+              "uuid": "a6654916-c5a4-49cb-b6fc-878f1d53a5e1",
+              "parentUUID": "d50a8665-d7c5-4942-acdf-62eecfc1973a",
+              "isHook": false,
+              "skipped": true
+            },
+            {
+              "title": "should handle successful payment and redirect to success page",
+              "fullTitle": "Checkout Process should handle successful payment and redirect to success page",
+              "timedOut": null,
+              "duration": 0,
+              "state": "skipped",
+              "speed": null,
+              "pass": false,
+              "fail": false,
+              "pending": false,
+              "context": null,
+              "code": "cy.visit('/checkout?step=payment');\n// Use Stripe test card - this requires special handling for iframes\n// We'll need to use Cypress commands to interact with Stripe iframe\ncy.get('iframe[title=\"Secure card payment input frame\"]').then($iframe => {\n  const body = $iframe.contents().find('body');\n  // Fill card details in the iframe\n  cy.wrap(body).find('input[name=\"cardnumber\"]').type('4242424242424242');\n  cy.wrap(body).find('input[name=\"exp-date\"]').type('1230');\n  cy.wrap(body).find('input[name=\"cvc\"]').type('123');\n  cy.wrap(body).find('input[name=\"postal\"]').type('12345');\n});\n// Submit payment\ncy.get('[data-testid=\"submit-payment\"]').click();\n// Should redirect to success page\ncy.url().should('include', '/checkout/success', {\n  timeout: 10000\n});\ncy.contains('Thank you for your order').should('be.visible');",
+              "err": {},
+              "uuid": "de2eabdf-7c8f-41f9-8275-6c4d15712cb6",
+              "parentUUID": "d50a8665-d7c5-4942-acdf-62eecfc1973a",
+              "isHook": false,
+              "skipped": true
+            },
+            {
+              "title": "should handle payment errors gracefully",
+              "fullTitle": "Checkout Process should handle payment errors gracefully",
+              "timedOut": null,
+              "duration": 0,
+              "state": "skipped",
+              "speed": null,
+              "pass": false,
+              "fail": false,
+              "pending": false,
+              "context": null,
+              "code": "cy.visit('/checkout?step=payment');\n// Use Stripe declined card\ncy.get('iframe[title=\"Secure card payment input frame\"]').then($iframe => {\n  const body = $iframe.contents().find('body');\n  // Fill card details in the iframe with a declined card\n  cy.wrap(body).find('input[name=\"cardnumber\"]').type('4000000000000002');\n  cy.wrap(body).find('input[name=\"exp-date\"]').type('1230');\n  cy.wrap(body).find('input[name=\"cvc\"]').type('123');\n  cy.wrap(body).find('input[name=\"postal\"]').type('12345');\n});\n// Submit payment\ncy.get('[data-testid=\"submit-payment\"]').click();\n// Should show error message\ncy.contains('Your card was declined').should('be.visible');",
+              "err": {},
+              "uuid": "9c3f6059-2671-4078-a86d-db64a94348cb",
+              "parentUUID": "d50a8665-d7c5-4942-acdf-62eecfc1973a",
+              "isHook": false,
+              "skipped": true
+            }
+          ],
+          "suites": [],
+          "passes": [],
+          "failures": [
+            "67cba463-3897-45db-8b92-a5ad2b6c938f"
+          ],
+          "pending": [],
+          "skipped": [
+            "da17c64e-bf98-4a7e-b40d-9674fa1312e2",
+            "ff29d954-d0cf-4f9d-b13d-649566dd0c44",
+            "1faa1e98-b025-4305-bfc5-14aa3eebe361",
+            "a6654916-c5a4-49cb-b6fc-878f1d53a5e1",
+            "de2eabdf-7c8f-41f9-8275-6c4d15712cb6",
+            "9c3f6059-2671-4078-a86d-db64a94348cb"
+          ],
+          "duration": 20584,
+          "root": false,
+          "rootEmpty": false,
+          "_timeout": 2000
+        }
+      ],
+      "passes": [],
+      "failures": [],
+      "pending": [],
+      "skipped": [],
+      "duration": 0,
+      "root": true,
+      "rootEmpty": true,
+      "_timeout": 2000
+    }
+  ],
+  "meta": {
+    "mocha": {
+      "version": "7.0.1"
+    },
+    "mochawesome": {
+      "options": {
+        "quiet": false,
+        "reportFilename": "mochawesome",
+        "saveHtml": true,
+        "saveJson": true,
+        "consoleReporter": "spec",
+        "useInlineDiffs": false,
+        "code": true
+      },
+      "version": "7.1.3"
+    },
+    "marge": {
+      "options": {
+        "reportDir": "test-results/cypress",
+        "overwrite": false,
+        "html": true,
+        "json": true
+      },
+      "version": "6.2.0"
+    }
+  }
+}

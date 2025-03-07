@@ -1,15 +1,36 @@
+const isDbTest = process.argv.some(arg => arg.includes('database'));
+const { cleanup } = require('./prisma/ensure-test-schema');
+
 module.exports = {
-  testEnvironment: 'jsdom',
+  testEnvironment: isDbTest ? 'node' : 'jsdom',
+  globalSetup: isDbTest ? '<rootDir>/prisma/ensure-test-schema.js' : undefined,
+  globalTeardown: isDbTest ? '<rootDir>/prisma/test-teardown.js' : undefined,
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
+  testTimeout: isDbTest ? 60000 : 30000, // Longer timeout for database tests
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
     '\\.(css|less|scss|sass)$': 'identity-obj-proxy'
   },
-  testPathIgnorePatterns: ['<rootDir>/node_modules/', '<rootDir>/.next/'],
+  testPathIgnorePatterns: [
+    '<rootDir>/node_modules/',
+    '<rootDir>/.next/',
+    isDbTest ? undefined : '/__tests__/database/'
+  ].filter(Boolean),
   transform: {
-    '^.+\\.(js|jsx|ts|tsx)$': ['babel-jest', { presets: ['next/babel'] }]
+    '^.+\\.(js|jsx|ts|tsx)$': 'babel-jest'
   },
+  transformIgnorePatterns: [
+    '/node_modules/(?!(uuid|next-auth|@next-auth|next|openid-client|jose|@panva/hkdf)/)'
+  ],
   collectCoverage: true,
+  testEnvironmentOptions: {
+    url: 'http://localhost:3002'
+  },
+  
+  globals: {
+    'TEST_TYPE': isDbTest ? 'database' : 'component'
+  },
+
   collectCoverageFrom: [
     'src/**/*.{js,jsx,ts,tsx}',
     '!src/**/*.d.ts',

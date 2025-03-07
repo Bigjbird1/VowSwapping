@@ -38,7 +38,7 @@ export function StripePaymentWrapper({
 }
 
 // The actual payment form component
-function StripePaymentForm({ 
+export function StripePaymentForm({ 
   clientSecret, 
   returnUrl 
 }: PaymentFormProps) {

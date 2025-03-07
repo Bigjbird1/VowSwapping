@@ -1,16 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth/next';
+import { getServerSession } from 'next-auth';
 import { prisma } from '@/lib/prisma';
 import { authOptions } from '@/lib/auth';
 
 /**
- * NOTE: This is a temporary implementation using client-side state management.
- * Once the database migration for the Wishlist model is successfully applied,
- * this should be updated to use Prisma for database persistence.
- * 
- * The client-side implementation with Zustand will handle the actual wishlist
- * management for now, and these API endpoints will just return success responses
- * to maintain the API contract.
+ * NOTE: This implementation now uses Prisma for database persistence.
+ * The Wishlist model has been added to the database schema.
  */
 
 // GET /api/user/wishlist - Get user's wishlist
@@ -25,11 +20,30 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    // In the client-side implementation, the wishlist is stored in localStorage
-    // This endpoint would normally fetch from the database, but for now we'll return an empty array
-    // The actual wishlist items are managed by the Zustand store on the client
+    const userId = session.user.id;
 
-    return NextResponse.json({ wishlistItems: [] });
+    // Fetch wishlist items from database with product details
+    const wishlistItems = await prisma.wishlist.findMany({
+      where: { userId },
+      include: {
+        product: {
+          include: {
+            seller: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+                shopName: true,
+                image: true
+              }
+            }
+          }
+        }
+      },
+      orderBy: { createdAt: 'desc' }
+    });
+
+    return NextResponse.json({ wishlistItems });
   } catch (error) {
     console.error('Error fetching wishlist:', error);
     return NextResponse.json(
@@ -51,6 +65,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const userId = session.user.id;
     const { productId } = await req.json();
 
     if (!productId) {
@@ -72,8 +87,28 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // In the client-side implementation, the actual addition is handled by the Zustand store
-    // This endpoint just returns a success response to maintain the API contract
+    // Check if product is already in wishlist
+    const existingWishlistItem = await prisma.wishlist.findFirst({
+      where: {
+        userId,
+        productId
+      }
+    });
+
+    if (existingWishlistItem) {
+      return NextResponse.json(
+        { message: 'Product is already in wishlist' },
+        { status: 200 }
+      );
+    }
+
+    // Add product to wishlist
+    await prisma.wishlist.create({
+      data: {
+        userId,
+        productId
+      }
+    });
 
     return NextResponse.json(
       { message: 'Product added to wishlist' },

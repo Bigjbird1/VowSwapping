@@ -418,7 +418,11 @@
 <a name='L353'></a><a href='#L353'>353</a>
 <a name='L354'></a><a href='#L354'>354</a>
 <a name='L355'></a><a href='#L355'>355</a>
-<a name='L356'></a><a href='#L356'>356</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L356'></a><a href='#L356'>356</a>
+<a name='L357'></a><a href='#L357'>357</a>
+<a name='L358'></a><a href='#L358'>358</a>
+<a name='L359'></a><a href='#L359'>359</a>
+<a name='L360'></a><a href='#L360'>360</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -549,6 +553,10 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -930,7 +938,7 @@ export default function <span class="fstat-no" title="function not covered" >Sel
           &lt;div className="flex items-center justify-between"&gt;
             &lt;div&gt;
               &lt;p className="text-sm text-gray-500 mb-1"&gt;Total Products&lt;/p&gt;
-              &lt;h3 className="text-2xl font-bold"&gt;{stats.totalProducts}&lt;/h3&gt;
+              &lt;h3 className="text-2xl font-bold" data-testid="total-products"&gt;{stats.totalProducts}&lt;/h3&gt;
             &lt;/div&gt;
             &lt;div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center"&gt;
               &lt;svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"&gt;
@@ -944,7 +952,7 @@ export default function <span class="fstat-no" title="function not covered" >Sel
           &lt;div className="flex items-center justify-between"&gt;
             &lt;div&gt;
               &lt;p className="text-sm text-gray-500 mb-1"&gt;Total Orders&lt;/p&gt;
-              &lt;h3 className="text-2xl font-bold"&gt;{stats.totalOrders}&lt;/h3&gt;
+              &lt;h3 className="text-2xl font-bold" data-testid="total-orders"&gt;{stats.totalOrders}&lt;/h3&gt;
             &lt;/div&gt;
             &lt;div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center"&gt;
               &lt;svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"&gt;
@@ -958,7 +966,7 @@ export default function <span class="fstat-no" title="function not covered" >Sel
           &lt;div className="flex items-center justify-between"&gt;
             &lt;div&gt;
               &lt;p className="text-sm text-gray-500 mb-1"&gt;Pending Orders&lt;/p&gt;
-              &lt;h3 className="text-2xl font-bold"&gt;{stats.pendingOrders}&lt;/h3&gt;
+              &lt;h3 className="text-2xl font-bold" data-testid="pending-orders"&gt;{stats.pendingOrders}&lt;/h3&gt;
             &lt;/div&gt;
             &lt;div className="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center"&gt;
               &lt;svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"&gt;
@@ -972,9 +980,9 @@ export default function <span class="fstat-no" title="function not covered" >Sel
           &lt;div className="flex items-center justify-between"&gt;
             &lt;div&gt;
               &lt;p className="text-sm text-gray-500 mb-1"&gt;Total Revenue&lt;/p&gt;
-              &lt;h3 className="text-2xl font-bold"&gt;${stats.totalRevenue.toFixed(2)}&lt;/h3&gt;
+              &lt;h3 className="text-2xl font-bold" data-testid="average-rating"&gt;${stats.totalRevenue.toFixed(2)}&lt;/h3&gt;
             &lt;/div&gt;
-            &lt;div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center"&gt;
+            &lt;div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center" data-testid="sales-chart"&gt;
               &lt;svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"&gt;
                 &lt;path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /&gt;
               &lt;/svg&gt;
@@ -987,11 +995,15 @@ export default function <span class="fstat-no" title="function not covered" >Sel
       &lt;div className="bg-white p-6 rounded-lg shadow-sm mb-8"&gt;
         &lt;h2 className="text-lg font-semibold mb-4"&gt;Quick Links&lt;/h2&gt;
         &lt;div className="grid grid-cols-2 md:grid-cols-4 gap-4"&gt;
-          &lt;Link href="/seller/products" className="flex flex-col items-center p-4 border border-gray-200 rounded-md hover:bg-gray-50 transition-colors"&gt;
+          &lt;Link 
+            href="/seller/products" 
+            className="flex flex-col items-center p-4 border border-gray-200 rounded-md hover:bg-gray-50 transition-colors"
+            data-testid="manage-products-link"
+          &gt;
             &lt;svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-gray-600 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"&gt;
               &lt;path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /&gt;
             &lt;/svg&gt;
-            &lt;span className="text-sm"&gt;Manage Products&lt;/span&gt;
+            &lt;span className="text-sm font-medium"&gt;Manage Products&lt;/span&gt;
           &lt;/Link&gt;
           
           &lt;Link href="/seller/orders" className="flex flex-col items-center p-4 border border-gray-200 rounded-md hover:bg-gray-50 transition-colors"&gt;
@@ -1135,7 +1147,7 @@ export default function <span class="fstat-no" title="function not covered" >Sel
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-03-03T15:38:20.223Z
+                at 2025-03-04T05:23:55.476Z
             </div>
         <script src="../../../../prettify.js"></script>
         <script>
