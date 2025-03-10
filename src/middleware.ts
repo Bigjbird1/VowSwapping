@@ -10,9 +10,21 @@ const protectedRoutes = [
   '/checkout',
 ];
 
+// Security headers to add to all responses
+const securityHeaders = {
+  'Content-Security-Policy': "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://res.cloudinary.com;",
+  'X-Content-Type-Options': 'nosniff',
+  'X-Frame-Options': 'DENY',
+  'X-XSS-Protection': '1; mode=block',
+  'Strict-Transport-Security': 'max-age=31536000; includeSubDomains',
+  'Referrer-Policy': 'strict-origin-when-cross-origin',
+  'Permissions-Policy': 'camera=(), microphone=(), geolocation=()'
+};
+
 export async function middleware(request: NextRequest) {
   const token = await getToken({ req: request });
-  const isAuthenticated = !!token;
+  // Check both token existence and expiration
+  const isAuthenticated = token && (typeof token.exp === 'number' ? token.exp * 1000 > Date.now() : !!token);
   const isProtectedRoute = protectedRoutes.some((route) =>
     request.nextUrl.pathname.startsWith(route)
   );
@@ -33,8 +45,19 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL('/profile', request.url));
   }
 
-  return NextResponse.next();
+  // Add security headers to all responses
+  const response = NextResponse.next();
+  
+  // Apply security headers
+  Object.entries(securityHeaders).forEach(([key, value]) => {
+    response.headers.set(key, value);
+  });
+
+  return response;
 }
+
+// Export a named function for testing purposes
+export const authMiddleware = middleware;
 
 export const config = {
   matcher: [
@@ -42,5 +65,6 @@ export const config = {
     '/checkout/:path*',
     '/auth/signin',
     '/auth/signup',
+    '/api/:path*',
   ],
 };

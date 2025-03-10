@@ -30,7 +30,7 @@ export default function PasswordResetForm() {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
-  const token = searchParams.get('token');
+  const token = searchParams?.get('token') || null;
 
   const {
     register: registerRequestReset,

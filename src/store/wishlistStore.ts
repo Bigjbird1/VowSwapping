@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { persist, createJSONStorage } from 'zustand/middleware';
 
 export type WishlistItem = {
   id: string;
@@ -51,9 +51,9 @@ export const useWishlistStore = create<WishlistState>()(
               title: product.title,
               price: product.price,
               discountPrice: product.discountPrice,
-              images: product.images,
-              category: product.category,
-              condition: product.condition,
+              images: product.images || [],
+              category: product.category || '',
+              condition: product.condition || '',
               seller: product.seller ? {
                 id: product.seller.id,
                 name: product.seller.name,
@@ -83,6 +83,18 @@ export const useWishlistStore = create<WishlistState>()(
     }),
     {
       name: 'wishlist-storage',
+      storage: createJSONStorage(() => {
+        // Check if window is defined (browser environment)
+        if (typeof window !== 'undefined') {
+          return localStorage;
+        }
+        // Return a mock storage for SSR
+        return {
+          getItem: () => null,
+          setItem: () => {},
+          removeItem: () => {},
+        };
+      }),
     }
   )
 );

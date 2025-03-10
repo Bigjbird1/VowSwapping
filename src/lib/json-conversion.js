@@ -11,7 +11,7 @@
  * but need to be objects in the application
  * 
  * @param {any} value - The value to parse (string or object)
- * @returns {object|array|null} The parsed object/array or null if invalid
+ * @returns {any} The parsed object/array or null if invalid
  */
 function safeParseJson(value) {
   if (value === null || value === undefined) {
@@ -38,11 +38,11 @@ function safeParseJson(value) {
  * This is useful when working with fields that need to be stored as JSON strings in PostgreSQL
  * 
  * @param {any} value - The value to stringify (object or string)
- * @returns {string|null} The stringified object or null if invalid
+ * @returns {string} The stringified object or empty array string if null/undefined
  */
 function safeStringifyJson(value) {
   if (value === null || value === undefined) {
-    return null;
+    return '[]'; // Return empty array string instead of null
   }
   
   // If it's already a string, return it as is
@@ -55,8 +55,8 @@ function safeStringifyJson(value) {
     return JSON.stringify(value);
   } catch (error) {
     console.error('Error stringifying JSON:', error);
-    // Return null for invalid objects
-    return null;
+    // Return empty array string for invalid objects
+    return '[]';
   }
 }
 
@@ -65,7 +65,7 @@ function safeStringifyJson(value) {
  * This handles both string and object representations
  * 
  * @param {any} field - The field to normalize
- * @returns {object|array|null} The normalized object/array or null if invalid
+ * @returns {any} The normalized object/array or null if invalid
  */
 function normalizeJsonField(field) {
   return safeParseJson(field);
@@ -76,7 +76,7 @@ function normalizeJsonField(field) {
  * Ensures the field is properly stringified if needed
  * 
  * @param {any} field - The field to prepare
- * @returns {string|null} The prepared field as a JSON string or null if invalid
+ * @returns {string} The prepared field as a JSON string
  */
 function prepareJsonForDb(field) {
   return safeStringifyJson(field);
@@ -86,9 +86,9 @@ function prepareJsonForDb(field) {
  * Processes an entity with JSON fields from the database
  * Converts specified fields from JSON strings to objects
  * 
- * @param {object} entity - The entity to process
+ * @param {Object} entity - The entity to process
  * @param {string[]} jsonFields - Array of field names that should be treated as JSON
- * @returns {object} The processed entity with parsed JSON fields
+ * @returns {Object} The processed entity with parsed JSON fields
  */
 function processEntityFromDb(entity, jsonFields = []) {
   if (!entity) return entity;
@@ -108,9 +108,9 @@ function processEntityFromDb(entity, jsonFields = []) {
  * Prepares an entity with JSON fields for database storage
  * Converts specified fields from objects to JSON strings
  * 
- * @param {object} entity - The entity to prepare
+ * @param {Object} entity - The entity to prepare
  * @param {string[]} jsonFields - Array of field names that should be treated as JSON
- * @returns {object} The prepared entity with stringified JSON fields
+ * @returns {Object} The prepared entity with stringified JSON fields
  */
 function prepareEntityForDb(entity, jsonFields = []) {
   if (!entity) return entity;

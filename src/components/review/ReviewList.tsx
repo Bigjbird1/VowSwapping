@@ -62,6 +62,10 @@ const ReviewList: React.FC<ReviewListProps> = ({
                     <div
                       className="bg-yellow-400 h-2 rounded-full"
                       style={{ width: `${percentage}%` }}
+                      role="progressbar"
+                      aria-valuenow={percentage}
+                      aria-valuemin={0}
+                      aria-valuemax={100}
                     ></div>
                   </div>
                   <span className="w-8 text-right ml-2">{count}</span>

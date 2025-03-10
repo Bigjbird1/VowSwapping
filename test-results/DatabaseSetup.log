@@ -1,0 +1,27 @@
+Environment variables loaded
+TEST_DATABASE_URL: Found
+DATABASE_URL: Found
+Using client ID: schema_setup_1741624580645_gsmlu
+Using TEST_DATABASE_URL for Prisma
+Setting up database schema...
+Using schema from URL or generated: test
+Using connection string: postgres://[REDACTED]
+Using schema: test
+Using application_name: vowswap_test_schema_setup_1741624580645_gsmlu
+Connecting to database...
+(node:2260) Warning: Setting the NODE_TLS_REJECT_UNAUTHORIZED environment variable to '0' makes TLS connections and HTTPS requests insecure by disabling certificate verification.
+(Use `node --trace-warnings ...` to show where the warning was created)
+Connected to database
+Dropping schema if exists: test
+Creating schema: test
+Setting search path to: test
+Schema test verified
+Test database connection successful
+Closing database connection
+Database connection closed
+Applying Prisma migrations...
+Environment variables loaded from .env
+Prisma schema loaded from prisma/schema.prisma
+Datasource "db": PostgreSQL database "postgres", schema "test" at "aws-0-us-east-1.pooler.supabase.com:6543"
+Error: Schema engine error:
+

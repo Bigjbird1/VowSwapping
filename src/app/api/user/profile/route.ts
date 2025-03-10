@@ -8,6 +8,49 @@ const profileUpdateSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
 });
 
+export async function GET(request: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions);
+
+    if (!session || !session.user) {
+      return NextResponse.json(
+        { error: 'You must be logged in to view your profile' },
+        { status: 401 }
+      );
+    }
+
+    const user = await prisma.user.findUnique({
+      where: {
+        id: session.user.id,
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        image: true,
+        isSeller: true,
+        sellerApproved: true,
+        shopName: true,
+      },
+    });
+
+    if (!user) {
+      return NextResponse.json(
+        { error: 'User not found' },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json({ user }, { status: 200 });
+  } catch (error) {
+    console.error('Profile fetch error:', error);
+    return NextResponse.json(
+      { error: 'An error occurred while fetching your profile' },
+      { status: 500 }
+    );
+  }
+}
+
 export async function PUT(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);

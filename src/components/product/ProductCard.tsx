@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { useState } from 'react'
 import WishlistButton from './WishlistButton'
 import AddToCartButton from './AddToCartButton'
+import { processImageArray } from '@/lib/image-utils'
 
 interface ProductCardProps {
   product: Product
@@ -16,23 +17,8 @@ export default function ProductCard({ product }: ProductCardProps) {
   
   const { id, title, price, discountPrice, images, category, condition } = product
   
-  // Handle potentially malformed images array
-  let imageArray = images;
-  if (typeof images === 'string') {
-    try {
-      // Try to parse if it's a JSON string
-      imageArray = JSON.parse(images);
-    } catch (e) {
-      // If parsing fails, use a default array
-      console.error('Error parsing images:', e);
-      imageArray = [];
-    }
-  }
-  
-  // Ensure imageArray is an array
-  if (!Array.isArray(imageArray)) {
-    imageArray = [];
-  }
+  // Process images to ensure proper formatting
+  const imageArray = processImageArray(images);
   
   // Use default images if none are available
   const defaultImage = 'https://via.placeholder.com/300x400?text=No+Image';

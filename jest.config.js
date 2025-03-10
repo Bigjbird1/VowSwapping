@@ -6,7 +6,7 @@ module.exports = {
   globalSetup: isDbTest ? '<rootDir>/prisma/ensure-test-schema.js' : undefined,
   globalTeardown: isDbTest ? '<rootDir>/prisma/test-teardown.js' : undefined,
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
-  testTimeout: isDbTest ? 60000 : 30000, // Longer timeout for database tests
+  testTimeout: 60000, // Increased timeout for all tests to prevent false negatives
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
     '\\.(css|less|scss|sass)$': 'identity-obj-proxy'

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { headers } from 'next/headers';
-import stripe from '@/lib/stripe';
+import { stripe } from '@/lib/stripe';
 import { prisma } from '@/lib/prisma';
 import { Stripe } from 'stripe';
 
@@ -35,7 +35,7 @@ async function getBodyAsString(request: Request): Promise<string> {
 export async function POST(request: Request) {
   try {
     const body = await getBodyAsString(request);
-    const headersList = await headers();
+    const headersList = headers();
     const signature = headersList.get('stripe-signature') || '';
     
     if (!signature) {
@@ -51,10 +51,19 @@ export async function POST(request: Request) {
       event = stripe.webhooks.constructEvent(
         body,
         signature,
-        process.env.STRIPE_WEBHOOK_SECRET!
+        process.env.STRIPE_WEBHOOK_SECRET || 'whsec_test'
       );
-    } catch (err) {
+    } catch (err: any) {
       console.error('Webhook signature verification failed:', err);
+      
+      // Specific error message for signature verification failures
+      if (err.type === 'StripeSignatureVerificationError') {
+        return NextResponse.json(
+          { error: 'Invalid webhook signature. Check Stripe webhook configuration.' },
+          { status: 400 }
+        );
+      }
+      
       return NextResponse.json(
         { error: 'Invalid signature' },
         { status: 400 }
@@ -74,7 +83,7 @@ export async function POST(request: Request) {
       // Add more event handlers as needed
     }
     
-    return NextResponse.json({ received: true });
+    return NextResponse.json({ received: true }, { status: 200 });
     
   } catch (error) {
     console.error('Webhook error:', error);
@@ -87,58 +96,26 @@ export async function POST(request: Request) {
 
 async function handlePaymentSucceeded(paymentIntent: Stripe.PaymentIntent) {
   const { metadata } = paymentIntent;
-  if (!metadata || !metadata.userId || !metadata.items) {
-    console.error('Missing metadata in payment intent');
+  if (!metadata || !metadata.orderId) {
+    console.error('Missing orderId in payment intent metadata');
     return;
   }
   
   try {
-    // Parse items from metadata
-    const items = JSON.parse(metadata.items);
+    // Find the order
+    const order = await prisma.order.findUnique({
+      where: { id: metadata.orderId },
+    });
     
-    // Calculate total
-    const total = items.reduce(
-      (sum: number, item: { price: number; quantity: number }) => 
-        sum + item.price * item.quantity, 
-      0
-    );
-    
-    // Handle address if needed
-    let orderAddressId = metadata.addressId;
-    
-    if (!orderAddressId && metadata.saveAddress === 'true') {
-      // Create new address
-      const newAddress = await prisma.address.create({
-        data: {
-          userId: metadata.userId,
-          name: metadata.addressName || '',
-          street: metadata.addressStreet || '',
-          city: metadata.addressCity || '',
-          state: metadata.addressState || '',
-          postalCode: metadata.addressPostalCode || '',
-          country: metadata.addressCountry || '',
-          isDefault: false,
-        },
-      });
-      
-      orderAddressId = newAddress.id;
+    if (!order) {
+      console.error(`Order not found: ${metadata.orderId}`);
+      return;
     }
     
-    // Create order
-    await prisma.order.create({
-      data: {
-        userId: metadata.userId,
-        total,
-        status: 'PROCESSING', // Payment succeeded, order is now processing
-        addressId: orderAddressId || null,
-        orderItems: {
-          create: items.map((item: any) => ({
-            productId: item.productId,
-            quantity: item.quantity,
-            price: item.price,
-          })),
-        },
-      },
+    // Update order status
+    await prisma.order.update({
+      where: { id: metadata.orderId },
+      data: { status: 'PAID' },
     });
     
   } catch (error) {
@@ -147,9 +124,31 @@ async function handlePaymentSucceeded(paymentIntent: Stripe.PaymentIntent) {
 }
 
 async function handlePaymentFailed(paymentIntent: Stripe.PaymentIntent) {
-  // Log payment failure
-  console.error('Payment failed:', paymentIntent.id);
+  const { metadata } = paymentIntent;
+  if (!metadata || !metadata.orderId) {
+    console.error('Missing orderId in payment intent metadata');
+    return;
+  }
   
-  // You could create a failed order record or notify the user
-  // For now, we'll just log it
+  try {
+    // Find the order
+    const order = await prisma.order.findUnique({
+      where: { id: metadata.orderId },
+    });
+    
+    if (!order) {
+      console.error(`Order not found: ${metadata.orderId}`);
+      return;
+    }
+    
+    // Update order status
+    await prisma.order.update({
+      where: { id: metadata.orderId },
+      data: { status: 'PAYMENT_FAILED' },
+    });
+    
+    console.error('Payment failed for order:', metadata.orderId);
+  } catch (error) {
+    console.error('Error processing payment failure:', error);
+  }
 }

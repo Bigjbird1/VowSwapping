@@ -190,6 +190,200 @@ describe('Database Migrations', () => {
       }
     }
   });
+    
+  it('should successfully rollback migrations', async () => {
+    // Create a temporary test database URL with a unique schema for rollback testing
+    const rollbackSchemaName = `test_rollback_${Date.now()}`;
+    const rollbackDbUrl = `postgresql://postgres:Pleasework123!@db.ayuukerzreoiqevkhhlv.supabase.co:5432/postgres?schema=${rollbackSchemaName}`;
+    let testPrisma;
+    
+    try {
+      // Close any existing connections
+      await closeAllConnections();
+      
+      // Create a temporary client to create and clean the schema
+      const setupPrisma = new PrismaClient({
+        datasources: { db: { url: process.env.DATABASE_URL } },
+      });
+      
+      try {
+        // Create the rollback schema
+        await setupPrisma.$executeRaw`CREATE SCHEMA IF NOT EXISTS ${rollbackSchemaName}`;
+        
+        // Grant necessary permissions
+        await setupPrisma.$executeRaw`GRANT ALL ON SCHEMA ${rollbackSchemaName} TO postgres`;
+      } finally {
+        await setupPrisma.$disconnect();
+      }
+      
+      // Get migration directories to determine the latest migration
+      const migrationsPath = path.join(process.cwd(), 'prisma', 'migrations');
+      const migrationDirs = fs.readdirSync(migrationsPath)
+        .filter(dir => fs.statSync(path.join(migrationsPath, dir)).isDirectory())
+        .sort(); // Sort to get them in chronological order
+      
+      // Apply all migrations
+      execSync(`npx prisma migrate deploy`, {
+        env: { ...process.env, DATABASE_URL: rollbackDbUrl },
+        stdio: 'pipe'
+      });
+      
+      // Connect to the test database
+      testPrisma = new PrismaClient({
+        datasources: {
+          db: {
+            url: rollbackDbUrl,
+          },
+        }
+      });
+      
+      // Verify all migrations were applied by checking for the latest tables
+      const tablesBeforeRollback = await testPrisma.$queryRaw`
+        SELECT tablename FROM pg_tables 
+        WHERE schemaname = ${rollbackSchemaName}
+      `;
+      
+      const tableNamesBeforeRollback = Array.isArray(tablesBeforeRollback) 
+        ? tablesBeforeRollback.map(t => t.tablename.toLowerCase()) 
+        : [];
+      
+      // Check for tables from the latest migrations
+      expect(tableNamesBeforeRollback).toContain('wishlist');
+      expect(tableNamesBeforeRollback).toContain('review');
+      
+      // Now rollback the latest migration (review model)
+      // We'll use a direct SQL approach since Prisma doesn't have a built-in rollback command
+      // This simulates what a down() function would do in a migration system that supports it
+      
+      // First disconnect the client
+      await testPrisma.$disconnect();
+      
+      // Execute SQL to drop the review table (simulating a rollback)
+      const rollbackSql = `
+        DROP TABLE IF EXISTS "${rollbackSchemaName}"."Review";
+      `;
+      
+      // Create a new connection to execute the rollback
+      const rollbackPrisma = new PrismaClient({
+        datasources: {
+          db: {
+            url: rollbackDbUrl,
+          },
+        }
+      });
+      
+      try {
+        // Execute the rollback SQL
+        await rollbackPrisma.$executeRawUnsafe(rollbackSql);
+        
+        // Verify the review table was dropped
+        const tablesAfterRollback = await rollbackPrisma.$queryRaw`
+          SELECT tablename FROM pg_tables 
+          WHERE schemaname = ${rollbackSchemaName}
+        `;
+        
+        const tableNamesAfterRollback = Array.isArray(tablesAfterRollback) 
+          ? tablesAfterRollback.map(t => t.tablename.toLowerCase()) 
+          : [];
+        
+        // Review table should be gone, but wishlist should still exist
+        expect(tableNamesAfterRollback).not.toContain('review');
+        expect(tableNamesAfterRollback).toContain('wishlist');
+        
+      } finally {
+        // Always disconnect
+        await rollbackPrisma.$disconnect();
+      }
+    } catch (error) {
+      console.error('Migration rollback test failed:', error);
+      throw error;
+    } finally {
+      // Clean up test schema
+      try {
+        // Ensure connection is closed
+        if (testPrisma) {
+          await testPrisma.$disconnect();
+        }
+        await closeAllConnections();
+        
+        // Drop the rollback schema
+        const cleanupPrisma = new PrismaClient({
+          datasources: { db: { url: process.env.DATABASE_URL } },
+        });
+        
+        try {
+          await cleanupPrisma.$executeRaw`DROP SCHEMA IF EXISTS ${rollbackSchemaName} CASCADE`;
+        } finally {
+          await cleanupPrisma.$disconnect();
+        }
+      } catch (e) {
+        console.warn('Could not clean up test schema:', e);
+      }
+    }
+  });
+  
+  it('should verify migration idempotency', async () => {
+    // Create a temporary test database URL with a unique schema for idempotency testing
+    const idempotencySchemaName = `test_idempotent_${Date.now()}`;
+    const idempotencyDbUrl = `postgresql://postgres:Pleasework123!@db.ayuukerzreoiqevkhhlv.supabase.co:5432/postgres?schema=${idempotencySchemaName}`;
+    
+    try {
+      // Close any existing connections
+      await closeAllConnections();
+      
+      // Create a temporary client to create and clean the schema
+      const setupPrisma = new PrismaClient({
+        datasources: { db: { url: process.env.DATABASE_URL } },
+      });
+      
+      try {
+        // Create the idempotency schema
+        await setupPrisma.$executeRaw`CREATE SCHEMA IF NOT EXISTS ${idempotencySchemaName}`;
+        
+        // Grant necessary permissions
+        await setupPrisma.$executeRaw`GRANT ALL ON SCHEMA ${idempotencySchemaName} TO postgres`;
+      } finally {
+        await setupPrisma.$disconnect();
+      }
+      
+      // Apply migrations
+      execSync(`npx prisma migrate deploy`, {
+        env: { ...process.env, DATABASE_URL: idempotencyDbUrl },
+        stdio: 'pipe'
+      });
+      
+      // Apply migrations again - this should be idempotent and not cause errors
+      const result = execSync(`npx prisma migrate deploy`, {
+        env: { ...process.env, DATABASE_URL: idempotencyDbUrl },
+        stdio: 'pipe'
+      });
+      
+      // Verify the second migration application was successful
+      expect(result.toString()).not.toContain('error');
+      
+    } catch (error) {
+      console.error('Migration idempotency test failed:', error);
+      throw error;
+    } finally {
+      // Clean up test schema
+      try {
+        await closeAllConnections();
+        
+        // Drop the idempotency schema
+        const cleanupPrisma = new PrismaClient({
+          datasources: { db: { url: process.env.DATABASE_URL } },
+        });
+        
+        try {
+          await cleanupPrisma.$executeRaw`DROP SCHEMA IF EXISTS ${idempotencySchemaName} CASCADE`;
+        } finally {
+          await cleanupPrisma.$disconnect();
+        }
+      } catch (e) {
+        console.warn('Could not clean up test schema:', e);
+      }
+    }
+  });
   });
 
   describe('Schema Validation', () => {

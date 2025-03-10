@@ -65,7 +65,12 @@ export default function SignUpForm() {
       console.log('Registration response:', result);
 
       if (!response.ok) {
-        setError(result.message || 'Something went wrong');
+        // Handle specific error messages from the server
+        if (result.errors && result.errors.email === 'Email already in use') {
+          setError('Email already in use');
+        } else {
+          setError(result.message || 'Something went wrong');
+        }
         setIsLoading(false);
         return;
       }

@@ -396,7 +396,10 @@ describe('User API Endpoints', () => {
       // Verify Prisma was called correctly
       expect(prisma.address.findUnique).toHaveBeenCalledWith(
         expect.objectContaining({
-          where: { id: 'address-1' }
+          where: { 
+            id: 'address-1',
+            userId: 'user-1'
+          }
         })
       );
     });
@@ -410,36 +413,30 @@ describe('User API Endpoints', () => {
         }
       });
       
-      // Mock address data belonging to another user
-      const mockAddress = {
-        id: 'address-1',
-        userId: 'user-2', // Different from authenticated user
-        name: 'Home',
-        street: '123 Main St',
-        city: 'Anytown',
-        state: 'CA',
-        postalCode: '12345',
-        country: 'USA',
-        isDefault: true
-      };
-      
-      // Mock Prisma response
-      prisma.address.findUnique.mockResolvedValueOnce(mockAddress);
+      // Mock Prisma response - return null to simulate not found
+      prisma.address.findUnique.mockResolvedValueOnce(null);
       
       // Create request
       const { req } = mockRequestResponse('GET', 'http://localhost:3002/api/user/addresses/address-1');
       
-      // Call the handler with params - fixed syntax
+      // Call the handler with params
       const params = { id: 'address-1' };
       const response = await getAddressHandler(req, { params });
       const responseData = await response.json();
       
       // Assertions
-      expect(response.status).toBe(403);
-      expect(responseData.message).toContain('You do not have permission');
+      expect(response.status).toBe(404);
+      expect(responseData.message).toContain('Address not found');
       
-      // Verify Prisma delete was not called
-      expect(prisma.address.delete).not.toHaveBeenCalled();
+      // Verify Prisma was called correctly with both id and userId
+      expect(prisma.address.findUnique).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { 
+            id: 'address-1',
+            userId: 'user-1'
+          }
+        })
+      );
     });
   });
   

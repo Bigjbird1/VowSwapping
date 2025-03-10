@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -45,7 +45,7 @@ export default function AddressManager({ addresses }: AddressManagerProps) {
     register,
     handleSubmit,
     reset,
-    formState: { errors, isSubmitted },
+    formState: { errors, isSubmitting },
   } = useForm<AddressFormValues>({
     resolver: zodResolver(addressSchema),
     defaultValues: {
@@ -58,6 +58,13 @@ export default function AddressManager({ addresses }: AddressManagerProps) {
       isDefault: false,
     },
   });
+
+  // This ensures the form is disabled during submission
+  useEffect(() => {
+    if (isSubmitting) {
+      setIsLoading(true);
+    }
+  }, [isSubmitting]);
 
   const startEditing = (address: Address) => {
     setCurrentAddressId(address.id);
@@ -107,12 +114,46 @@ export default function AddressManager({ addresses }: AddressManagerProps) {
       }
 
       setSuccess(
-        isEditing ? 'Address updated successfully' : 'Address added successfully'
+        isEditing ? 'Address updated successfully' : 'Address created successfully'
       );
       setIsLoading(false);
       reset();
       setIsEditing(false);
       setCurrentAddressId(null);
+      router.refresh();
+    } catch (error) {
+      setError('An unexpected error occurred. Please try again.');
+      setIsLoading(false);
+    }
+  };
+
+  const setAddressAsDefault = async (address: Address) => {
+    setIsLoading(true);
+    setError(null);
+    setSuccess(null);
+
+    try {
+      const response = await fetch(`/api/user/addresses/${address.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...address,
+          isDefault: true
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        setError(result.message || 'Something went wrong');
+        setIsLoading(false);
+        return;
+      }
+
+      setSuccess('Address set as default successfully');
+      setIsLoading(false);
       router.refresh();
     } catch (error) {
       setError('An unexpected error occurred. Please try again.');
@@ -283,6 +324,7 @@ export default function AddressManager({ addresses }: AddressManagerProps) {
               type="submit"
               disabled={isLoading}
               className="py-2 px-4 border border-transparent rounded-md shadow-sm text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              data-testid="address-submit-button"
             >
               {isLoading
                 ? isEditing
@@ -298,6 +340,7 @@ export default function AddressManager({ addresses }: AddressManagerProps) {
                 onClick={cancelEditing}
                 disabled={isLoading}
                 className="py-2 px-4 border border-gray-300 rounded-md shadow-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                data-testid="cancel-edit-button"
               >
                 Cancel
               </button>
@@ -317,7 +360,7 @@ export default function AddressManager({ addresses }: AddressManagerProps) {
                 <div
                   key={address.id}
                   className={`border border-gray-200 rounded-md p-4 relative ${address.isDefault ? 'default-address' : ''}`}
-                  data-testid="address-card"
+                  data-testid={`address-card-${address.name.toLowerCase()}`}
                 >
                   {address.isDefault && (
                     <span className="absolute top-2 right-2 bg-primary-100 text-primary-800 text-xs px-2 py-1 rounded-full">
@@ -339,6 +382,7 @@ export default function AddressManager({ addresses }: AddressManagerProps) {
                       onClick={() => startEditing(address)}
                       className="text-sm text-primary-600 hover:text-primary-500"
                       data-testid="edit-address-button"
+                      disabled={isLoading}
                     >
                       Edit
                     </button>
@@ -346,24 +390,18 @@ export default function AddressManager({ addresses }: AddressManagerProps) {
                       onClick={() => deleteAddress(address.id)}
                       className="text-sm text-red-600 hover:text-red-500"
                       data-testid="delete-address-button"
+                      disabled={isLoading}
                     >
                       Delete
                     </button>
                     {!address.isDefault && (
                       <button
-                        onClick={() => {
-                          // Set as default logic
-                          const formData = {
-                            ...address,
-                            isDefault: true
-                          };
-                          setCurrentAddressId(address.id);
-                          onSubmit(formData as AddressFormValues);
-                        }}
+                        onClick={() => setAddressAsDefault(address)}
                         className="text-sm text-blue-600 hover:text-blue-500"
                         data-testid="set-default-button"
+                        disabled={isLoading}
                       >
-                        Set as Default
+                        {isLoading ? 'Setting...' : 'Set as Default'}
                       </button>
                     )}
                   </div>
@@ -371,38 +409,6 @@ export default function AddressManager({ addresses }: AddressManagerProps) {
               ))}
             </div>
           )}
-        </div>
-      </div>
-      
-      {/* Confirmation dialog for delete */}
-      <div id="delete-confirmation-dialog" className="hidden">
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
-            <h3 className="text-lg font-medium mb-4">Confirm Deletion</h3>
-            <p className="mb-6">Are you sure you want to delete this address?</p>
-            <div className="flex justify-end space-x-3">
-              <button
-                className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
-                onClick={() => {
-                  document.getElementById('delete-confirmation-dialog')?.classList.add('hidden');
-                }}
-              >
-                Cancel
-              </button>
-              <button
-                data-testid="confirm-delete-button"
-                className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
-                onClick={() => {
-                  if (currentAddressId) {
-                    deleteAddress(currentAddressId);
-                  }
-                  document.getElementById('delete-confirmation-dialog')?.classList.add('hidden');
-                }}
-              >
-                Delete
-              </button>
-            </div>
-          </div>
         </div>
       </div>
     </div>

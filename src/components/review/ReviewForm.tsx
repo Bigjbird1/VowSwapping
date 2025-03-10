@@ -115,11 +115,12 @@ const ReviewForm: React.FC<ReviewFormProps> = ({
       
       <form onSubmit={handleSubmit}>
         <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label htmlFor="rating" className="block text-sm font-medium text-gray-700 mb-2">
             Rating
           </label>
           <div data-testid="star-rating">
             <input
+              id="rating"
               type="range"
               min="0"
               max="5"
@@ -161,6 +162,7 @@ const ReviewForm: React.FC<ReviewFormProps> = ({
               onClick={onCancel}
               className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
               disabled={isSubmitting}
+              data-testid="cancel-review-button"
             >
               Cancel
             </button>

@@ -1,5 +1,6 @@
 const { Pool } = require('pg');
 require('dotenv').config();
+const { safeParseJson, safeStringifyJson } = require('./src/lib/json-conversion');
 
 // Parse the DATABASE_URL
 const connectionString = process.env.DATABASE_URL;
@@ -39,15 +40,18 @@ try {
           let images = product.images;
           let needsUpdate = false;
           
-          // Check if images is already a proper JSON object
+          // Use safeParseJson to handle string to object conversion
           if (typeof images === 'string') {
             console.log(`Product ${product.id} has string images: ${images}`);
-            try {
-              // Try to parse it as JSON
-              images = JSON.parse(images);
+            
+            // Try to parse it as JSON using our utility
+            const parsedImages = safeParseJson(images);
+            
+            if (parsedImages !== null) {
+              images = parsedImages;
               needsUpdate = true;
-            } catch (parseError) {
-              console.error(`Error parsing images JSON for product ${product.id}:`, parseError);
+            } else {
+              console.error(`Error parsing images JSON for product ${product.id}`);
               
               // If it's a string that looks like an array but isn't valid JSON,
               // try to fix common issues and convert it to a proper array
@@ -59,8 +63,13 @@ try {
                     .replace(/"\[/g, '[')  // Remove quotes around array start
                     .replace(/\]"/g, ']'); // Remove quotes around array end
                   
-                  images = JSON.parse(cleanedString);
-                  needsUpdate = true;
+                  const parsedCleanedImages = safeParseJson(cleanedString);
+                  if (parsedCleanedImages !== null) {
+                    images = parsedCleanedImages;
+                    needsUpdate = true;
+                  } else {
+                    console.error(`Failed to clean and parse images for product ${product.id}`);
+                  }
                 } catch (cleanupError) {
                   console.error(`Failed to clean and parse images for product ${product.id}:`, cleanupError);
                 }
@@ -102,12 +111,12 @@ try {
               images = [images].filter(Boolean);
             }
             
-            // Update the product with the fixed images
+            // Update the product with the fixed images using safeStringifyJson
             await client.query(`
               UPDATE "Product" 
               SET images = $1::jsonb
               WHERE id = $2
-            `, [JSON.stringify(images), product.id]);
+            `, [safeStringifyJson(images), product.id]);
             
             updatedCount++;
             console.log(`Updated product ${product.id}`);

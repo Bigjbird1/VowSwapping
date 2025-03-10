@@ -30,23 +30,16 @@ export async function GET(
 
     const addressId = params.id;
 
-    // Fetch the address
+    // Fetch the address with user ID check for security
     const address = await prisma.address.findUnique({
       where: {
         id: addressId,
+        userId: session.user.id
       },
     });
 
     if (!address) {
       return NextResponse.json({ message: 'Address not found' }, { status: 404 });
-    }
-
-    // Check if the address belongs to the user
-    if (address.userId !== session.user.id) {
-      return NextResponse.json(
-        { message: 'You do not have permission to view this address' },
-        { status: 403 }
-      );
     }
 
     return NextResponse.json({ address }, { status: 200 });
@@ -75,66 +68,74 @@ export async function PUT(
 
     const addressId = params.id;
     const body = await request.json();
-    const validatedData = addressSchema.parse(body);
+    
+    try {
+      const validatedData = addressSchema.parse(body);
 
-    // Check if address belongs to user
-    const existingAddress = await prisma.address.findUnique({
-      where: {
-        id: addressId,
-      },
-    });
-
-    if (!existingAddress) {
-      return NextResponse.json({ message: 'Address not found' }, { status: 404 });
-    }
-
-    if (existingAddress.userId !== session.user.id) {
-      return NextResponse.json(
-        { message: 'You do not have permission to update this address' },
-        { status: 403 }
-      );
-    }
-
-    // If this is the default address, unset any existing default
-    if (validatedData.isDefault && !existingAddress.isDefault) {
-      await prisma.address.updateMany({
+      // First check if the address exists
+      const existingAddress = await prisma.address.findUnique({
         where: {
-          userId: session.user.id,
-          isDefault: true,
-        },
-        data: {
-          isDefault: false,
+          id: addressId
         },
       });
+
+      if (!existingAddress) {
+        return NextResponse.json({ message: 'Address not found' }, { status: 404 });
+      }
+
+      // Then check if it belongs to the user
+      if (existingAddress.userId !== session.user.id) {
+        return NextResponse.json(
+          { message: 'You do not have permission to update this address' },
+          { status: 403 }
+        );
+      }
+
+      // If this is the default address, unset any existing default
+      if (validatedData.isDefault) {
+        await prisma.address.updateMany({
+          where: {
+            userId: session.user.id,
+            id: { not: addressId },
+          },
+          data: {
+            isDefault: false,
+          },
+        });
+      }
+
+      const updatedAddress = await prisma.address.update({
+        where: {
+          id: addressId,
+        },
+        data: {
+          name: validatedData.name,
+          street: validatedData.street,
+          city: validatedData.city,
+          state: validatedData.state,
+          postalCode: validatedData.postalCode,
+          country: validatedData.country,
+          isDefault: validatedData.isDefault,
+        },
+      });
+
+      return NextResponse.json(
+        {
+          message: 'Address updated successfully',
+          address: updatedAddress,
+        },
+        { status: 200 }
+      );
+    } catch (validationError) {
+      if (validationError instanceof z.ZodError) {
+        return NextResponse.json(
+          { message: `Validation error: ${validationError.errors[0].message}` }, 
+          { status: 400 }
+        );
+      }
+      throw validationError;
     }
-
-    const updatedAddress = await prisma.address.update({
-      where: {
-        id: addressId,
-      },
-      data: {
-        name: validatedData.name,
-        street: validatedData.street,
-        city: validatedData.city,
-        state: validatedData.state,
-        postalCode: validatedData.postalCode,
-        country: validatedData.country,
-        isDefault: validatedData.isDefault,
-      },
-    });
-
-    return NextResponse.json(
-      {
-        message: 'Address updated successfully',
-        address: updatedAddress,
-      },
-      { status: 200 }
-    );
   } catch (error) {
-    if (error instanceof z.ZodError) {
-      return NextResponse.json({ message: error.errors[0].message }, { status: 400 });
-    }
-
     console.error('Update address error:', error);
     return NextResponse.json(
       { message: 'An error occurred while updating your address' },
@@ -159,10 +160,10 @@ export async function DELETE(
 
     const addressId = params.id;
 
-    // Check if address belongs to user
+    // First, check if the address exists
     const existingAddress = await prisma.address.findUnique({
       where: {
-        id: addressId,
+        id: addressId
       },
     });
 
@@ -170,6 +171,7 @@ export async function DELETE(
       return NextResponse.json({ message: 'Address not found' }, { status: 404 });
     }
 
+    // Then check if it belongs to the user
     if (existingAddress.userId !== session.user.id) {
       return NextResponse.json(
         { message: 'You do not have permission to delete this address' },

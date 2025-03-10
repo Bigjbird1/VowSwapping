@@ -31,8 +31,8 @@ export default function ProfileForm({ user }: ProfileFormProps) {
   } = useForm<ProfileFormValues>({
     resolver: zodResolver(profileSchema),
     defaultValues: {
-      name: user.name || '',
-      email: user.email || '',
+      name: user?.name || '',
+      email: user?.email || '',
     },
   });
 
@@ -64,7 +64,7 @@ export default function ProfileForm({ user }: ProfileFormProps) {
       setIsLoading(false);
       router.refresh();
     } catch (error) {
-      setError('An unexpected error occurred. Please try again.');
+      setError('An unexpected error occurred');
       setIsLoading(false);
     }
   };
@@ -93,6 +93,7 @@ export default function ProfileForm({ user }: ProfileFormProps) {
           <input
             id="name"
             type="text"
+            aria-label="name"
             {...register('name')}
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
             disabled={isLoading}
@@ -107,6 +108,7 @@ export default function ProfileForm({ user }: ProfileFormProps) {
           <input
             id="email"
             type="email"
+            aria-label="email"
             {...register('email')}
             className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100"
             disabled={true}
@@ -119,6 +121,7 @@ export default function ProfileForm({ user }: ProfileFormProps) {
           type="submit"
           disabled={isLoading}
           className="py-2 px-4 border border-transparent rounded-md shadow-sm text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed"
+          data-testid="profile-submit-button"
         >
           {isLoading ? 'Saving...' : 'Save Changes'}
         </button>

@@ -4,6 +4,7 @@ import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { ProductCategory, ProductCondition } from '@/types/product';
 import { Prisma } from '@prisma/client';
+import { safeParseJson, safeStringifyJson } from '@/lib/json-conversion';
 
 // Helper function to map database product to application product
 function mapDatabaseProductToAppProduct(dbProduct: any) {
@@ -13,10 +14,12 @@ function mapDatabaseProductToAppProduct(dbProduct: any) {
     description: dbProduct.description,
     price: dbProduct.price,
     discountPrice: dbProduct.discountPrice || undefined,
-    images: dbProduct.images,
+    // Parse JSON fields from the database
+    images: safeParseJson(dbProduct.images),
     category: dbProduct.category.toLowerCase() as ProductCategory,
     condition: dbProduct.condition.toLowerCase().replace('_', '-') as any,
-    tags: dbProduct.tags,
+    // Parse JSON fields from the database
+    tags: safeParseJson(dbProduct.tags),
     createdAt: dbProduct.createdAt.toISOString(),
     updatedAt: dbProduct.updatedAt.toISOString(),
     featured: dbProduct.featured,
@@ -133,8 +136,17 @@ export async function GET(request: Request) {
       products: products.map(mapDatabaseProductToAppProduct) 
     });
     
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error fetching products:', error);
+    
+    // Handle database connection errors
+    if (error.message?.includes('connection') || error.code === 'P2024') {
+      return NextResponse.json(
+        { error: 'Database connection failed. Please try again later.' }, 
+        { status: 500 }
+      );
+    }
+    
     return NextResponse.json(
       { error: 'Failed to fetch products' }, 
       { status: 500 }
@@ -173,6 +185,74 @@ export async function POST(request: Request) {
       );
     }
     
+    // Validate price
+    const numericPrice = parseFloat(price.toString());
+    if (isNaN(numericPrice)) {
+      return NextResponse.json(
+        { error: 'Price must be a valid number' },
+        { status: 400 }
+      );
+    }
+    
+    // Validate price is positive
+    if (numericPrice < 0) {
+      return NextResponse.json(
+        { error: 'Price cannot be negative' },
+        { status: 400 }
+      );
+    }
+    
+    // Validate price is within reasonable bounds
+    const MAX_PRICE = 1000000; // $1 million as a reasonable upper limit
+    if (numericPrice > MAX_PRICE) {
+      return NextResponse.json(
+        { error: `Price cannot exceed ${MAX_PRICE}` },
+        { status: 400 }
+      );
+    }
+    
+    // Validate discount price if provided
+    if (discountPrice !== undefined && discountPrice !== null) {
+      const numericDiscountPrice = parseFloat(discountPrice.toString());
+      if (isNaN(numericDiscountPrice)) {
+        return NextResponse.json(
+          { error: 'Discount price must be a valid number' },
+          { status: 400 }
+        );
+      }
+      
+      if (numericDiscountPrice < 0) {
+        return NextResponse.json(
+          { error: 'Discount price cannot be negative' },
+          { status: 400 }
+        );
+      }
+      
+      if (numericDiscountPrice > numericPrice) {
+        return NextResponse.json(
+          { error: 'Discount price cannot be greater than regular price' },
+          { status: 400 }
+        );
+      }
+    }
+    
+    // Validate title length
+    if (title.length > 255) {
+      return NextResponse.json(
+        { error: 'Title is too long (maximum 255 characters)' },
+        { status: 400 }
+      );
+    }
+    
+    // Sanitize title for potential XSS
+    const sanitizedTitle = title.replace(/<[^>]*>?/gm, '');
+    if (sanitizedTitle !== title) {
+      return NextResponse.json(
+        { error: 'Title contains invalid characters' },
+        { status: 400 }
+      );
+    }
+    
     // Get user
     const user = await prisma.user.findUnique({
       where: { email: session.user.email },
@@ -185,15 +265,17 @@ export async function POST(request: Request) {
     // Create product using Prisma
     const product = await prisma.product.create({
       data: {
-        title,
+        title: sanitizedTitle,
         description,
-        price: parseFloat(price.toString()),
+        price: numericPrice,
         discountPrice: discountPrice ? parseFloat(discountPrice.toString()) : null,
-        images,
+        // Pass arrays directly to Prisma
+        images: images,
         category: category.toUpperCase() as any,
         condition: condition.toUpperCase().replace('-', '_') as any,
+        // Pass arrays directly to Prisma
         tags: tags || [],
-        featured: featured || false,
+        featured: featured === true, // Ensure boolean
         sellerId: user.id,
       },
     });
@@ -203,8 +285,70 @@ export async function POST(request: Request) {
       product: mapDatabaseProductToAppProduct(product)
     });
     
-  } catch (error) {
+  } catch (error: any) {
     console.error('Product creation error:', error);
+    
+    // Handle specific Prisma errors
+    if (error.code) {
+      switch (error.code) {
+        // Unique constraint violation
+        case 'P2002':
+          return NextResponse.json(
+            { error: `A product with this ${error.meta?.target || 'property'} already exists` }, 
+            { status: 400 }
+          );
+          
+        // Foreign key constraint violation
+        case 'P2003':
+          return NextResponse.json(
+            { error: `Invalid reference: ${error.meta?.field_name || 'unknown field'}` }, 
+            { status: 400 }
+          );
+          
+        // Check constraint violation
+        case 'P2004':
+          return NextResponse.json(
+            { error: `Invalid value: ${error.meta?.constraint || 'constraint violation'}` }, 
+            { status: 400 }
+          );
+          
+        // Data type error
+        case 'P2006':
+          return NextResponse.json(
+            { error: `Invalid data type for ${error.meta?.target || 'field'}` }, 
+            { status: 400 }
+          );
+          
+        // Required field missing
+        case 'P2012':
+          return NextResponse.json(
+            { error: `Missing required field: ${error.meta?.path || 'unknown'}` }, 
+            { status: 400 }
+          );
+          
+        // Invalid enum value
+        case 'P2009':
+          return NextResponse.json(
+            { error: `Invalid value for ${error.meta?.field_name || 'field'}` }, 
+            { status: 400 }
+          );
+          
+        // Database timeout
+        case 'P2024':
+          return NextResponse.json(
+            { error: 'Database operation timed out. Please try again.' }, 
+            { status: 500 }
+          );
+          
+        // Default case for other Prisma errors
+        default:
+          return NextResponse.json(
+            { error: 'Database error. Please try again later.' }, 
+            { status: 500 }
+          );
+      }
+    }
+    
     return NextResponse.json(
       { error: 'Failed to create product' }, 
       { status: 500 }

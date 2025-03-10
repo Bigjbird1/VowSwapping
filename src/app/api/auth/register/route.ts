@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
     if (existingUser) {
       console.log('User already exists:', validatedData.email);
       return NextResponse.json(
-        { message: 'User with this email already exists' },
+        { error: 'User with this email already exists' },
         { status: 400 }
       );
     }
@@ -79,14 +79,48 @@ export async function POST(request: NextRequest) {
         },
         { status: 201 }
       );
-    } catch (dbError) {
+    } catch (dbError: any) {
       console.error('Database error during user creation:', dbError);
+      
+      // Handle specific Prisma errors
+      if (dbError.code) {
+        switch (dbError.code) {
+          // Unique constraint violation
+          case 'P2002':
+          return NextResponse.json(
+            { error: `User with this ${dbError.meta?.target || 'property'} already exists` }, 
+            { status: 400 }
+          );
+            
+          // Required field missing
+          case 'P2012':
+          return NextResponse.json(
+            { error: `Missing required field: ${dbError.meta?.path || 'unknown'}` }, 
+            { status: 400 }
+          );
+            
+          // Database timeout
+          case 'P2024':
+          return NextResponse.json(
+            { error: 'Database operation timed out. Please try again.' }, 
+            { status: 500 }
+          );
+            
+          // Default case for other Prisma errors
+          default:
+          return NextResponse.json(
+            { error: 'Database error. Please try again later.' }, 
+            { status: 500 }
+          );
+        }
+      }
+      
       throw dbError;
     }
   } catch (error) {
     if (error instanceof z.ZodError) {
       console.error('Validation error:', error.errors);
-      return NextResponse.json({ message: error.errors[0].message }, { status: 400 });
+      return NextResponse.json({ error: error.errors[0].message }, { status: 400 });
     }
 
     console.error('Registration error:', error);
@@ -96,7 +130,7 @@ export async function POST(request: NextRequest) {
       : 'An error occurred during registration';
     
     return NextResponse.json(
-      { message: errorMessage },
+      { error: errorMessage },
       { status: 500 }
     );
   }

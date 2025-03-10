@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { ProductCategory } from '@/types/product';
+import { safeParseJson, safeStringifyJson } from '@/lib/json-conversion';
 
 // Helper function to map database product to application product
 function mapDatabaseProductToAppProduct(dbProduct: any) {
@@ -12,10 +13,12 @@ function mapDatabaseProductToAppProduct(dbProduct: any) {
     description: dbProduct.description,
     price: dbProduct.price,
     discountPrice: dbProduct.discountPrice || undefined,
-    images: dbProduct.images,
+    // Parse JSON fields from the database
+    images: safeParseJson(dbProduct.images),
     category: dbProduct.category.toLowerCase() as ProductCategory,
     condition: dbProduct.condition.toLowerCase().replace('_', '-') as any,
-    tags: dbProduct.tags,
+    // Parse JSON fields from the database
+    tags: safeParseJson(dbProduct.tags),
     createdAt: dbProduct.createdAt.toISOString(),
     updatedAt: dbProduct.updatedAt.toISOString(),
     featured: dbProduct.featured,
@@ -65,8 +68,35 @@ export async function GET(
       product: mapDatabaseProductToAppProduct(product) 
     });
     
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error fetching product:', error);
+    
+    // Handle specific Prisma errors
+    if (error.code) {
+      switch (error.code) {
+        // Invalid ID format
+        case 'P2023':
+          return NextResponse.json(
+            { error: 'Invalid product ID format' }, 
+            { status: 400 }
+          );
+          
+        // Database timeout
+        case 'P2024':
+          return NextResponse.json(
+            { error: 'Database operation timed out. Please try again.' }, 
+            { status: 500 }
+          );
+          
+        // Default case for other Prisma errors
+        default:
+          return NextResponse.json(
+            { error: 'Database error. Please try again later.' }, 
+            { status: 500 }
+          );
+      }
+    }
+    
     return NextResponse.json(
       { error: 'Failed to fetch product' }, 
       { status: 500 }
@@ -154,8 +184,70 @@ export async function PUT(
       product: mapDatabaseProductToAppProduct(updatedProduct) 
     });
     
-  } catch (error) {
+  } catch (error: any) {
     console.error('Product update error:', error);
+    
+    // Handle specific Prisma errors
+    if (error.code) {
+      switch (error.code) {
+        // Unique constraint violation
+        case 'P2002':
+          return NextResponse.json(
+            { error: `A product with this ${error.meta?.target || 'property'} already exists` }, 
+            { status: 400 }
+          );
+          
+        // Foreign key constraint violation
+        case 'P2003':
+          return NextResponse.json(
+            { error: `Invalid reference: ${error.meta?.field_name || 'unknown field'}` }, 
+            { status: 400 }
+          );
+          
+        // Check constraint violation
+        case 'P2004':
+          return NextResponse.json(
+            { error: `Invalid value: ${error.meta?.constraint || 'constraint violation'}` }, 
+            { status: 400 }
+          );
+          
+        // Data type error
+        case 'P2006':
+          return NextResponse.json(
+            { error: `Invalid data type for ${error.meta?.target || 'field'}` }, 
+            { status: 400 }
+          );
+          
+        // Required field missing
+        case 'P2012':
+          return NextResponse.json(
+            { error: `Missing required field: ${error.meta?.path || 'unknown'}` }, 
+            { status: 400 }
+          );
+          
+        // Invalid enum value
+        case 'P2009':
+          return NextResponse.json(
+            { error: `Invalid value for ${error.meta?.field_name || 'field'}` }, 
+            { status: 400 }
+          );
+          
+        // Database timeout
+        case 'P2024':
+          return NextResponse.json(
+            { error: 'Database operation timed out. Please try again.' }, 
+            { status: 500 }
+          );
+          
+        // Default case for other Prisma errors
+        default:
+          return NextResponse.json(
+            { error: 'Database error. Please try again later.' }, 
+            { status: 500 }
+          );
+      }
+    }
+    
     return NextResponse.json(
       { error: 'Failed to update product' }, 
       { status: 500 }
@@ -212,8 +304,42 @@ export async function DELETE(
       message: 'Product deleted successfully' 
     });
     
-  } catch (error) {
+  } catch (error: any) {
     console.error('Product deletion error:', error);
+    
+    // Handle specific Prisma errors
+    if (error.code) {
+      switch (error.code) {
+        // Foreign key constraint violation (e.g., product has related records)
+        case 'P2003':
+          return NextResponse.json(
+            { error: `Cannot delete product with existing ${error.meta?.field_name || 'related records'}` }, 
+            { status: 400 }
+          );
+          
+        // Record not found
+        case 'P2001':
+          return NextResponse.json(
+            { error: 'Product not found' }, 
+            { status: 404 }
+          );
+          
+        // Database timeout
+        case 'P2024':
+          return NextResponse.json(
+            { error: 'Database operation timed out. Please try again.' }, 
+            { status: 500 }
+          );
+          
+        // Default case for other Prisma errors
+        default:
+          return NextResponse.json(
+            { error: 'Database error. Please try again later.' }, 
+            { status: 500 }
+          );
+      }
+    }
+    
     return NextResponse.json(
       { error: 'Failed to delete product' }, 
       { status: 500 }

@@ -1,7 +1,7 @@
 'use client';
 
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { persist, createJSONStorage } from 'zustand/middleware';
 import { Product } from '@/types/product';
 
 export interface CartItem {
@@ -15,112 +15,156 @@ export interface CartItem {
 
 interface CartStore {
   items: CartItem[];
-  addItem: (product: Product, quantity: number) => void;
+  totalItems: number;
+  totalPrice: number;
+  addItem: (item: CartItem) => void;
   removeItem: (id: string) => void;
   updateQuantity: (id: string, quantity: number) => void;
+  updateItem: (id: string, updates: Partial<CartItem>) => void;
   clearCart: () => void;
-  getItemsCount: () => number;
-  getTotal: () => number;
+  mergeWithUserCart: (userCart: CartItem[]) => void;
 }
 
 export const useCartStore = create<CartStore>()(
   persist(
     (set, get) => ({
       items: [],
+      totalItems: 0,
+      totalPrice: 0,
       
-      addItem: (product, quantity) => {
+      addItem: (item) => {
         const { items } = get();
-        const existingItem = items.find(item => item.id === product.id);
+        const existingItem = items.find(i => i.id === item.id);
         
-        // Handle potentially malformed images array
-        let imageArray = product.images;
-        if (typeof imageArray === 'string') {
-          try {
-            // Try to parse if it's a JSON string
-            imageArray = JSON.parse(imageArray);
-          } catch (e) {
-            // If parsing fails, use a default array
-            console.error('Error parsing images:', e);
-            imageArray = [];
-          }
-        }
-        
-        // Ensure imageArray is an array
-        if (!Array.isArray(imageArray)) {
-          imageArray = [];
-        }
-        
-        // Use default image if none are available
-        const defaultImage = 'https://via.placeholder.com/300x400?text=No+Image';
-        const displayImage = imageArray[0] || defaultImage;
-        
+        let newItems;
         if (existingItem) {
           // Update quantity if item already exists
-          set({
-            items: items.map(item => 
-              item.id === product.id 
-                ? { ...item, quantity: item.quantity + quantity }
-                : item
-            )
-          });
+          newItems = items.map(i => 
+            i.id === item.id 
+              ? { ...i, quantity: i.quantity + item.quantity }
+              : i
+          );
         } else {
           // Add new item
-          set({
-            items: [
-              ...items,
-              {
-                id: product.id,
-                title: product.title,
-                price: product.price,
-                discountPrice: product.discountPrice,
-                image: displayImage,
-                quantity
-              }
-            ]
-          });
+          newItems = [...items, item];
         }
+        
+        // Calculate new totals
+        const totalItems = newItems.reduce((sum, item) => sum + item.quantity, 0);
+        const totalPrice = newItems.reduce((sum, item) => {
+          const price = item.discountPrice || item.price;
+          return sum + (price * item.quantity);
+        }, 0);
+        
+        set({ items: newItems, totalItems, totalPrice });
       },
       
       removeItem: (id) => {
         const { items } = get();
-        set({
-          items: items.filter(item => item.id !== id)
-        });
+        const newItems = items.filter(item => item.id !== id);
+        
+        // Calculate new totals
+        const totalItems = newItems.reduce((sum, item) => sum + item.quantity, 0);
+        const totalPrice = newItems.reduce((sum, item) => {
+          const price = item.discountPrice || item.price;
+          return sum + (price * item.quantity);
+        }, 0);
+        
+        set({ items: newItems, totalItems, totalPrice });
       },
       
       updateQuantity: (id, quantity) => {
         const { items } = get();
+        let newItems;
+        
         if (quantity <= 0) {
           // Remove item if quantity is 0 or negative
-          set({
-            items: items.filter(item => item.id !== id)
-          });
+          newItems = items.filter(item => item.id !== id);
         } else {
-          set({
-            items: items.map(item => 
-              item.id === id ? { ...item, quantity } : item
-            )
-          });
+          newItems = items.map(item => 
+            item.id === id ? { ...item, quantity } : item
+          );
         }
-      },
-      
-      clearCart: () => set({ items: [] }),
-      
-      getItemsCount: () => {
-        const { items } = get();
-        return items.reduce((total, item) => total + item.quantity, 0);
-      },
-      
-      getTotal: () => {
-        const { items } = get();
-        return items.reduce((total, item) => {
+        
+        // Calculate new totals
+        const totalItems = newItems.reduce((sum, item) => sum + item.quantity, 0);
+        const totalPrice = newItems.reduce((sum, item) => {
           const price = item.discountPrice || item.price;
-          return total + (price * item.quantity);
+          return sum + (price * item.quantity);
         }, 0);
+        
+        set({ items: newItems, totalItems, totalPrice });
+      },
+      
+      updateItem: (id, updates) => {
+        const { items } = get();
+        const newItems = items.map(item => 
+          item.id === id ? { ...item, ...updates } : item
+        );
+        
+        // Calculate new totals
+        const totalItems = newItems.reduce((sum, item) => sum + item.quantity, 0);
+        const totalPrice = newItems.reduce((sum, item) => {
+          const price = item.discountPrice || item.price;
+          return sum + (price * item.quantity);
+        }, 0);
+        
+        set({ items: newItems, totalItems, totalPrice });
+      },
+      
+      clearCart: () => set({ items: [], totalItems: 0, totalPrice: 0 }),
+      
+      mergeWithUserCart: (userCart) => {
+        const { items } = get();
+        
+        // Create a map of existing items by ID
+        const itemMap = new Map();
+        items.forEach(item => {
+          itemMap.set(item.id, item);
+        });
+        
+        // Merge with user cart
+        userCart.forEach(userItem => {
+          const existingItem = itemMap.get(userItem.id);
+          if (existingItem) {
+            // Update quantity if item exists in both carts
+            itemMap.set(userItem.id, {
+              ...userItem,
+              quantity: existingItem.quantity + userItem.quantity
+            });
+          } else {
+            // Add new item from user cart
+            itemMap.set(userItem.id, userItem);
+          }
+        });
+        
+        // Convert map back to array
+        const newItems = Array.from(itemMap.values());
+        
+        // Calculate new totals
+        const totalItems = newItems.reduce((sum, item) => sum + item.quantity, 0);
+        const totalPrice = newItems.reduce((sum, item) => {
+          const price = item.discountPrice || item.price;
+          return sum + (price * item.quantity);
+        }, 0);
+        
+        set({ items: newItems, totalItems, totalPrice });
       }
     }),
     {
       name: 'vowswap-cart', // localStorage key
+      storage: createJSONStorage(() => {
+        // Check if window is defined (browser environment)
+        if (typeof window !== 'undefined') {
+          return localStorage;
+        }
+        // Return a mock storage for SSR
+        return {
+          getItem: () => null,
+          setItem: () => {},
+          removeItem: () => {},
+        };
+      }),
     }
   )
 );

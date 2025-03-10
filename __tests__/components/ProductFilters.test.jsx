@@ -1,4 +1,6 @@
+import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import '@testing-library/jest-dom';
 import ProductFilters from '@/components/product/ProductFilters';
 import { useRouter, usePathname } from 'next/navigation';
 
@@ -16,147 +18,239 @@ describe('ProductFilters Component', () => {
     push: jest.fn(),
   };
   
+  const mockPathname = '/products';
+  
   const mockSellers = [
     { id: 'seller-1', name: 'Seller 1', shopName: 'Shop 1' },
     { id: 'seller-2', name: 'Seller 2', shopName: 'Shop 2' },
+    { id: 'seller-3', name: 'Seller 3', shopName: null },
   ];
   
   beforeEach(() => {
     jest.clearAllMocks();
     useRouter.mockReturnValue(mockRouter);
-    usePathname.mockReturnValue('/products');
+    usePathname.mockReturnValue(mockPathname);
     
     // Mock successful fetch response for sellers
-    fetch.mockResolvedValue({
+    global.fetch.mockResolvedValue({
       ok: true,
-      json: jest.fn().mockResolvedValue({ sellers: mockSellers }),
+      json: async () => ({ sellers: mockSellers }),
     });
   });
   
-  it('renders all filter sections correctly', async () => {
+  it('renders all filter sections', async () => {
     render(<ProductFilters />);
     
-    // Check for filter sections
+    // Check if all filter sections are rendered
     expect(screen.getByText('Filters')).toBeInTheDocument();
-    expect(screen.getByText('Search')).toBeInTheDocument();
     expect(screen.getByText('Categories')).toBeInTheDocument();
     expect(screen.getByText('Price Range')).toBeInTheDocument();
     expect(screen.getByText('Condition')).toBeInTheDocument();
     expect(screen.getByText('Sellers')).toBeInTheDocument();
     
-    // Check for action buttons
-    expect(screen.getByTestId('apply-filters-button')).toBeInTheDocument();
-    expect(screen.getByTestId('reset-filters-button')).toBeInTheDocument();
+    // Check if action buttons are rendered
+    expect(screen.getByRole('button', { name: /apply filters/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /reset/i })).toBeInTheDocument();
     
     // Wait for sellers to load
     await waitFor(() => {
       expect(screen.getByText('Shop 1')).toBeInTheDocument();
       expect(screen.getByText('Shop 2')).toBeInTheDocument();
+      expect(screen.getByText('Seller 3')).toBeInTheDocument(); // Uses name when shopName is null
     });
+    
+    // Verify fetch was called
+    expect(global.fetch).toHaveBeenCalledWith('/api/sellers');
   });
   
-  it('handles search input correctly', () => {
-    render(<ProductFilters />);
-    
-    const searchInput = screen.getByTestId('search-input');
-    fireEvent.change(searchInput, { target: { value: 'wedding dress' } });
-    
-    expect(searchInput.value).toBe('wedding dress');
-  });
-  
-  it('handles category selection correctly', () => {
-    render(<ProductFilters />);
-    
-    const dressesRadio = screen.getByLabelText('Dresses');
-    fireEvent.click(dressesRadio);
-    
-    expect(dressesRadio).toBeChecked();
-  });
-  
-  it('handles price range selection correctly', () => {
-    render(<ProductFilters />);
-    
-    const priceRange = screen.getByTestId('price-range-1'); // $100 - $500
-    fireEvent.click(priceRange);
-    
-    expect(priceRange).toBeChecked();
-  });
-  
-  it('handles condition selection correctly', () => {
-    render(<ProductFilters />);
-    
-    const newCondition = screen.getByTestId('condition-new');
-    fireEvent.click(newCondition);
-    
-    expect(newCondition).toBeChecked();
-  });
-  
-  it('applies filters when Apply Filters button is clicked', () => {
-    render(<ProductFilters />);
-    
-    // Set some filters
-    fireEvent.change(screen.getByTestId('search-input'), { target: { value: 'wedding dress' } });
-    fireEvent.click(screen.getByLabelText('Dresses'));
-    fireEvent.click(screen.getByTestId('price-range-1')); // $100 - $500
-    fireEvent.click(screen.getByTestId('condition-new'));
-    
-    // Click apply filters
-    fireEvent.click(screen.getByTestId('apply-filters-button'));
-    
-    // Check that router.push was called with the correct URL
-    expect(mockRouter.push).toHaveBeenCalledWith(
-      expect.stringContaining('/products?category=dresses&minPrice=100&maxPrice=500&condition=new&q=wedding+dress')
-    );
-  });
-  
-  it('resets filters when Reset button is clicked', () => {
-    render(<ProductFilters />);
-    
-    // Set some filters
-    fireEvent.change(screen.getByTestId('search-input'), { target: { value: 'wedding dress' } });
-    fireEvent.click(screen.getByLabelText('Dresses'));
-    
-    // Reset filters
-    fireEvent.click(screen.getByTestId('reset-filters-button'));
-    
-    // Check that router.push was called with just the pathname
-    expect(mockRouter.push).toHaveBeenCalledWith('/products');
-    
-    // Check that the UI is reset (search input should be empty)
-    expect(screen.getByTestId('search-input').value).toBe('');
-  });
-  
-  it('initializes with provided filter values', () => {
+  it('renders with pre-selected filters', async () => {
     render(
       <ProductFilters
         selectedCategory="dresses"
         selectedMinPrice={100}
         selectedMaxPrice={500}
-        selectedCondition="new"
-        searchQuery="wedding dress"
+        selectedCondition="like-new"
+        searchQuery="wedding"
+        selectedSellerId="seller-1"
       />
     );
     
-    // Check that filters are initialized with the provided values
-    expect(screen.getByTestId('search-input').value).toBe('wedding dress');
-    expect(screen.getByLabelText('Dresses')).toBeChecked();
-    expect(screen.getByTestId('price-range-1')).toBeChecked(); // $100 - $500
-    expect(screen.getByTestId('condition-new')).toBeChecked();
+    // Check if search input has the correct value
+    expect(screen.getByPlaceholderText('Search products...')).toHaveValue('wedding');
+    
+    // Check if category radio is selected
+    const dressesRadio = screen.getByLabelText('Dresses');
+    expect(dressesRadio).toBeChecked();
+    
+    // Check if price range radio is selected
+    const priceRangeRadio = screen.getByTestId('price-range-1'); // $100 - $500
+    expect(priceRangeRadio).toBeChecked();
+    
+    // Check if condition radio is selected
+    const likeNewRadio = screen.getByTestId('condition-like-new');
+    expect(likeNewRadio).toBeChecked();
+    
+    // Wait for sellers to load and check if seller radio is selected
+    await waitFor(() => {
+      const sellerRadios = screen.getAllByRole('radio', { name: 'Shop 1' });
+      expect(sellerRadios[0]).toBeChecked();
+    });
   });
   
-  it('handles fetch error for sellers gracefully', async () => {
-    // Mock fetch error
-    fetch.mockRejectedValue(new Error('Failed to fetch'));
+  it('applies filters when Apply Filters button is clicked', async () => {
+    render(<ProductFilters />);
+    
+    // Set search query
+    fireEvent.change(screen.getByPlaceholderText('Search products...'), {
+      target: { value: 'wedding dress' },
+    });
+    
+    // Select category
+    fireEvent.click(screen.getByLabelText('Dresses'));
+    
+    // Select price range
+    fireEvent.click(screen.getByTestId('price-range-1')); // $100 - $500
+    
+    // Select condition
+    fireEvent.click(screen.getByTestId('condition-like-new'));
+    
+    // Wait for sellers to load and select a seller
+    await waitFor(() => {
+      expect(screen.getByText('Shop 1')).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByLabelText('Shop 1'));
+    
+    // Click Apply Filters button
+    fireEvent.click(screen.getByRole('button', { name: /apply filters/i }));
+    
+    // Verify router.push was called with correct URL
+    expect(mockRouter.push).toHaveBeenCalledWith(
+      expect.stringContaining('/products?category=dresses&minPrice=100&maxPrice=500&condition=like-new&q=wedding+dress&sellerId=seller-1')
+    );
+  });
+  
+  it('resets filters when Reset button is clicked', async () => {
+    render(
+      <ProductFilters
+        selectedCategory="dresses"
+        selectedMinPrice={100}
+        selectedMaxPrice={500}
+        selectedCondition="like-new"
+        searchQuery="wedding"
+        selectedSellerId="seller-1"
+      />
+    );
+    
+    // Click Reset button
+    fireEvent.click(screen.getByRole('button', { name: /reset/i }));
+    
+    // Verify router.push was called with pathname only (no query params)
+    expect(mockRouter.push).toHaveBeenCalledWith(mockPathname);
+    
+    // Check if search input is cleared
+    await waitFor(() => {
+      expect(screen.getByPlaceholderText('Search products...')).toHaveValue('');
+    });
+    
+    // Check if category radio is unchecked
+    const dressesRadio = screen.getByLabelText('Dresses');
+    expect(dressesRadio).not.toBeChecked();
+    
+    // Check if price range radio is unchecked
+    const priceRangeRadio = screen.getByTestId('price-range-1'); // $100 - $500
+    expect(priceRangeRadio).not.toBeChecked();
+    
+    // Check if condition radio is unchecked
+    const likeNewRadio = screen.getByTestId('condition-like-new');
+    expect(likeNewRadio).not.toBeChecked();
+  });
+  
+  it('handles sellers loading state', async () => {
+    // Mock loading state before resolving
+    global.fetch.mockImplementationOnce(() => new Promise(resolve => {
+      setTimeout(() => {
+        resolve({
+          ok: true,
+          json: async () => ({ sellers: mockSellers }),
+        });
+      }, 100);
+    }));
     
     render(<ProductFilters />);
     
-    // Check that the component renders without crashing
-    expect(screen.getByText('Filters')).toBeInTheDocument();
+    // Check if loading message is displayed
+    expect(screen.getByText('Loading sellers...')).toBeInTheDocument();
     
-    // Wait for sellers section to show error state
+    // Wait for sellers to load
     await waitFor(() => {
-      expect(screen.getByText('Sellers')).toBeInTheDocument();
+      expect(screen.getByText('Shop 1')).toBeInTheDocument();
+    });
+    
+    // Check if loading message is gone
+    expect(screen.queryByText('Loading sellers...')).not.toBeInTheDocument();
+  });
+  
+  it('handles empty sellers list', async () => {
+    // Mock empty sellers response
+    global.fetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ sellers: [] }),
+    });
+    
+    render(<ProductFilters />);
+    
+    // Wait for sellers to load
+    await waitFor(() => {
       expect(screen.getByText('No sellers available')).toBeInTheDocument();
     });
+  });
+  
+  it('handles fetch error for sellers', async () => {
+    // Mock fetch error
+    global.fetch.mockRejectedValueOnce(new Error('Failed to fetch sellers'));
+    
+    render(<ProductFilters />);
+    
+    // Wait for error to be handled
+    await waitFor(() => {
+      expect(screen.getByText('No sellers available')).toBeInTheDocument();
+    });
+    
+    // Check console.error was called
+    expect(console.error).toHaveBeenCalled;
+  });
+  
+  it('allows selecting different filter combinations', async () => {
+    render(<ProductFilters />);
+    
+    // Select category
+    fireEvent.click(screen.getByLabelText('Accessories'));
+    
+    // Select price range
+    fireEvent.click(screen.getByTestId('price-range-2')); // $500 - $1,000
+    
+    // Select condition
+    fireEvent.click(screen.getByTestId('condition-good'));
+    
+    // Click Apply Filters button
+    fireEvent.click(screen.getByRole('button', { name: /apply filters/i }));
+    
+    // Verify router.push was called with correct URL
+    expect(mockRouter.push).toHaveBeenCalledWith(
+      expect.stringContaining('/products?category=accessories&minPrice=500&maxPrice=1000&condition=good')
+    );
+    
+    // Change selections
+    fireEvent.click(screen.getByLabelText('Decorations'));
+    fireEvent.click(screen.getByTestId('price-range-3')); // Over $1,000
+    fireEvent.click(screen.getByTestId('condition-fair'));
+    
+    // Click Apply Filters button again
+    fireEvent.click(screen.getByRole('button', { name: /apply filters/i }));
+    
+    // Verify router.push was called with updated URL
+    expect(mockRouter.push).toHaveBeenCalledWith(
+      expect.stringContaining('/products?category=decorations&minPrice=1000&condition=fair')
+    );
   });
 });

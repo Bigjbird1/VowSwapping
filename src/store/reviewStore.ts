@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { persist, createJSONStorage } from 'zustand/middleware';
 
 export interface Review {
   id: string;
@@ -120,7 +120,7 @@ export const useReviewStore = create<ReviewState>()(
         set((state) => ({
           productReviews: {
             ...state.productReviews,
-            [productId]: reviews,
+            [productId]: reviews || [],
           },
         }));
       },
@@ -181,7 +181,7 @@ export const useReviewStore = create<ReviewState>()(
         set((state) => ({
           sellerReviews: {
             ...state.sellerReviews,
-            [sellerId]: reviews,
+            [sellerId]: reviews || [],
           },
         }));
       },
@@ -209,7 +209,7 @@ export const useReviewStore = create<ReviewState>()(
       
       setUserReviews: (reviews) => {
         set(() => ({
-          userReviews: reviews,
+          userReviews: reviews || [],
         }));
       },
       
@@ -248,6 +248,18 @@ export const useReviewStore = create<ReviewState>()(
     }),
     {
       name: 'review-storage',
+      storage: createJSONStorage(() => {
+        // Check if window is defined (browser environment)
+        if (typeof window !== 'undefined') {
+          return localStorage;
+        }
+        // Return a mock storage for SSR
+        return {
+          getItem: () => null,
+          setItem: () => {},
+          removeItem: () => {},
+        };
+      }),
     }
   )
 );

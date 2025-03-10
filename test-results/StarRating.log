@@ -1,0 +1,260 @@
+Environment variables loaded
+TEST_DATABASE_URL: Found
+DATABASE_URL: Found
+Using client ID: schema_setup_1741624578483_l2xua
+PASS __tests__/components/StarRating.test.jsx
+  StarRating Component
+    ✓ renders the correct number of stars based on rating (13 ms)
+    ✓ renders with custom size (3 ms)
+    ✓ is not interactive by default (3 ms)
+    ✓ allows rating changes when interactive is true (2 ms)
+    ✓ handles hover state correctly (3 ms)
+    ✓ renders with zero rating (2 ms)
+    ✓ renders with max rating (1 ms)
+    ✓ clamps rating to valid range (2 ms)
+    ✓ applies custom className when provided (1 ms)
+    ✓ renders with custom maxRating (2 ms)
+
+Failed to collect coverage from /Users/jessedarsinos/VowSwapping/src/lib/json-conversion.js
+ERROR: /Users/jessedarsinos/VowSwapping/src/lib/json-conversion.js: Unexpected token, expected "," (16:35)
+
+  14 |  * @returns The parsed object/array or null if invalid
+  15 |  */
+> 16 | export function safeParseJson(value: any): any {
+     |                                    ^
+  17 |   if (value === null || value === undefined) {
+  18 |     return null;
+  19 |   }
+STACK: SyntaxError: /Users/jessedarsinos/VowSwapping/src/lib/json-conversion.js: Unexpected token, expected "," (16:35)
+
+  14 |  * @returns The parsed object/array or null if invalid
+  15 |  */
+> 16 | export function safeParseJson(value: any): any {
+     |                                    ^
+  17 |   if (value === null || value === undefined) {
+  18 |     return null;
+  19 |   }
+    at constructor (/Users/jessedarsinos/VowSwapping/node_modules/@babel/parser/lib/index.js:360:19)
+    at JSXParserMixin.raise (/Users/jessedarsinos/VowSwapping/node_modules/@babel/parser/lib/index.js:3327:19)
+    at JSXParserMixin.unexpected (/Users/jessedarsinos/VowSwapping/node_modules/@babel/parser/lib/index.js:3347:16)
+    at JSXParserMixin.expect (/Users/jessedarsinos/VowSwapping/node_modules/@babel/parser/lib/index.js:3657:12)
+    at JSXParserMixin.parseBindingList (/Users/jessedarsinos/VowSwapping/node_modules/@babel/parser/lib/index.js:7295:14)
+    at JSXParserMixin.parseFunctionParams (/Users/jessedarsinos/VowSwapping/node_modules/@babel/parser/lib/index.js:13101:24)
+    at JSXParserMixin.parseFunction (/Users/jessedarsinos/VowSwapping/node_modules/@babel/parser/lib/index.js:13083:10)
+    at JSXParserMixin.parseFunctionStatement (/Users/jessedarsinos/VowSwapping/node_modules/@babel/parser/lib/index.js:12769:17)
+    at JSXParserMixin.parseStatementContent (/Users/jessedarsinos/VowSwapping/node_modules/@babel/parser/lib/index.js:12430:21)
+    at JSXParserMixin.parseStatementLike (/Users/jessedarsinos/VowSwapping/node_modules/@babel/parser/lib/index.js:12406:17)
+    at JSXParserMixin.parseStatementListItem (/Users/jessedarsinos/VowSwapping/node_modules/@babel/parser/lib/index.js:12386:17)
+    at JSXParserMixin.parseExportDeclaration (/Users/jessedarsinos/VowSwapping/node_modules/@babel/parser/lib/index.js:13566:17)
+    at JSXParserMixin.maybeParseExportDeclaration (/Users/jessedarsinos/VowSwapping/node_modules/@babel/parser/lib/index.js:13525:31)
+    at JSXParserMixin.parseExport (/Users/jessedarsinos/VowSwapping/node_modules/@babel/parser/lib/index.js:13450:29)
+    at JSXParserMixin.parseStatementContent (/Users/jessedarsinos/VowSwapping/node_modules/@babel/parser/lib/index.js:12519:27)
+    at JSXParserMixin.parseStatementLike (/Users/jessedarsinos/VowSwapping/node_modules/@babel/parser/lib/index.js:12406:17)
+    at JSXParserMixin.parseModuleItem (/Users/jessedarsinos/VowSwapping/node_modules/@babel/parser/lib/index.js:12383:17)
+    at JSXParserMixin.parseBlockOrModuleBlockBody (/Users/jessedarsinos/VowSwapping/node_modules/@babel/parser/lib/index.js:12960:36)
+    at JSXParserMixin.parseBlockBody (/Users/jessedarsinos/VowSwapping/node_modules/@babel/parser/lib/index.js:12953:10)
+    at JSXParserMixin.parseProgram (/Users/jessedarsinos/VowSwapping/node_modules/@babel/parser/lib/index.js:12280:10)
+    at JSXParserMixin.parseTopLevel (/Users/jessedarsinos/VowSwapping/node_modules/@babel/parser/lib/index.js:12270:25)
+    at JSXParserMixin.parse (/Users/jessedarsinos/VowSwapping/node_modules/@babel/parser/lib/index.js:14120:10)
+    at parse (/Users/jessedarsinos/VowSwapping/node_modules/@babel/parser/lib/index.js:14154:38)
+    at parser (/Users/jessedarsinos/VowSwapping/node_modules/@babel/core/lib/parser/index.js:41:34)
+    at parser.next (<anonymous>)
+    at normalizeFile (/Users/jessedarsinos/VowSwapping/node_modules/@babel/core/lib/transformation/normalize-file.js:64:37)
+    at normalizeFile.next (<anonymous>)
+    at run (/Users/jessedarsinos/VowSwapping/node_modules/@babel/core/lib/transformation/index.js:22:50)
+    at run.next (<anonymous>)
+    at transform (/Users/jessedarsinos/VowSwapping/node_modules/@babel/core/lib/transform.js:22:33)
+    at transform.next (<anonymous>)
+    at step (/Users/jessedarsinos/VowSwapping/node_modules/gensync/index.js:261:32)
+    at /Users/jessedarsinos/VowSwapping/node_modules/gensync/index.js:273:13
+    at async.call.result.err.err (/Users/jessedarsinos/VowSwapping/node_modules/gensync/index.js:223:11)
+    at /Users/jessedarsinos/VowSwapping/node_modules/gensync/index.js:189:28
+    at /Users/jessedarsinos/VowSwapping/node_modules/@babel/core/lib/gensync-utils/async.js:67:7
+    at /Users/jessedarsinos/VowSwapping/node_modules/gensync/index.js:113:33
+    at step (/Users/jessedarsinos/VowSwapping/node_modules/gensync/index.js:287:14)
+    at /Users/jessedarsinos/VowSwapping/node_modules/gensync/index.js:273:13
+    at async.call.result.err.err (/Users/jessedarsinos/VowSwapping/node_modules/gensync/index.js:223:11)
+---------------------------------------------|---------|----------|---------|---------|-------------------
+File                                         | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s 
+---------------------------------------------|---------|----------|---------|---------|-------------------
+All files                                    |    0.68 |        1 |    1.36 |     0.7 |                   
+ src                                         |       0 |        0 |       0 |       0 |                   
+  middleware.ts                              |       0 |        0 |       0 |       0 | 6-62              
+ src/app                                     |       0 |      100 |       0 |       0 |                   
+  layout.tsx                                 |       0 |      100 |       0 |       0 | 8-18              
+  not-found.tsx                              |       0 |      100 |       0 |       0 | 4                 
+  page.tsx                                   |       0 |      100 |       0 |       0 | 7-131             
+ src/app/admin                               |       0 |        0 |       0 |       0 |                   
+  page.tsx                                   |       0 |        0 |       0 |       0 | 9-59              
+ src/app/admin/products                      |       0 |        0 |       0 |       0 |                   
+  page.tsx                                   |       0 |        0 |       0 |       0 | 23-226            
+ src/app/admin/products/create               |       0 |        0 |       0 |       0 |                   
+  page.tsx                                   |       0 |        0 |       0 |       0 | 22-401            
+ src/app/admin/products/edit/[id]            |       0 |        0 |       0 |       0 |                   
+  page.tsx                                   |       0 |        0 |       0 |       0 | 30-489            
+ src/app/api/auth/[...nextauth]              |       0 |      100 |     100 |       0 |                   
+  route.ts                                   |       0 |      100 |     100 |       0 | 4                 
+ src/app/api/auth/forgot-password            |       0 |        0 |       0 |       0 |                   
+  route.ts                                   |       0 |        0 |       0 |       0 | 7-75              
+ src/app/api/auth/register                   |       0 |        0 |       0 |       0 |                   
+  route.ts                                   |       0 |        0 |       0 |       0 | 7-118             
+ src/app/api/auth/reset-password             |       0 |        0 |       0 |       0 |                   
+  route.ts                                   |       0 |        0 |       0 |       0 | 6-56              
+ src/app/api/auth/signin-after-register      |       0 |        0 |       0 |       0 |                   
+  route.ts                                   |       0 |        0 |       0 |       0 | 11-93             
+ src/app/api/auth/verify-email               |       0 |        0 |       0 |       0 |                   
+  route.ts                                   |       0 |        0 |       0 |       0 | 5-117             
+ src/app/api/orders                          |       0 |        0 |       0 |       0 |                   
+  route.ts                                   |       0 |        0 |       0 |       0 | 8-211             
+ src/app/api/payments/create-intent          |       0 |        0 |       0 |       0 |                   
+  route.ts                                   |       0 |        0 |       0 |       0 | 8-95              
+ src/app/api/payments/webhook                |       0 |        0 |       0 |       0 |                   
+  route.ts                                   |       0 |        0 |       0 |       0 | 8-143             
+ src/app/api/products                        |       0 |        0 |       0 |       0 |                   
+  route.ts                                   |       0 |        0 |       0 |       0 | 11-213            
+ src/app/api/products/[id]                   |       0 |        0 |       0 |       0 |                   
+  route.ts                                   |       0 |        0 |       0 |       0 | 9-217             
+ src/app/api/reviews/product/[id]            |       0 |        0 |       0 |       0 |                   
+  route.ts                                   |       0 |        0 |       0 |       0 | 8-125             
+ src/app/api/reviews/product/[id]/[reviewId] |       0 |        0 |       0 |       0 |                   
+  route.ts                                   |       0 |        0 |       0 |       0 | 8-180             
+ src/app/api/reviews/seller/[id]             |       0 |        0 |       0 |       0 |                   
+  route.ts                                   |       0 |        0 |       0 |       0 | 8-164             
+ src/app/api/reviews/seller/[id]/[reviewId]  |       0 |        0 |       0 |       0 |                   
+  route.ts                                   |       0 |        0 |       0 |       0 | 8-233             
+ src/app/api/reviews/user                    |       0 |        0 |       0 |       0 |                   
+  route.ts                                   |       0 |        0 |       0 |       0 | 8-49              
+ src/app/api/seller/products                 |       0 |        0 |       0 |       0 |                   
+  route.ts                                   |       0 |        0 |       0 |       0 | 8-153             
+ src/app/api/seller/products/[id]            |       0 |        0 |       0 |       0 |                   
+  route.ts                                   |       0 |        0 |       0 |       0 | 11-208            
+ src/app/api/seller/register                 |       0 |        0 |       0 |       0 |                   
+  route.ts                                   |       0 |        0 |       0 |       0 | 7-125             
+ src/app/api/seller/stats                    |       0 |        0 |       0 |       0 |                   
+  route.ts                                   |       0 |        0 |       0 |       0 | 7-127             
+ src/app/api/seller/status                   |       0 |        0 |       0 |       0 |                   
+  route.ts                                   |       0 |        0 |       0 |       0 | 7-61              
+ src/app/api/sellers                         |       0 |      100 |       0 |       0 |                   
+  route.ts                                   |       0 |      100 |       0 |       0 | 5-53              
+ src/app/api/upload                          |       0 |        0 |       0 |       0 |                   
+  route.ts                                   |       0 |        0 |       0 |       0 | 7-92              
+ src/app/api/user/addresses                  |       0 |        0 |       0 |       0 |                   
+  route.ts                                   |       0 |        0 |       0 |       0 | 7-131             
+ src/app/api/user/addresses/[id]             |       0 |        0 |       0 |       0 |                   
+  route.ts                                   |       0 |        0 |       0 |       0 | 7-218             
+ src/app/api/user/profile                    |       0 |        0 |       0 |       0 |                   
+  route.ts                                   |       0 |        0 |       0 |       0 | 7-94              
+ src/app/api/user/wishlist                   |       0 |        0 |       0 |       0 |                   
+  route.ts                                   |       0 |        0 |       0 |       0 | 13-119            
+ src/app/api/user/wishlist/[productId]       |       0 |        0 |       0 |       0 |                   
+  route.ts                                   |       0 |        0 |       0 |       0 | 21-101            
+ src/app/auth/forgot-password                |       0 |      100 |       0 |       0 |                   
+  page.tsx                                   |       0 |      100 |       0 |       0 | 5-11              
+ src/app/auth/reset-password                 |       0 |      100 |       0 |       0 |                   
+  page.tsx                                   |       0 |      100 |       0 |       0 | 5-11              
+ src/app/auth/signin                         |       0 |      100 |       0 |       0 |                   
+  page.tsx                                   |       0 |      100 |       0 |       0 | 4-10              
+ src/app/auth/signup                         |       0 |      100 |       0 |       0 |                   
+  page.tsx                                   |       0 |      100 |       0 |       0 | 4-10              
+ src/app/auth/verify-email                   |       0 |      100 |       0 |       0 |                   
+  page.tsx                                   |       0 |      100 |       0 |       0 | 5-11              
+ src/app/cart                                |       0 |        0 |       0 |       0 |                   
+  page.tsx                                   |       0 |        0 |       0 |       0 | 11-187            
+ src/app/checkout                            |       0 |        0 |       0 |       0 |                   
+  page.tsx                                   |       0 |        0 |       0 |       0 | 35-366            
+ src/app/checkout/success                    |       0 |        0 |       0 |       0 |                   
+  page.tsx                                   |       0 |        0 |       0 |       0 | 9-107             
+ src/app/products                            |       0 |        0 |       0 |       0 |                   
+  page.tsx                                   |       0 |        0 |       0 |       0 | 7-33              
+ src/app/products/[id]                       |       0 |        0 |       0 |       0 |                   
+  not-found.tsx                              |       0 |      100 |       0 |       0 | 4                 
+  page.tsx                                   |       0 |        0 |       0 |       0 | 17-233            
+ src/app/products/category/[category]        |       0 |      100 |       0 |       0 |                   
+  page.tsx                                   |       0 |      100 |       0 |       0 | 12-24             
+ src/app/profile                             |       0 |        0 |       0 |       0 |                   
+  page.tsx                                   |       0 |        0 |       0 |       0 | 6-18              
+ src/app/profile/addresses                   |       0 |        0 |       0 |       0 |                   
+  page.tsx                                   |       0 |        0 |       0 |       0 | 7-33              
+ src/app/profile/orders                      |       0 |        0 |       0 |       0 |                   
+  page.tsx                                   |       0 |        0 |       0 |       0 | 6-18              
+ src/app/profile/reviews                     |       0 |        0 |       0 |       0 |                   
+  page.tsx                                   |       0 |        0 |       0 |       0 | 10-156            
+ src/app/profile/wishlist                    |       0 |        0 |       0 |       0 |                   
+  page.tsx                                   |       0 |        0 |       0 |       0 | 12-155            
+ src/app/seller/dashboard                    |       0 |        0 |       0 |       0 |                   
+  page.tsx                                   |       0 |        0 |       0 |       0 | 19-289            
+ src/app/seller/pending                      |       0 |        0 |       0 |       0 |                   
+  page.tsx                                   |       0 |        0 |       0 |       0 | 9-70              
+ src/app/seller/products                     |       0 |        0 |       0 |       0 |                   
+  page.tsx                                   |       0 |        0 |       0 |       0 | 12-234            
+ src/app/seller/products/create              |       0 |        0 |       0 |       0 |                   
+  page.tsx                                   |       0 |        0 |       0 |       0 | 14-379            
+ src/app/seller/products/edit/[id]           |       0 |        0 |       0 |       0 |                   
+  page.tsx                                   |       0 |        0 |       0 |       0 | 14-432            
+ src/app/seller/register                     |       0 |        0 |       0 |       0 |                   
+  page.tsx                                   |       0 |        0 |       0 |       0 | 12-163            
+ src/app/shop/[id]                           |       0 |        0 |       0 |       0 |                   
+  not-found.tsx                              |       0 |      100 |       0 |       0 | 4                 
+  page.tsx                                   |       0 |        0 |       0 |       0 | 18-248            
+ src/app/shops                               |       0 |        0 |       0 |       0 |                   
+  page.tsx                                   |       0 |        0 |       0 |       0 | 8-92              
+ src/components/auth                         |       0 |        0 |       0 |       0 |                   
+  AuthProvider.tsx                           |       0 |        0 |       0 |       0 | 8-20              
+  EmailVerification.tsx                      |       0 |        0 |       0 |       0 | 8-143             
+  PasswordResetForm.tsx                      |       0 |        0 |       0 |       0 | 10-199            
+  SignInForm.tsx                             |       0 |        0 |       0 |       0 | 11-110            
+  SignUpForm.tsx                             |       0 |        0 |       0 |       0 | 10-119            
+ src/components/layout                       |       0 |        0 |       0 |       0 |                   
+  Footer.tsx                                 |       0 |      100 |       0 |       0 | 4                 
+  Navbar.tsx                                 |       0 |        0 |       0 |       0 | 10-198            
+ src/components/payment                      |       0 |        0 |       0 |       0 |                   
+  StripePaymentForm.tsx                      |       0 |        0 |       0 |       0 | 14-125            
+ src/components/product                      |       0 |        0 |       0 |       0 |                   
+  AddToCartButton.tsx                        |       0 |        0 |       0 |       0 | 12-38             
+  Pagination.tsx                             |       0 |        0 |       0 |       0 | 10-32             
+  ProductCard.tsx                            |       0 |        0 |       0 |       0 | 15-66             
+  ProductFilters.tsx                         |       0 |        0 |       0 |       0 | 25-225            
+  ProductGrid.tsx                            |       0 |        0 |       0 |       0 | 20-30             
+  WishlistButton.tsx                         |       0 |        0 |       0 |       0 | 20-57             
+ src/components/profile                      |       0 |        0 |       0 |       0 |                   
+  AddressManager.tsx                         |       0 |        0 |       0 |       0 | 9-399             
+  OrderHistory.tsx                           |       0 |        0 |       0 |       0 | 22-168            
+  ProfileForm.tsx                            |       0 |        0 |       0 |       0 | 10-72             
+ src/components/review                       |   12.26 |    16.12 |   14.58 |   12.65 |                   
+  ProductReviews.tsx                         |       0 |        0 |       0 |       0 | 13-81             
+  ProductReviewsWrapper.tsx                  |       0 |      100 |       0 |       0 | 7-25              
+  ReviewCard.tsx                             |       0 |        0 |       0 |       0 | 14-29             
+  ReviewForm.tsx                             |       0 |        0 |       0 |       0 | 13-147            
+  ReviewList.tsx                             |       0 |        0 |       0 |       0 | 13-81             
+  SellerReviews.tsx                          |       0 |        0 |       0 |       0 | 13-83             
+  SellerReviewsWrapper.tsx                   |       0 |      100 |       0 |       0 | 7-25              
+  StarRating.tsx                             |   74.07 |    76.92 |   58.33 |   74.07 | 38-39,54-55,66-72 
+ src/context                                 |       0 |      100 |       0 |       0 |                   
+  AuthContext.tsx                            |       0 |      100 |       0 |       0 | 11                
+ src/lib                                     |       0 |        0 |       0 |       0 |                   
+  auth.ts                                    |       0 |        0 |       0 |       0 | 7-180             
+  cloudinary.ts                              |       0 |        0 |       0 |       0 | 4-78              
+  fetch-utils.js                             |       0 |        0 |       0 |       0 | 26-196            
+  json-conversion.ts                         |       0 |        0 |       0 |       0 | 17-126            
+  prisma.ts                                  |       0 |        0 |       0 |       0 | 4-65              
+  products.ts                                |       0 |        0 |       0 |       0 | 7-276             
+  rate-limit.js                              |       0 |        0 |       0 |       0 | 8-140             
+  session.ts                                 |       0 |        0 |       0 |       0 | 5-15              
+  stripe.ts                                  |       0 |      100 |     100 |       0 | 4                 
+ src/store                                   |       0 |        0 |       0 |       0 |                   
+  authStore.ts                               |       0 |      100 |       0 |       0 | 18-22             
+  cartStore.ts                               |       0 |        0 |       0 |       0 | 28-163            
+  reviewStore.ts                             |       0 |        0 |       0 |       0 | 60-258            
+  wishlistStore.ts                           |       0 |        0 |       0 |       0 | 34-93             
+ src/types                                   |       0 |        0 |       0 |       0 |                   
+  product.ts                                 |       0 |        0 |       0 |       0 |                   
+---------------------------------------------|---------|----------|---------|---------|-------------------
+Jest: "global" coverage threshold for statements (70%) not met: 0.68%
+Jest: "global" coverage threshold for branches (70%) not met: 1%
+Jest: "global" coverage threshold for lines (70%) not met: 0.7%
+Jest: "global" coverage threshold for functions (70%) not met: 1.36%
+Test Suites: 1 passed, 1 total
+Tests:       10 passed, 10 total
+Snapshots:   0 total
+Time:        1.516 s
+Ran all test suites matching /__tests__\/components\/StarRating.test.jsx/i.

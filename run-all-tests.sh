@@ -27,6 +27,14 @@ echo -e "${YELLOW}Running API Tests...${NC}"
 }
 echo ""
 
+# Run error handling tests
+echo -e "${YELLOW}Running Error Handling Tests...${NC}"
+./run-error-tests.sh || {
+  echo -e "${RED}Error Handling Tests failed!${NC}"
+  FAILED=true
+}
+echo ""
+
 echo -e "${YELLOW}Running Cypress E2E Tests...${NC}"
 echo ""
 

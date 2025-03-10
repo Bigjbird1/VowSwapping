@@ -12,7 +12,7 @@ export default function Navbar() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const { data: session, status } = useSession()
   const isAuthenticated = status === 'authenticated'
-  const cartItemsCount = useCartStore(state => state.getItemsCount())
+  const cartItemsCount = useCartStore(state => state.totalItems)
   const wishlistItemsCount = useWishlistStore(state => state.items.length)
   const [mounted, setMounted] = useState(false)
   

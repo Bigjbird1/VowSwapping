@@ -1,0 +1,17 @@
+[1;33mTesting Database Connection...[0m
+Starting enhanced database connection test
+Session ID: test_1741629320141_d4f9ci4n
+Setting up test schema: test_test_1741629320141_d4f9ci4n
+Created temporary .env.test file
+(node:37856) Warning: Setting the NODE_TLS_REJECT_UNAUTHORIZED environment variable to '0' makes TLS connections and HTTPS requests insecure by disabling certificate verification.
+(Use `node --trace-warnings ...` to show where the warning was created)
+Connected to database for schema setup
+Dropped schema test_test_1741629320141_d4f9ci4n if it existed
+Created schema test_test_1741629320141_d4f9ci4n
+Set search path to test_test_1741629320141_d4f9ci4n
+Schema test_test_1741629320141_d4f9ci4n verified
+Closed schema setup connection
+Pushing Prisma schema to database...
+Environment variables loaded from .env
+Prisma schema loaded from prisma/schema.prisma
+Datasource "db": PostgreSQL database "postgres", schema "test_test_1741629320141_d4f9ci4n" at "aws-0-us-east-1.pooler.supabase.com:6543"
