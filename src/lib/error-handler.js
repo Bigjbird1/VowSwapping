@@ -66,6 +66,7 @@ export function handleApiError(error, res) {
   if (error.name === 'ApiError') {
     return res.status(error.status).json({
       error: error.message,
+      message: error.message,
       type: error.type,
       ...(error.details && { details: error.details }),
     });
@@ -75,8 +76,10 @@ export function handleApiError(error, res) {
   if (error.code) {
     // Unique constraint violation
     if (error.code === 'P2002') {
+      const constraintErrorMsg = `A record with this ${error.meta?.target?.join(', ') || 'field'} already exists`;
       return res.status(409).json({
-        error: `A record with this ${error.meta?.target?.join(', ') || 'field'} already exists`,
+        error: constraintErrorMsg,
+        message: constraintErrorMsg,
         type: ErrorType.CONFLICT,
       });
     }
@@ -85,6 +88,7 @@ export function handleApiError(error, res) {
     if (error.code === 'P2001' || error.code === 'P2025') {
       return res.status(404).json({
         error: 'Record not found',
+        message: 'Record not found',
         type: ErrorType.NOT_FOUND,
       });
     }
@@ -93,6 +97,7 @@ export function handleApiError(error, res) {
     if (error.code === 'P2003') {
       return res.status(400).json({
         error: 'Related record not found',
+        message: 'Related record not found',
         type: ErrorType.BAD_REQUEST,
       });
     }
@@ -101,13 +106,16 @@ export function handleApiError(error, res) {
     if (error.code === 'P2007') {
       return res.status(400).json({
         error: 'Invalid data provided',
+        message: 'Invalid data provided',
         type: ErrorType.VALIDATION_ERROR,
       });
     }
     
     // For any other Prisma error, ensure we have an error property
+    const dbErrorMsg = `Database error: ${errorMessage}`;
     return res.status(500).json({
-      error: `Database error: ${errorMessage}`,
+      error: dbErrorMsg,
+      message: dbErrorMsg,
       type: ErrorType.INTERNAL_ERROR,
       code: error.code,
     });
@@ -116,8 +124,10 @@ export function handleApiError(error, res) {
   // Handle Stripe errors
   if (error.type && error.type.startsWith('Stripe')) {
     if (error.type === 'StripeCardError') {
+      const cardErrorMsg = error.message || 'Card processing error';
       return res.status(400).json({
-        error: error.message || 'Card processing error',
+        error: cardErrorMsg,
+        message: cardErrorMsg,
         type: ErrorType.BAD_REQUEST,
         code: error.code,
       });
@@ -126,13 +136,16 @@ export function handleApiError(error, res) {
     if (error.type === 'StripeRateLimitError') {
       return res.status(429).json({
         error: 'Too many requests to payment processor',
+        message: 'Too many requests to payment processor',
         type: ErrorType.RATE_LIMIT,
       });
     }
     
     if (error.type === 'StripeInvalidRequestError') {
+      const paymentErrorMsg = error.message || 'Invalid payment request';
       return res.status(400).json({
-        error: error.message || 'Invalid payment request',
+        error: paymentErrorMsg,
+        message: paymentErrorMsg,
         type: ErrorType.VALIDATION_ERROR,
       });
     }
@@ -140,6 +153,7 @@ export function handleApiError(error, res) {
     if (error.type === 'StripeAPIError' || error.type === 'StripeConnectionError') {
       return res.status(503).json({
         error: 'Payment service unavailable',
+        message: 'Payment service unavailable',
         type: ErrorType.SERVICE_UNAVAILABLE,
       });
     }
@@ -147,13 +161,16 @@ export function handleApiError(error, res) {
     if (error.type === 'StripeAuthenticationError') {
       return res.status(500).json({
         error: 'Payment authentication error',
+        message: 'Payment authentication error',
         type: ErrorType.INTERNAL_ERROR,
       });
     }
     
     // For any other Stripe error, ensure we have an error property
+    const stripeErrorMsg = `Payment processing error: ${errorMessage}`;
     return res.status(500).json({
-      error: `Payment processing error: ${errorMessage}`,
+      error: stripeErrorMsg,
+      message: stripeErrorMsg,
       type: ErrorType.INTERNAL_ERROR,
     });
   }
@@ -162,6 +179,7 @@ export function handleApiError(error, res) {
   if (error.status === 429) {
     return res.status(429).json({
       error: 'Too many requests',
+      message: 'Too many requests',
       type: ErrorType.RATE_LIMIT,
     });
   }
@@ -170,6 +188,7 @@ export function handleApiError(error, res) {
   if (error.name === 'JsonWebTokenError' || error.name === 'TokenExpiredError') {
     return res.status(401).json({
       error: 'Invalid or expired authentication',
+      message: 'Invalid or expired authentication',
       type: ErrorType.UNAUTHORIZED,
     });
   }
@@ -186,6 +205,7 @@ export function handleApiError(error, res) {
     
     return res.status(400).json({
       error: 'Validation failed',
+      message: 'Validation failed',
       type: ErrorType.VALIDATION_ERROR,
       details: details,
     });
@@ -195,6 +215,7 @@ export function handleApiError(error, res) {
   if (error.name === 'ConcurrencyError' || error.message.includes('concurrent') || error.message.includes('conflict')) {
     return res.status(409).json({
       error: 'Concurrent modification conflict',
+      message: 'Concurrent modification conflict',
       type: ErrorType.CONCURRENCY_ERROR,
     });
   }
@@ -202,8 +223,9 @@ export function handleApiError(error, res) {
   // Default to internal server error
   return res.status(500).json({
     error: 'Internal server error',
+    message: 'Internal server error',
     type: ErrorType.INTERNAL_ERROR,
-    message: process.env.NODE_ENV === 'development' ? errorMessage : undefined,
+    details: process.env.NODE_ENV === 'development' ? errorMessage : undefined,
   });
 }
 

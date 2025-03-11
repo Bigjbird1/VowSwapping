@@ -25,7 +25,10 @@ export async function POST(request: NextRequest) {
     if (!user) {
       console.log('Invalid verification token, no user found');
       return NextResponse.json(
-        { message: 'Invalid verification token' },
+        { 
+          error: 'Invalid verification token',
+          message: 'Invalid verification token'
+        },
         { status: 400 }
       );
     }
@@ -48,13 +51,19 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json(
-      { message: 'Email verified successfully' },
+      { 
+        success: true,
+        message: 'Email verified successfully' 
+      },
       { status: 200 }
     );
   } catch (error) {
     if (error instanceof z.ZodError) {
       console.error('Validation error:', error.errors);
-      return NextResponse.json({ message: error.errors[0].message }, { status: 400 });
+      return NextResponse.json({ 
+        error: error.errors[0].message,
+        message: error.errors[0].message 
+      }, { status: 400 });
     }
 
     console.error('Email verification error:', error);
@@ -63,7 +72,10 @@ export async function POST(request: NextRequest) {
       : 'An error occurred during email verification';
       
     return NextResponse.json(
-      { message: errorMessage },
+      { 
+        error: errorMessage,
+        message: errorMessage 
+      },
       { status: 500 }
     );
   }

@@ -7,9 +7,9 @@ require('dotenv').config();
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
 async function createUserDirect() {
-  const email = 'jdarsinos1@gmail.com';
-  const password = 'Pleasework123!';
-  const name = 'Jesse Darsinos';
+  const email = 'test@example.com';
+  const password = 'Password123!';
+  const name = 'Test User';
   
   // Hash the password
   const hashedPassword = await bcrypt.hash(password, 12);

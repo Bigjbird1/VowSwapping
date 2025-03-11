@@ -15,3 +15,38 @@ Pushing Prisma schema to database...
 Environment variables loaded from .env
 Prisma schema loaded from prisma/schema.prisma
 Datasource "db": PostgreSQL database "postgres", schema "test_test_1741629320141_d4f9ci4n" at "aws-0-us-east-1.pooler.supabase.com:6543"
+
+Error: P1017: Server has closed the connection.
+Error pushing Prisma schema: Error: Command failed: npx prisma db push --skip-generate
+    at checkExecSyncError (node:child_process:890:11)
+    at execSync (node:child_process:962:15)
+    at pushPrismaSchema (/Users/jessedarsinos/VowSwapping/test-connection-fix.js:151:5)
+    at main (/Users/jessedarsinos/VowSwapping/test-connection-fix.js:303:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5) {
+  status: 1,
+  signal: null,
+  output: [ null, null, null ],
+  pid: 37857,
+  stdout: null,
+  stderr: null
+}
+Database connection test failed: Error: Command failed: npx prisma db push --skip-generate
+    at checkExecSyncError (node:child_process:890:11)
+    at execSync (node:child_process:962:15)
+    at pushPrismaSchema (/Users/jessedarsinos/VowSwapping/test-connection-fix.js:151:5)
+    at main (/Users/jessedarsinos/VowSwapping/test-connection-fix.js:303:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5) {
+  status: 1,
+  signal: null,
+  output: [ null, null, null ],
+  pid: 37857,
+  stdout: null,
+  stderr: null
+}
+Cleaning up test resources...
+Removed temporary .env.test file
+Connected to database for cleanup
+Dropped schema test_test_1741629320141_d4f9ci4n
+Closed cleanup connection
+[0;31m✗ Database connection failed[0m
+See test-output-detailed-improved.log for details

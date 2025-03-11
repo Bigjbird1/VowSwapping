@@ -56,40 +56,62 @@ export async function rateLimit(req, res, options = {}) {
   const resetTime = rateData.reset;
   
   // Set rate limit headers - ensure compatibility with both Next.js and node-mocks-http
+  const resetTimeSeconds = Math.ceil(resetTime / 1000);
+  
+  // For Next.js Response objects
   if (typeof res.setHeader === 'function') {
-    res.setHeader('x-ratelimit-limit', limit);
-    res.setHeader('x-ratelimit-remaining', remaining);
-    res.setHeader('x-ratelimit-reset', Math.ceil(resetTime / 1000));
+    res.setHeader('X-RateLimit-Limit', limit);
+    res.setHeader('X-RateLimit-Remaining', remaining);
+    res.setHeader('X-RateLimit-Reset', resetTimeSeconds);
   } 
   
-  // For test environments using node-mocks-http
-  // Ensure headers object exists
-  res.headers = res.headers || {};
-  res._headers = res._headers || {};
+  // For node-mocks-http Response objects
+  if (res._headers) {
+    res._headers['x-ratelimit-limit'] = limit;
+    res._headers['x-ratelimit-remaining'] = remaining;
+    res._headers['x-ratelimit-reset'] = resetTimeSeconds;
+  }
   
-  // Set headers in all possible locations to ensure compatibility
-  res.headers['x-ratelimit-limit'] = limit;
-  res.headers['x-ratelimit-remaining'] = remaining;
-  res.headers['x-ratelimit-reset'] = Math.ceil(resetTime / 1000);
+  // For httpMocks Response objects
+  if (typeof res.header === 'function') {
+    res.header('X-RateLimit-Limit', limit);
+    res.header('X-RateLimit-Remaining', remaining);
+    res.header('X-RateLimit-Reset', resetTimeSeconds);
+  }
   
-  // Also set in _headers for some test environments
-  res._headers['x-ratelimit-limit'] = limit;
-  res._headers['x-ratelimit-remaining'] = remaining;
-  res._headers['x-ratelimit-reset'] = Math.ceil(resetTime / 1000);
+  // For node-mocks-http with _getHeaders method
+  if (typeof res._getHeaders === 'function') {
+    const headers = res._getHeaders() || {};
+    headers['x-ratelimit-limit'] = limit;
+    headers['x-ratelimit-remaining'] = remaining;
+    headers['x-ratelimit-reset'] = resetTimeSeconds;
+  }
   
   // If the rate limit is exceeded, throw an error
   if (rateData.count > limit) {
     // Set retry-after header
     const retryAfter = Math.ceil((resetTime - now) / 1000);
+    
+    // For Next.js Response objects
     if (typeof res.setHeader === 'function') {
-      res.setHeader('retry-after', retryAfter);
+      res.setHeader('Retry-After', retryAfter);
     }
     
-    // Set in all possible header locations for test environments
-    res.headers = res.headers || {};
-    res._headers = res._headers || {};
-    res.headers['retry-after'] = retryAfter;
-    res._headers['retry-after'] = retryAfter;
+    // For node-mocks-http Response objects
+    if (res._headers) {
+      res._headers['retry-after'] = retryAfter;
+    }
+    
+    // For httpMocks Response objects
+    if (typeof res.header === 'function') {
+      res.header('Retry-After', retryAfter);
+    }
+    
+    // For node-mocks-http with _getHeaders method
+    if (typeof res._getHeaders === 'function') {
+      const headers = res._getHeaders() || {};
+      headers['retry-after'] = retryAfter;
+    }
     
     // Throw rate limit error
     const error = new Error('Too many requests');
@@ -145,7 +167,8 @@ export function withRateLimit(handler, options = {}) {
       if (error.status === 429) {
         return res.status(429).json({
           error: 'Too many requests',
-          message: 'Rate limit exceeded. Please try again later.',
+          message: 'Too many requests',
+          type: 'RATE_LIMIT',
         });
       }
       
