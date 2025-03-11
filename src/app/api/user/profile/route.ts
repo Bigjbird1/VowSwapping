@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
 
     if (!session || !session.user) {
       return NextResponse.json(
-        { error: 'You must be logged in to view your profile' },
+        { error: 'Not authenticated' }, 
         { status: 401 }
       );
     }
@@ -42,8 +42,25 @@ export async function GET(request: NextRequest) {
     }
 
     return NextResponse.json({ user }, { status: 200 });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Profile fetch error:', error);
+
+    // Handle session expiration errors
+    if (error.message.includes('Session expired')) {
+      return NextResponse.json(
+        { error: 'Session expired. Please login again' },
+        { status: 401 }
+      );
+    }
+
+    // Existing database error handling
+    if (error.code === 'P2024') {
+      return NextResponse.json(
+        { error: 'Database timeout. Please try again later.' },
+        { status: 500 }
+      );
+    }
+
     return NextResponse.json(
       { error: 'An error occurred while fetching your profile' },
       { status: 500 }
@@ -85,12 +102,20 @@ export async function PUT(request: NextRequest) {
       },
       { status: 200 }
     );
-  } catch (error) {
+  } catch (error: any) {
     if (error instanceof z.ZodError) {
       return NextResponse.json({ message: error.errors[0].message }, { status: 400 });
     }
 
     console.error('Profile update error:', error);
+
+    if (error.code === 'P2024') {
+      return NextResponse.json(
+        { message: 'Database timeout. Please try again later.' },
+        { status: 500 }
+      );
+    }
+
     return NextResponse.json(
       { message: 'An error occurred while updating your profile' },
       { status: 500 }

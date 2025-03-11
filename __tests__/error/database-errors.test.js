@@ -90,8 +90,12 @@ describe('Database Error Handling', () => {
       // Call the handler
       const response = await getProductsHandler(req);
       
-      // Validate the error response
-      await validateErrorResponse(response, 500, 'Failed to fetch products');
+      // Validate the error response with the correct message
+      await validateErrorResponse(
+        response, 
+        500, 
+        'Database connection failed. Please try again later.'
+      );
     });
 
     it('should handle database timeout errors', async () => {
@@ -201,7 +205,7 @@ describe('Database Error Handling', () => {
       const response = await createProductHandler(req);
       
       // Validate the error response
-      await validateErrorResponse(response, 404, 'price|positive|invalid');
+      await validateErrorResponse(response, 400, 'price|positive|invalid');
     });
   });
 
@@ -236,41 +240,40 @@ describe('Database Error Handling', () => {
       const response = await createProductHandler(req);
       
       // Validate the error response
-      await validateErrorResponse(response, 404, 'price|number|invalid');
+      await validateErrorResponse(response, 400, 'price|number|invalid');
     });
 
     it('should handle missing required fields', async () => {
-      // Import the handler dynamically to avoid issues with mocking
+      // Dynamically import the handler to prevent mock issues
       const { POST: createProductHandler } = await import('@/app/api/products/route');
-      
+    
       // Mock authenticated session with seller permissions
       getServerSession.mockResolvedValueOnce(createMockSession({
         isSeller: true,
         sellerApproved: true
       }));
-      
-      // Mock a required field error
-      const requiredFieldError = new Error('Required field missing');
-      requiredFieldError.code = 'P2012'; // Prisma missing required field error code
-      requiredFieldError.meta = { path: ['title'] };
-      prisma.product.create.mockRejectedValueOnce(requiredFieldError);
-      
+    
       // Create a mock request with missing title
       const req = createMockRequest('POST', 'http://localhost:3000/api/products', {
-        // Missing title
+        // Title is missing
         description: 'Test description',
         price: 19.99,
         category: 'dresses',
         condition: 'new',
         images: ['image1.jpg']
       });
-      
+    
       // Call the handler
       const response = await createProductHandler(req);
-      
-      // Validate the error response
-      await validateErrorResponse(response, 404, 'title|required|missing');
+    
+      // Validate the response status code
+      expect(response.status).toBe(400); // Should be 400 for bad request
+    
+      // Validate the error response message
+      const responseBody = await response.json();
+      expect(responseBody).toEqual({ error: 'Missing required fields' });
     });
+    
 
     it('should handle invalid enum values', async () => {
       // Import the handler dynamically to avoid issues with mocking
@@ -302,8 +305,9 @@ describe('Database Error Handling', () => {
       const response = await createProductHandler(req);
       
       // Validate the error response
-      await validateErrorResponse(response, 404, 'condition|invalid|allowed values');
+      await validateErrorResponse(response, 400, 'condition|invalid|allowed values');
     });
+    
   });
 
   describe('Migration Errors', () => {

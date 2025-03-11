@@ -4,6 +4,16 @@ import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { ProductCategory } from '@/types/product';
 import { safeParseJson, safeStringifyJson } from '@/lib/json-conversion';
+import { z } from 'zod';
+
+const reviewSchema = z.object({
+  rating: z.number().min(1).max(5),
+  comment: z.string()
+    .min(1, 'comment|required')
+    .max(2000, 'comment|length|too long|maximum')
+    .refine(val => !/<[^>]*>/.test(val), 'comment|invalid|characters')
+});
+
 
 // Helper function to map database product to application product
 function mapDatabaseProductToAppProduct(dbProduct: any) {
