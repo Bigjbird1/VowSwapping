@@ -1,12 +1,12 @@
 'use client';
 
 import { useSession } from 'next-auth/react';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useAuthStore } from '@/store/authStore';
 import { Session } from 'next-auth';
 
 export default function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [error, setError] = useState<Error | null>(null);
+  const errorRef = useRef<Error | null>(null);
   const { setUser, setLoading, setError: setAuthStoreError } = useAuthStore();
   
   // Wrap useSession in try-catch to prevent rendering crashes
@@ -20,7 +20,7 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
   } catch (err) {
     // If useSession throws, capture the error and set a fallback status
     const sessionError = err instanceof Error ? err : new Error('Unknown session error');
-    setError(sessionError);
+    errorRef.current = sessionError;
     console.error('Session error:', sessionError);
     sessionStatus = 'unauthenticated';
   }
@@ -35,8 +35,10 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
       }
       
       // If there was an error, update the auth store
-      if (error) {
-        setAuthStoreError(error.message);
+      if (errorRef.current) {
+        setAuthStoreError(errorRef.current.message);
+        // Clear the error after handling it
+        errorRef.current = null;
       }
     } catch (err) {
       // Handle any errors in the effect itself
@@ -45,10 +47,10 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
       setUser(null);
       
       const effectError = err instanceof Error ? err : new Error('Unknown auth effect error');
-      setError(effectError);
+      errorRef.current = effectError;
       setAuthStoreError(effectError.message);
     }
-  }, [sessionData, sessionStatus, setUser, setLoading, setAuthStoreError, error]);
+  }, [sessionData, sessionStatus, setUser, setLoading, setAuthStoreError]);
 
   // If there was a critical error that prevents rendering, we could show a fallback UI
   // For now, we'll just continue rendering children since we've handled the error

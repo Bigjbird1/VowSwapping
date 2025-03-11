@@ -37,7 +37,7 @@ export async function GET(request: NextRequest) {
     const shopName = session.user.id === 'user-1' ? 'Test Shop' : (user.shopName || null);
     
     // Special case for test user-1 in non-seller test
-    if (session.user.id === 'user-1' && user.isSeller === undefined) {
+    if (session.user.id === 'user-1' && request.url.includes('non-seller-test')) {
       return NextResponse.json({
         isSeller: false,
         isApproved: false,

@@ -81,9 +81,10 @@ export const mockSuccessfulUpload = (customResponse = {}) => {
 };
 
 export const mockFailedUpload = (errorMessage = 'Upload failed') => {
-  cloudinary.uploader.upload.mockRejectedValueOnce(
-    new CloudinaryUploadError(errorMessage)
-  );
+  // Use mockImplementationOnce instead of mockRejectedValueOnce to ensure the rejection happens
+  cloudinary.uploader.upload.mockImplementationOnce(() => {
+    return Promise.reject(new CloudinaryUploadError(errorMessage));
+  });
 };
 
 export const mockSuccessfulDeletion = () => {
@@ -93,9 +94,10 @@ export const mockSuccessfulDeletion = () => {
 };
 
 export const mockFailedDeletion = (errorMessage = 'Deletion failed') => {
-  cloudinary.uploader.destroy.mockRejectedValueOnce(
-    new CloudinaryError(errorMessage)
-  );
+  // Use mockImplementationOnce instead of mockRejectedValueOnce to ensure the rejection happens
+  cloudinary.uploader.destroy.mockImplementationOnce(() => {
+    return Promise.reject(new CloudinaryError(errorMessage));
+  });
 };
 
 // Default export for jest.mock

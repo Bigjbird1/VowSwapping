@@ -3,7 +3,7 @@
  */
 
 // Mock transporter object
-const mockTransporter = {
+export const mockTransporter = {
   sendMail: jest.fn().mockResolvedValue({
     messageId: 'mock-message-id',
     envelope: {
@@ -20,7 +20,7 @@ const mockTransporter = {
 };
 
 // Mock createTransport function
-const createTransport = jest.fn().mockReturnValue(mockTransporter);
+export const createTransport = jest.fn().mockReturnValue(mockTransporter);
 
 // Helper functions to simulate different responses
 export const mockSuccessfulEmailSend = (customResponse = {}) => {

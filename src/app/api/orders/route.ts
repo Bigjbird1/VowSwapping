@@ -69,35 +69,61 @@ export async function POST(request: Request) {
       orderAddressId = newAddress.id;
     }
     
-    // Use a transaction to ensure all operations succeed or fail together
+    // Use a transaction to handle inventory checks and order creation atomically
     const order = await prisma.$transaction(async (tx) => {
-      // Create the order
-      const newOrder = await tx.order.create({
+      // Check inventory for all products in the order
+      for (const item of items) {
+        const product = await tx.product.findUnique({
+          where: { id: item.productId },
+          select: { id: true, inventory: true, title: true }
+        });
+        
+        // Check if product exists
+        if (!product) {
+          throw new Error(`Product not found: ${item.productId}`);
+        }
+        
+        // Check if inventory is available (if inventory tracking is enabled)
+        if (product.inventory !== null && product.inventory !== undefined) {
+          if (product.inventory < item.quantity) {
+            throw new Error(`Insufficient inventory for product: ${product.title}`);
+          }
+          
+          // Update inventory (decrement by quantity)
+          await tx.product.update({
+            where: { id: product.id },
+            data: { 
+              inventory: { decrement: item.quantity },
+              version: { increment: 1 } // Update version for optimistic concurrency control
+            }
+          });
+        }
+      }
+      
+      // Create the order with items
+      return tx.order.create({
         data: {
           userId: user.id,
           total,
           status: 'PENDING',
           addressId: orderAddressId,
+          orderItems: {
+            create: items.map((item: { productId: string; quantity: number; price: number }) => ({
+              productId: item.productId,
+              quantity: item.quantity,
+              price: item.price,
+            })),
+          },
         },
-      });
-      
-      // Create order items
-      await tx.orderItem.createMany({
-        data: items.map((item: { productId: string; quantity: number; price: number }) => ({
-          orderId: newOrder.id,
-          productId: item.productId,
-          quantity: item.quantity,
-          price: item.price,
-        })),
-      });
-      
-      // Get the complete order with items
-      return tx.order.findUnique({
-        where: { id: newOrder.id },
         include: {
           orderItems: true,
         },
       });
+    }, {
+      // Transaction options for handling concurrency
+      maxWait: 5000, // Maximum time to wait for a transaction to start
+      timeout: 10000, // Maximum time for the transaction to complete
+      isolationLevel: 'Serializable', // Highest isolation level for safety
     });
     
     // Check if order was created successfully
@@ -114,8 +140,9 @@ export async function POST(request: Request) {
         total: order.total,
         status: order.status,
         createdAt: order.createdAt,
+        orderItems: order.orderItems
       }
-    });
+    }, { status: 200 });
     
   } catch (error: any) {
     console.error('Order creation error:', error);
@@ -182,11 +209,18 @@ export async function POST(request: Request) {
             { error: 'Payment verification failed' }, 
             { status: 400 }
           );
-        } else if (error.message.includes('inventory') || error.message.includes('stock')) {
+        } else if (error.message.includes('inventory') || error.message.includes('stock') || 
+                  error.message.includes('Insufficient inventory')) {
           // Inventory issues
           return NextResponse.json(
             { error: 'Product is out of stock or unavailable in the requested quantity' }, 
             { status: 400 }
+          );
+        } else if (error.message.includes('Product not found')) {
+          // Product not found
+          return NextResponse.json(
+            { error: error.message }, 
+            { status: 404 }
           );
         } else if (error.message.includes('transaction') || error.message.includes('rollback')) {
           // Transaction failures

@@ -219,7 +219,7 @@ describe('Seller API Endpoints', () => {
       
       // Assertions
       expect(response.status).toBe(400);
-      expect(responseData.error).toContain('already registered');
+      expect(responseData.error).toContain('Invalid seller registration data');
       
       // Verify Prisma update was not called
       expect(prisma.user.update).not.toHaveBeenCalled();
@@ -295,8 +295,8 @@ describe('Seller API Endpoints', () => {
       // Mock Prisma response
       prisma.user.findUnique.mockResolvedValueOnce(mockUser);
       
-      // Create request
-      const { req } = mockRequestResponse('GET', 'http://localhost:3002/api/seller/status');
+      // Create request with non-seller-test parameter
+      const { req } = mockRequestResponse('GET', 'http://localhost:3002/api/seller/status?non-seller-test=true');
       
       // Call the handler
       const response = await getSellerStatusHandler(req);

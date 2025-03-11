@@ -28,6 +28,7 @@ model User {
   sessions          Session[]
   products          Product[]
   wishlists         Wishlist[]
+  version           Int       @default(1) // For optimistic concurrency control
   
   // Seller fields
   isSeller          Boolean   @default(false)
@@ -102,6 +103,8 @@ model Product {
   reviews       Review[]
   wishlists     Wishlist[]
   approved      Boolean  @default(false)
+  version       Int      @default(1) // For optimistic concurrency control
+  inventory     Int?     // Optional inventory tracking
 }
 
 // NextAuth.js Models

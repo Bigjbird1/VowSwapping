@@ -63,8 +63,8 @@ export async function POST(request: NextRequest) {
         
         return NextResponse.json(
           { 
-            error: `already registered`,
-            message: message
+            error: `already registered as a seller`,
+            message: `already registered: ${message}`
           },
           { status: 400 }
         );
