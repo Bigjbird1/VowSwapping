@@ -13,7 +13,19 @@ export async function POST(request: Request) {
   
   try {
     const data = await request.json();
-    const { items, addressId, address } = data;
+    const { items, addressId, address, deliveryDate } = data;
+
+    // Validate deliveryDate format
+    if (deliveryDate) {
+      const parsedDate = new Date(deliveryDate);
+      if (isNaN(parsedDate.getTime())) {
+        return NextResponse.json(
+          { error: 'deliveryDate|invalid|format' }, 
+          { status: 400 }
+        );
+      }
+      data.deliveryDate = parsedDate; // Ensure Date object
+    }
     
     if (!items || !items.length) {
       return NextResponse.json({ error: 'No items in order' }, { status: 400 });

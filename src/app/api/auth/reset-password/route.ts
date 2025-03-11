@@ -25,7 +25,10 @@ export async function POST(request: NextRequest) {
 
     if (!user) {
       return NextResponse.json(
-        { message: 'Invalid or expired reset token' },
+        { 
+          error: 'Invalid or expired reset token',
+          message: 'Invalid or expired reset token' 
+        },
         { status: 400 }
       );
     }
@@ -44,17 +47,26 @@ export async function POST(request: NextRequest) {
     });
 
     return NextResponse.json(
-      { message: 'Password reset successfully' },
+      { 
+        success: true,
+        message: 'Password reset successfully' 
+      },
       { status: 200 }
     );
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return NextResponse.json({ message: error.errors[0].message }, { status: 400 });
+      return NextResponse.json({ 
+        error: error.errors[0].message,
+        message: error.errors[0].message 
+      }, { status: 400 });
     }
 
     console.error('Password reset error:', error);
     return NextResponse.json(
-      { message: 'An error occurred during password reset' },
+      { 
+        error: 'An error occurred during password reset',
+        message: 'An error occurred during password reset' 
+      },
       { status: 500 }
     );
   }

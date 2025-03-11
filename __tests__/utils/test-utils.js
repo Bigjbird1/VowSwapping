@@ -15,11 +15,15 @@ import { NextRequest, NextResponse } from 'next/server';
 export function createMockRequest(method, url, body = null, headers = {}) {
   const options = {
     method,
-    headers: new Headers(headers)
+    headers: { ...headers } // Pass headers as plain object instead of Headers instance
   };
 
   if (body) {
     options.body = JSON.stringify(body);
+    // Only set Content-Type if not already specified
+    if (!options.headers['Content-Type']) {
+      options.headers['Content-Type'] = 'application/json';
+    }
   }
 
   return new NextRequest(url, options);

@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
 
     if (!user || !user.password) {
       return NextResponse.json(
-        { message: 'Invalid credentials' },
+        { error: 'invalid credentials' }, // Lowercase message
         { status: 401 }
       );
     }
@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
     const isPasswordValid = await verifyPassword(validatedData.password, user.password);
     if (!isPasswordValid) {
       return NextResponse.json(
-        { message: 'Invalid credentials' },
+        { error: 'invalid credentials' }, // Lowercase message
         { status: 401 }
       );
     }

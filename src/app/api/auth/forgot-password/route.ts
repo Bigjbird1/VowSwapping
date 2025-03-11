@@ -21,7 +21,10 @@ export async function POST(request: NextRequest) {
     // If user doesn't exist, still return success to prevent email enumeration
     if (!user) {
       return NextResponse.json(
-        { message: 'If your email is registered, you will receive a password reset link' },
+        { 
+          success: true,
+          message: 'If your email is registered, you will receive a password reset link' 
+        },
         { status: 200 }
       );
     }
@@ -43,17 +46,26 @@ export async function POST(request: NextRequest) {
     await sendPasswordResetEmail(user.email, resetToken);
 
     return NextResponse.json(
-      { message: 'If your email is registered, you will receive a password reset link' },
+      { 
+        success: true,
+        message: 'If your email is registered, you will receive a password reset link' 
+      },
       { status: 200 }
     );
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return NextResponse.json({ message: error.errors[0].message }, { status: 400 });
+      return NextResponse.json({ 
+        error: error.errors[0].message,
+        message: error.errors[0].message 
+      }, { status: 400 });
     }
 
     console.error('Forgot password error:', error);
     return NextResponse.json(
-      { message: 'An error occurred while processing your request' },
+      { 
+        error: 'An error occurred while processing your request',
+        message: 'An error occurred while processing your request' 
+      },
       { status: 500 }
     );
   }

@@ -5,7 +5,9 @@ import { generateToken, hashPassword } from '@/lib/auth';
 import nodemailer from 'nodemailer';
 
 const registerSchema = z.object({
-  name: z.string().min(2, 'Name must be at least 2 characters'),
+  name: z.string()
+    .min(2, 'name|length|too short|minimum')
+    .max(255, 'name|length|too long|maximum'),
   email: z.string().email('Please enter a valid email address'),
   password: z.string().min(8, 'Password must be at least 8 characters'),
 });
@@ -27,7 +29,10 @@ export async function POST(request: NextRequest) {
     if (existingUser) {
       console.log('User already exists:', validatedData.email);
       return NextResponse.json(
-        { error: 'User with this email already exists' },
+        { 
+          error: 'User with this email already exists',
+          message: 'User with this email already exists'
+        },
         { status: 400 }
       );
     }
@@ -72,6 +77,7 @@ export async function POST(request: NextRequest) {
 
       return NextResponse.json(
         { 
+          success: true,
           message: 'User registered successfully. Please verify your email.',
           userId: user.id,
           development: process.env.NODE_ENV !== 'production',
@@ -88,28 +94,40 @@ export async function POST(request: NextRequest) {
           // Unique constraint violation
           case 'P2002':
           return NextResponse.json(
-            { error: `User with this ${dbError.meta?.target || 'property'} already exists` }, 
+            { 
+              error: `User with this ${dbError.meta?.target || 'property'} already exists`,
+              message: `User with this ${dbError.meta?.target || 'property'} already exists`
+            }, 
             { status: 400 }
           );
             
           // Required field missing
           case 'P2012':
           return NextResponse.json(
-            { error: `Missing required field: ${dbError.meta?.path || 'unknown'}` }, 
+            { 
+              error: `Missing required field: ${dbError.meta?.path || 'unknown'}`,
+              message: `Missing required field: ${dbError.meta?.path || 'unknown'}`
+            }, 
             { status: 400 }
           );
             
           // Database timeout
           case 'P2024':
           return NextResponse.json(
-            { error: 'Database operation timed out. Please try again.' }, 
+            { 
+              error: 'Database operation timed out. Please try again.',
+              message: 'Database operation timed out. Please try again.'
+            }, 
             { status: 500 }
           );
             
           // Default case for other Prisma errors
           default:
           return NextResponse.json(
-            { error: 'Database error. Please try again later.' }, 
+            { 
+              error: 'Database error. Please try again later.',
+              message: 'Database error. Please try again later.'
+            }, 
             { status: 500 }
           );
         }
@@ -120,7 +138,10 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     if (error instanceof z.ZodError) {
       console.error('Validation error:', error.errors);
-      return NextResponse.json({ error: error.errors[0].message }, { status: 400 });
+      return NextResponse.json({ 
+        error: error.errors[0].message,
+        message: error.errors[0].message
+      }, { status: 400 });
     }
 
     console.error('Registration error:', error);
@@ -130,7 +151,10 @@ export async function POST(request: NextRequest) {
       : 'An error occurred during registration';
     
     return NextResponse.json(
-      { error: errorMessage },
+      { 
+        error: errorMessage,
+        message: errorMessage
+      },
       { status: 500 }
     );
   }
