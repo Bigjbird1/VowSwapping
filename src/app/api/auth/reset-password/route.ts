@@ -13,22 +13,25 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const validatedData = resetPasswordSchema.parse(body);
 
-    // Find user with the reset token
+    // Find user with valid reset token and include password history
     const user = await prisma.user.findFirst({
       where: {
         resetToken: validatedData.token,
-        resetTokenExpiry: {
-          gt: new Date(),
-        },
+        resetTokenExpiry: { gt: new Date() }
       },
+      select: {
+        id: true,
+        password: true,
+        passwordHistory: true
+      }
     });
 
     if (!user) {
       return NextResponse.json(
         { 
           error: 'Invalid or expired reset token',
-          message: 'Invalid or expired reset token' 
-        },
+          message: 'Invalid or expired reset token'
+        }, 
         { status: 400 }
       );
     }
@@ -36,21 +39,34 @@ export async function POST(request: NextRequest) {
     // Hash new password
     const hashedPassword = await hashPassword(validatedData.password);
 
-    // Update user with new password and clear reset token
+     // Check against all previous passwords (case-sensitive exact match)
+     const isPasswordUsed = user.passwordHistory?.some(
+      prevHash => prevHash === hashedPassword
+    );
+
+    if (isPasswordUsed) {
+      return NextResponse.json(
+        { error: 'Password previously used. Please choose a new password.' },
+        { status: 400 }
+      );
+    }
+
+    // Update password and maintain history
     await prisma.user.update({
-      where: { id: user.id },
-      data: {
-        password: hashedPassword,
-        resetToken: null,
-        resetTokenExpiry: null,
+    where: { id: user.id },
+    data: {
+      password: hashedPassword,
+      passwordHistory: {
+        // Handle null/undefined case and ensure array type
+        set: [...(user.passwordHistory || []), hashedPassword].slice(-5)
       },
-    });
+      resetToken: null,
+      resetTokenExpiry: null
+    }
+  });
 
     return NextResponse.json(
-      { 
-        success: true,
-        message: 'Password reset successfully' 
-      },
+      { success: true, message: 'Password reset successfully' },
       { status: 200 }
     );
   } catch (error) {

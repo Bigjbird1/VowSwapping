@@ -116,7 +116,7 @@ describe('Concurrency Handling', () => {
         // Second update should fail due to version mismatch
         if (updateCalled === 2) {
           const error = new Error('Version conflict');
-          error.code = 'P2034'; // Prisma error code for constraint violation
+          error.code = 'P2025'; // Corrected error code
           return Promise.reject(error);
         }
         

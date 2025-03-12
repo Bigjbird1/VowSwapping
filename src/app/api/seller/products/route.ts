@@ -89,11 +89,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'User is not a seller' }, { status: 403 });
     }
     
+ 
     if (!user.sellerApproved) {
-      return NextResponse.json({ error: 'Seller is not approved yet' }, { status: 403 });
+      return NextResponse.json(
+        { error: 'Seller account not approved yet. Please wait for approval.' }, 
+        { status: 403 }
+      );
     }
     
-    // Parse and validate request body
     const data = await request.json();
     const validationResult = productSchema.safeParse(data);
     

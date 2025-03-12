@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { z } from 'zod';
+import sanitizeHtml from 'sanitize-html';
 
 // Schema for review creation
 const reviewSchema = z.object({
@@ -58,7 +59,6 @@ export async function POST(
   try {
     const session = await getServerSession(authOptions);
 
-    // Check if user is authenticated
     if (!session || !session.user) {
       return NextResponse.json(
         { error: 'You must be logged in to leave a review' },
@@ -67,20 +67,12 @@ export async function POST(
     }
 
     const productId = params.id;
-
-    // Check if product exists
-    const product = await prisma.product.findUnique({
-      where: { id: productId },
-    });
+    const product = await prisma.product.findUnique({ where: { id: productId } });
 
     if (!product) {
-      return NextResponse.json(
-        { error: 'Product not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'Product not found' }, { status: 404 });
     }
 
-    // Parse and validate request body
     const body = await request.json();
     const validationResult = reviewSchema.safeParse(body);
 
@@ -91,14 +83,18 @@ export async function POST(
       );
     }
 
-    const { rating, comment } = validationResult.data;
+    let { rating, comment } = validationResult.data;
 
-    // Check if user has already reviewed this product
+    // Ensure comment is properly sanitized before saving
+    const sanitizedComment = comment ? sanitizeHtml(comment, {
+      allowedTags: [],
+      allowedAttributes: {},
+      textFilter: (text) => text.replace(/</g, '&lt;') // Additional safeguard
+    }) : '';
+
+
     const existingReview = await prisma.review.findFirst({
-      where: {
-        productId,
-        reviewerId: session.user.id,
-      },
+      where: { productId, reviewerId: session.user.id },
     });
 
     if (existingReview) {
@@ -108,11 +104,10 @@ export async function POST(
       );
     }
 
-    // Create the review
     const review = await prisma.review.create({
       data: {
         rating,
-        comment,
+        comment: sanitizedComment, // Ensure sanitized comment is stored
         productId,
         reviewerId: session.user.id,
         reviewerName: session.user.name || 'Anonymous',
@@ -128,3 +123,5 @@ export async function POST(
     );
   }
 }
+
+

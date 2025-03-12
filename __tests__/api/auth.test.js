@@ -340,26 +340,25 @@ describe('Auth API Routes', () => {
   });
   
   describe('Reset Password API', () => {
+    // Updated test cases for the Reset Password API
     it('should reset password with valid token', async () => {
-      // Mock verification token exists
-      prisma.verificationToken.findUnique.mockResolvedValueOnce({
-        identifier: 'test@example.com',
-        token: 'valid-reset-token',
-        expires: new Date(Date.now() + 3600000), // Not expired
-      });
-      
-      // Mock user exists
-      prisma.user.findUnique.mockResolvedValueOnce({
+      // Mock user with valid reset token
+      const mockUser = {
         id: 'user-1',
         email: 'test@example.com',
-      });
-      
-      // Mock successful user update
+        resetToken: 'valid-reset-token',
+        resetTokenExpiry: new Date(Date.now() + 3600000), // Not expired
+        password: 'oldHash',
+        passwordHistory: [],
+      };
+
+      prisma.user.findFirst.mockResolvedValueOnce(mockUser);
       prisma.user.update.mockResolvedValueOnce({
-        id: 'user-1',
-        email: 'test@example.com',
+        ...mockUser,
+        password: 'newHash',
+        passwordHistory: ['oldHash', 'newHash'],
       });
-      
+
       const request = new NextRequest('http://localhost:3000/api/auth/reset-password', {
         method: 'POST',
         body: JSON.stringify({
@@ -367,25 +366,22 @@ describe('Auth API Routes', () => {
           password: 'NewPassword123!',
         }),
       });
-      
+
       const response = await resetPasswordHandler(request);
       const responseData = await response.json();
-      
-      // The API is returning 400 for this test case, so we'll adjust our expectations
-      expect(response.status).toBe(400);
-      expect(responseData).toEqual(
-        expect.objectContaining({
-          message: expect.stringContaining('Invalid'),
-        })
-      );
-      
-      // Since the token is invalid, these operations won't be performed
+
+      expect(response.status).toBe(200);
+      expect(responseData).toEqual({
+        success: true,
+        message: 'Password reset successfully',
+      });
+      expect(prisma.user.update).toHaveBeenCalled();
     });
-    
+
     it('should reject password reset with invalid token', async () => {
-      // Mock verification token doesn't exist
-      prisma.verificationToken.findUnique.mockResolvedValueOnce(null);
-      
+      // Mock no user found with the token
+      prisma.user.findFirst.mockResolvedValueOnce(null);
+
       const request = new NextRequest('http://localhost:3000/api/auth/reset-password', {
         method: 'POST',
         body: JSON.stringify({
@@ -393,29 +389,22 @@ describe('Auth API Routes', () => {
           password: 'NewPassword123!',
         }),
       });
-      
+
       const response = await resetPasswordHandler(request);
       const responseData = await response.json();
-      
+
       expect(response.status).toBe(400);
-      expect(responseData).toEqual(
-        expect.objectContaining({
-          message: expect.stringContaining('Invalid'),
-        })
-      );
-      
-      // Verify that user was not updated
+      expect(responseData).toEqual({
+        error: 'Invalid or expired reset token',
+        message: 'Invalid or expired reset token',
+      });
       expect(prisma.user.update).not.toHaveBeenCalled();
     });
-    
+
     it('should reject password reset with expired token', async () => {
-      // Mock verification token exists but is expired
-      prisma.verificationToken.findUnique.mockResolvedValueOnce({
-        identifier: 'test@example.com',
-        token: 'expired-token',
-        expires: new Date(Date.now() - 3600000), // Expired 1 hour ago
-      });
-      
+      // Mock user.findFirst returns null (expired token not found)
+      prisma.user.findFirst.mockResolvedValueOnce(null);
+
       const request = new NextRequest('http://localhost:3000/api/auth/reset-password', {
         method: 'POST',
         body: JSON.stringify({
@@ -423,21 +412,15 @@ describe('Auth API Routes', () => {
           password: 'NewPassword123!',
         }),
       });
-      
+
       const response = await resetPasswordHandler(request);
       const responseData = await response.json();
-      
+
       expect(response.status).toBe(400);
-      expect(responseData).toEqual(
-        expect.objectContaining({
-          message: expect.stringContaining('Invalid'),
-        })
-      );
-      
-      // In the actual implementation, the token might not be deleted in the test environment
-      // So we'll skip this assertion
-      
-      // Verify that user was not updated
+      expect(responseData).toEqual({
+        error: 'Invalid or expired reset token',
+        message: 'Invalid or expired reset token',
+      });
       expect(prisma.user.update).not.toHaveBeenCalled();
     });
     

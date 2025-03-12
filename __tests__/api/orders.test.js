@@ -26,6 +26,7 @@ jest.mock('@/lib/prisma', () => ({
     address: {
       create: jest.fn(),
     },
+    $transaction: jest.fn(), // Ensure this line exists
   },
 }));
 
@@ -182,43 +183,61 @@ describe('Order API Endpoints', () => {
           email: 'user@example.com'
         }
       });
-      
+    
       // Mock user data
       prisma.user.findUnique.mockResolvedValueOnce({
         id: 'user-1',
         email: 'user@example.com',
         name: 'Test User'
       });
-      
-      // Mock order creation
-      const mockCreatedOrder = {
+    
+      // Mock products with sufficient inventory
+      const mockProducts = {
+        'product-1': { id: 'product-1', inventory: 10, title: 'Product 1' },
+        'product-2': { id: 'product-2', inventory: 5, title: 'Product 2' }
+      };
+    
+      // Create external mock functions
+      const mockProductFindUnique = jest.fn(({ where }) => 
+        Promise.resolve(mockProducts[where.id])
+      );
+      const mockProductUpdate = jest.fn().mockResolvedValue({});
+      const mockOrderCreate = jest.fn().mockResolvedValue({
         id: 'new-order',
         userId: 'user-1',
         total: 249.98,
         status: 'PENDING',
-        createdAt: new Date(),
-        updatedAt: new Date(),
         addressId: 'address-1',
         orderItems: [
           {
             id: 'item-1',
-            orderId: 'new-order',
             productId: 'product-1',
             quantity: 2,
             price: 99.99
           },
           {
             id: 'item-2',
-            orderId: 'new-order',
             productId: 'product-2',
             quantity: 1,
             price: 50.00
           }
         ]
-      };
-      
-      prisma.order.create.mockResolvedValueOnce(mockCreatedOrder);
-      
+      });
+    
+      // Mock transaction implementation
+      prisma.$transaction.mockImplementation(async (callback) => {
+        const tx = {
+          product: {
+            findUnique: mockProductFindUnique,
+            update: mockProductUpdate
+          },
+          order: {
+            create: mockOrderCreate
+          }
+        };
+        return callback(tx);
+      });
+    
       // Create request with order data
       const orderData = {
         items: [
@@ -227,48 +246,74 @@ describe('Order API Endpoints', () => {
         ],
         addressId: 'address-1'
       };
-      
+    
       const { req } = mockRequestResponse('POST', 'http://localhost:3002/api/orders', orderData);
-      
+    
       // Call the handler
       const response = await createOrderHandler(req);
       const responseData = await response.json();
-      
+    
       // Assertions
       expect(response.status).toBe(200);
       expect(responseData.success).toBe(true);
       expect(responseData.order.id).toBe('new-order');
       expect(responseData.order.total).toBe(249.98);
-      
-      // Verify Prisma was called correctly
-      expect(prisma.order.create).toHaveBeenCalledWith(
-        expect.objectContaining({
-          data: expect.objectContaining({
-            userId: 'user-1',
-            total: 249.98,
-            status: 'PENDING',
-            addressId: 'address-1',
-            orderItems: {
-              create: expect.arrayContaining([
-                expect.objectContaining({
-                  productId: 'product-1',
-                  quantity: 2,
-                  price: 99.99
-                }),
-                expect.objectContaining({
-                  productId: 'product-2',
-                  quantity: 1,
-                  price: 50.00
-                })
-              ])
-            }
-          }),
-          include: {
-            orderItems: true
+    
+      // Verify inventory checks
+      expect(mockProductFindUnique).toHaveBeenCalledTimes(2);
+      expect(mockProductFindUnique).toHaveBeenCalledWith({
+        where: { id: 'product-1' },
+        select: { id: true, inventory: true, title: true }
+      });
+      expect(mockProductFindUnique).toHaveBeenCalledWith({
+        where: { id: 'product-2' },
+        select: { id: true, inventory: true, title: true }
+      });
+    
+      // Verify inventory updates
+      expect(mockProductUpdate).toHaveBeenCalledTimes(2);
+      expect(mockProductUpdate).toHaveBeenCalledWith({
+        where: { id: 'product-1' },
+        data: { 
+          inventory: { decrement: 2 },
+          version: { increment: 1 }
+        }
+      });
+      expect(mockProductUpdate).toHaveBeenCalledWith({
+        where: { id: 'product-2' },
+        data: { 
+          inventory: { decrement: 1 },
+          version: { increment: 1 }
+        }
+      });
+    
+      // Verify order creation
+      expect(mockOrderCreate).toHaveBeenCalledWith({
+        data: {
+          userId: 'user-1',
+          total: 249.98,
+          status: 'PENDING',
+          addressId: 'address-1',
+          orderItems: {
+            create: expect.arrayContaining([
+              expect.objectContaining({
+                productId: 'product-1',
+                quantity: 2,
+                price: 99.99
+              }),
+              expect.objectContaining({
+                productId: 'product-2',
+                quantity: 1,
+                price: 50.00
+              })
+            ])
           }
-        })
-      );
-      
+        },
+        include: {
+          orderItems: true
+        }
+      });
+    
       // Verify address creation was not called
       expect(prisma.address.create).not.toHaveBeenCalled();
     });
@@ -281,14 +326,14 @@ describe('Order API Endpoints', () => {
           email: 'user@example.com'
         }
       });
-      
+    
       // Mock user data
       prisma.user.findUnique.mockResolvedValueOnce({
         id: 'user-1',
         email: 'user@example.com',
         name: 'Test User'
       });
-      
+    
       // Mock address creation
       const mockCreatedAddress = {
         id: 'new-address',
@@ -301,38 +346,55 @@ describe('Order API Endpoints', () => {
         country: 'USA',
         isDefault: false
       };
-      
       prisma.address.create.mockResolvedValueOnce(mockCreatedAddress);
-      
-      // Mock order creation
-      const mockCreatedOrder = {
+    
+      // Mock products and transaction
+      const mockProducts = {
+        'product-1': { id: 'product-1', inventory: 10, title: 'Product 1' },
+        'product-2': { id: 'product-2', inventory: 5, title: 'Product 2' }
+      };
+    
+      // Create external mock functions
+      const mockProductFindUnique = jest.fn(({ where }) => 
+        Promise.resolve(mockProducts[where.id])
+      );
+      const mockProductUpdate = jest.fn().mockResolvedValue({});
+      const mockOrderCreate = jest.fn().mockResolvedValue({
         id: 'new-order',
         userId: 'user-1',
         total: 249.98,
         status: 'PENDING',
-        createdAt: new Date(),
-        updatedAt: new Date(),
         addressId: 'new-address',
         orderItems: [
           {
             id: 'item-1',
-            orderId: 'new-order',
             productId: 'product-1',
             quantity: 2,
             price: 99.99
           },
           {
             id: 'item-2',
-            orderId: 'new-order',
             productId: 'product-2',
             quantity: 1,
             price: 50.00
           }
         ]
-      };
-      
-      prisma.order.create.mockResolvedValueOnce(mockCreatedOrder);
-      
+      });
+    
+      // Mock transaction implementation
+      prisma.$transaction.mockImplementation(async (callback) => {
+        const tx = {
+          product: {
+            findUnique: mockProductFindUnique,
+            update: mockProductUpdate
+          },
+          order: {
+            create: mockOrderCreate
+          }
+        };
+        return callback(tx);
+      });
+    
       // Create request with order data and new address
       const orderData = {
         items: [
@@ -349,42 +411,69 @@ describe('Order API Endpoints', () => {
           saveAddress: true
         }
       };
-      
+    
       const { req } = mockRequestResponse('POST', 'http://localhost:3002/api/orders', orderData);
-      
+    
       // Call the handler
       const response = await createOrderHandler(req);
       const responseData = await response.json();
-      
+    
       // Assertions
       expect(response.status).toBe(200);
       expect(responseData.success).toBe(true);
       expect(responseData.order.id).toBe('new-order');
-      
-      // Verify address creation was called
-      expect(prisma.address.create).toHaveBeenCalledWith(
-        expect.objectContaining({
-          data: expect.objectContaining({
-            userId: 'user-1',
-            name: 'Home',
-            street: '123 Main St',
-            city: 'Anytown',
-            state: 'CA',
-            postalCode: '12345',
-            country: 'USA',
-            isDefault: false
-          })
-        })
-      );
-      
-      // Verify order creation was called with the new address ID
-      expect(prisma.order.create).toHaveBeenCalledWith(
-        expect.objectContaining({
-          data: expect.objectContaining({
-            addressId: 'new-address'
-          })
-        })
-      );
+    
+      // Verify address creation
+      expect(prisma.address.create).toHaveBeenCalledWith({
+        data: {
+          userId: 'user-1',
+          name: 'Home',
+          street: '123 Main St',
+          city: 'Anytown',
+          state: 'CA',
+          postalCode: '12345',
+          country: 'USA',
+          isDefault: false
+        }
+      });
+    
+      // Verify transaction operations
+      expect(mockProductFindUnique).toHaveBeenCalledTimes(2);
+      expect(mockOrderCreate).toHaveBeenCalledWith({
+        data: {
+          userId: 'user-1',
+          total: 249.98,
+          status: 'PENDING',
+          addressId: 'new-address',
+          orderItems: {
+            create: expect.arrayContaining([
+              expect.objectContaining({
+                productId: 'product-1',
+                quantity: 2,
+                price: 99.99
+              }),
+              expect.objectContaining({
+                productId: 'product-2',
+                quantity: 1,
+                price: 50.00
+              })
+            ])
+          }
+        },
+        include: {
+          orderItems: true
+        }
+      });
+    
+      // Verify inventory updates
+      expect(mockProductUpdate).toHaveBeenCalledTimes(2);
+      expect(mockProductUpdate).toHaveBeenCalledWith({
+        where: { id: 'product-1' },
+        data: { 
+          inventory: { decrement: 2 },
+          version: { increment: 1 }
+        }
+      });
     });
     
     it('should reject order creation when not authenticated', async () => {
@@ -458,8 +547,10 @@ describe('Order API Endpoints', () => {
         name: 'Test User'
       });
       
-      // Mock database error
-      prisma.order.create.mockRejectedValueOnce(new Error('Database error'));
+      // Correctly mock transaction to reject with database error
+      prisma.$transaction.mockImplementationOnce(() => 
+        Promise.reject(new Error('Database error'))
+      );
       
       // Create request with order data
       const orderData = {
@@ -477,7 +568,7 @@ describe('Order API Endpoints', () => {
       
       // Assertions
       expect(response.status).toBe(500);
-      expect(responseData.error).toContain('Failed to create order');
+      expect(responseData.error).toBe('Database connection failed. Please try again later.');
     });
   });
 });

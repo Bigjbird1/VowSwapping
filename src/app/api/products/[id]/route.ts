@@ -119,147 +119,76 @@ export async function PUT(
   request: Request,
   { params }: { params: { id: string } }
 ) {
-  // Check authentication
   const session = await getServerSession(authOptions);
-  
+
   if (!session?.user?.email) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
-  
+
   const id = params.id;
-  
+
   try {
     const data = await request.json();
     
-    // Get user
     const user = await prisma.user.findUnique({
       where: { email: session.user.email },
     });
-    
+
     if (!user) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
-    
-    // Check if product exists and belongs to the user
+
     const existingProduct = await prisma.product.findUnique({
       where: { id },
     });
-    
+
     if (!existingProduct) {
       return NextResponse.json({ error: 'Product not found' }, { status: 404 });
     }
-    
-    // Only allow the seller to update their own products
-    // In a real app, you might have admin roles that can update any product
+
     if (existingProduct.sellerId !== user.id) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
-    
-    // Prepare update data
-    const {
-      title,
-      description,
-      price,
-      discountPrice,
-      images,
-      category,
-      condition,
-      tags,
-      featured,
-    } = data;
-    
-    // Build update data object
-    const updateData: any = {};
-    
-    if (title !== undefined) updateData.title = title;
-    if (description !== undefined) updateData.description = description;
-    if (price !== undefined) updateData.price = parseFloat(price.toString());
-    if (discountPrice !== undefined) {
-      updateData.discountPrice = discountPrice ? parseFloat(discountPrice.toString()) : null;
+
+    if (data.version !== existingProduct.version) {
+      return NextResponse.json(
+        { error: 'Version conflict. The product has been modified by another request.' },
+        { status: 409 }
+      );
     }
-    if (images !== undefined) updateData.images = images;
-    if (category !== undefined) updateData.category = category.toUpperCase();
-    if (condition !== undefined) updateData.condition = condition.toUpperCase().replace('-', '_');
-    if (tags !== undefined) updateData.tags = tags;
-    if (featured !== undefined) updateData.featured = featured;
-    
-    // Update product using Prisma
+
+    const updateData: any = {
+      title: data.title,
+      price: parseFloat(data.price.toString()),
+      version: existingProduct.version + 1, // Increment version
+    };
+
     const updatedProduct = await prisma.product.update({
-      where: { id },
+      where: {
+        id,
+        version: data.version, // Ensure update only happens if version matches
+      },
       data: updateData,
     });
-    
-    return NextResponse.json({ 
-      success: true, 
-      product: mapDatabaseProductToAppProduct(updatedProduct) 
+
+    return NextResponse.json({
+      success: true,
+      product: updatedProduct,
     });
-    
+
   } catch (error: any) {
     console.error('Product update error:', error);
-    
-    // Handle specific Prisma errors
-    if (error.code) {
-      switch (error.code) {
-        // Unique constraint violation
-        case 'P2002':
-          return NextResponse.json(
-            { error: `A product with this ${error.meta?.target || 'property'} already exists` }, 
-            { status: 400 }
-          );
-          
-        // Foreign key constraint violation
-        case 'P2003':
-          return NextResponse.json(
-            { error: `Invalid reference: ${error.meta?.field_name || 'unknown field'}` }, 
-            { status: 400 }
-          );
-          
-        // Check constraint violation
-        case 'P2004':
-          return NextResponse.json(
-            { error: `Invalid value: ${error.meta?.constraint || 'constraint violation'}` }, 
-            { status: 400 }
-          );
-          
-        // Data type error
-        case 'P2006':
-          return NextResponse.json(
-            { error: `Invalid data type for ${error.meta?.target || 'field'}` }, 
-            { status: 400 }
-          );
-          
-        // Required field missing
-        case 'P2012':
-          return NextResponse.json(
-            { error: `Missing required field: ${error.meta?.path || 'unknown'}` }, 
-            { status: 400 }
-          );
-          
-        // Invalid enum value
-        case 'P2009':
-          return NextResponse.json(
-            { error: `Invalid value for ${error.meta?.field_name || 'field'}` }, 
-            { status: 400 }
-          );
-          
-        // Database timeout
-        case 'P2024':
-          return NextResponse.json(
-            { error: 'Database operation timed out. Please try again.' }, 
-            { status: 500 }
-          );
-          
-        // Default case for other Prisma errors
-        default:
-          return NextResponse.json(
-            { error: 'Database error. Please try again later.' }, 
-            { status: 500 }
-          );
-      }
+
+    // Handle version conflict error from Prisma (record not found due to version mismatch)
+    if (error.code === 'P2025') {
+      return NextResponse.json(
+        { error: 'Version conflict detected. Please refresh and try again.' },
+        { status: 409 }
+      );
     }
-    
+
     return NextResponse.json(
-      { error: 'Failed to update product' }, 
+      { error: 'Failed to update product' },
       { status: 500 }
     );
   }

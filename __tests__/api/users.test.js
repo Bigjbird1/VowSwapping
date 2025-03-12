@@ -54,58 +54,73 @@ describe('User API Endpoints', () => {
           name: 'Original Name'
         }
       });
-      
-      // Mock user update
+    
+      // Mock current user with version
+      prisma.user.findUnique.mockResolvedValueOnce({
+        id: 'user-1',
+        email: 'user@example.com',
+        name: 'Original Name',
+        version: 1, // Ensure version is returned
+      });
+    
+      // Mock user update with version increment
       prisma.user.update.mockResolvedValueOnce({
         id: 'user-1',
         email: 'user@example.com',
-        name: 'Updated Name'
+        name: 'Updated Name',
+        version: 2 // Version is incremented
       });
-      
-      // Create request with profile data
+    
+      // Create request with profile data including version
       const profileData = {
-        name: 'Updated Name'
+        name: 'Updated Name',
+        version: 1, // Include version to match optimistic concurrency control
       };
-      
+    
       const { req } = mockRequestResponse('PUT', 'http://localhost:3002/api/user/profile', profileData);
-      
+    
       // Call the handler
       const response = await updateProfileHandler(req);
       const responseData = await response.json();
-      
+    
       // Assertions
       expect(response.status).toBe(200);
       expect(responseData.message).toContain('Profile updated successfully');
       expect(responseData.user.name).toBe('Updated Name');
-      
+      expect(responseData.user.version).toBe(2); // Ensure version incremented
+    
       // Verify Prisma was called correctly
       expect(prisma.user.update).toHaveBeenCalledWith(
         expect.objectContaining({
-          where: { id: 'user-1' },
-          data: { name: 'Updated Name' }
+          where: { id: 'user-1', version: 1 }, // Ensure version check is included
+          data: { 
+            name: 'Updated Name',
+            version: { increment: 1 } // Ensure version is incremented
+          }
         })
       );
     });
     
+    
     it('should reject profile update when not authenticated', async () => {
       // Mock unauthenticated session
       getServerSession.mockResolvedValueOnce(null);
-      
+    
       // Create request with profile data
       const profileData = {
         name: 'Updated Name'
       };
-      
+    
       const { req } = mockRequestResponse('PUT', 'http://localhost:3002/api/user/profile', profileData);
-      
+    
       // Call the handler
       const response = await updateProfileHandler(req);
       const responseData = await response.json();
-      
+    
       // Assertions
       expect(response.status).toBe(401);
-      expect(responseData.message).toContain('must be logged in');
-      
+      expect(responseData.error).toContain('You must be logged in to update your profile'); // Ensure message matches handler
+    
       // Verify Prisma update was not called
       expect(prisma.user.update).not.toHaveBeenCalled();
     });

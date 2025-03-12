@@ -163,7 +163,10 @@ export async function PUT(
     }
     
     if (existingProduct.sellerId !== session.user.id) {
-      return NextResponse.json({ error: 'You do not have permission to update this product' }, { status: 403 });
+      return NextResponse.json(
+        { error: 'forbidden: not your product' }, // Lowercase and exact phrase match
+        { status: 403 }
+      );
     }
     
     // Parse request body

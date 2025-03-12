@@ -190,40 +190,42 @@ describe('Seller API Endpoints', () => {
           name: 'Test User'
         }
       });
-      
+    
       // Mock user data (already a seller)
       const mockUser = {
         id: 'user-1',
         email: 'user@example.com',
         name: 'Test User',
         isSeller: true,
-        sellerApproved: true,
+        sellerApproved: true,  // Mark as approved to test correct error message
         shopName: 'Existing Shop'
       };
-      
+    
       // Mock Prisma response
       prisma.user.findUnique.mockResolvedValueOnce(mockUser);
-      
+    
       // Create request with seller data
       const sellerData = {
         shopName: 'New Shop',
         shopDescription: 'Test seller description that is at least 20 characters long',
         sellerBio: 'Test seller bio that is at least 20 characters long'
       };
-      
+    
       const { req } = mockRequestResponse('POST', 'http://localhost:3002/api/seller/register', sellerData);
-      
+    
       // Call the handler
       const response = await registerSellerHandler(req);
       const responseData = await response.json();
-      
+    
       // Assertions
       expect(response.status).toBe(400);
-      expect(responseData.error).toContain('Invalid seller registration data');
-      
+      expect(responseData.error).toBe('already registered as a seller');  // Updated expected error message
+      expect(responseData.message).toContain('already registered');  // Ensure correct rejection message
+    
       // Verify Prisma update was not called
       expect(prisma.user.update).not.toHaveBeenCalled();
     });
+    
   });
   
   describe('GET /api/seller/status', () => {

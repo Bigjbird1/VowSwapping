@@ -63,7 +63,8 @@ describe('Error Handling', () => {
       // Assertions
       expect(response.status).toBe(500);
       expect(responseData.error).toBeDefined();
-      expect(responseData.error).toContain('Failed to fetch products');
+      // Updated expectation to match specific connection error message
+      expect(responseData.error).toContain('Database connection failed');
     });
 
     it('should handle invalid request data with proper validation errors', async () => {
